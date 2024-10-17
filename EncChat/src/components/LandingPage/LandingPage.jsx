@@ -1,8 +1,17 @@
+import { useState } from 'react';
+
 import Logo from '../Logo/Logo.jsx';
 import LoginForm from '../Forms/LoginForm/LoginForm.jsx';
 import SignupForm from '../Forms/SignupForm/SignupForm.jsx';
 
 export default function LandingPage() {
+
+    const [signUpData, setSignUpData] = useState();
+
+    const handleSignUpData = (data) => {
+        setSignUpData(data)
+        console.log(signUpData)
+    }
 
     return (
         <>
@@ -23,7 +32,7 @@ export default function LandingPage() {
             </div>
             <LoginForm />
             <div><p>or</p></div>
-            <SignupForm />
+            <SignupForm onProcessSignUpData={handleSignUpData}/>
         </>
     );
 }
