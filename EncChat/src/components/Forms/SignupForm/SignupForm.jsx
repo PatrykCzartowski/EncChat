@@ -1,8 +1,12 @@
 import { useState } from 'react';
 
+import SHA256 from 'crypto-js/sha256';
 import styles from './SignUp.module.css';
+import ReCAPTCHA from 'react-google-recaptcha';
 
-export default function SignUpForm({onProcessSignUpData}) {
+export default function SignUpForm() {
+
+    const [captchaToken, setCaptchaToken] = useState(null);
 
     const [isUsernameValid, setIsUsernameValid] = useState(true);
     const [isPasswordValid, setIsPasswordValid] = useState(true);
@@ -17,10 +21,11 @@ export default function SignUpForm({onProcessSignUpData}) {
     const processSignUp = (event) => {
         const signUpData = {
             username: event.target[0].value,
-            password: event.target[1].value,
-            email: event.target[2].value
+            password: SHA256(event.target[1].value).toString(),
+            email: event.target[3].value,
+            captchaToken: captchaToken
         }
-        onProcessSignUpData(signUpData);
+        console.log(signUpData);
     }
 
     const validateUsername = (username) => {
@@ -78,23 +83,28 @@ export default function SignUpForm({onProcessSignUpData}) {
         <div className="signUpForm">
             <h2>Sign up</h2>
             <form onSubmit={validateSignUp}>
-                <label className={`label ${!isUsernameValid && 'invalid'}`}>Username</label>
-                <input className={`input ${!isUsernameValid && 'invalid'}`} type="text" placeholder="Enter your username" />
+                <label className={`label ${isUsernameValid ? '' : 'invalid'}`}>Username</label>
+                <input className={`input ${isUsernameValid ? '' : 'invalid'}`} type="text" placeholder="Enter your username" />
                 {!isUsernameValid && <p className="invalid">Username must be at least 6 characters long and not contain special characters</p>}
 
-                <label className={`label ${!isPasswordValid && 'invalid'}`}>Password</label>
-                <input className={`input ${!isPasswordValid && 'invalid'}`} type="password" placeholder="Enter your password" />
+                <label className={`label ${isPasswordValid ? '' : 'invalid'}`}>Password</label>
+                <input className={`input ${isPasswordValid ? '' : 'invalid'}`} type="password" placeholder="Enter your password" />
                 {!isPasswordValid && <p className="invalid">Password must contain at least one special character, one number, one uppercase letter and one lowercase letter</p>}
 
-                <label className={`label ${!arePasswordsMatching && 'invalid'}`}>Confirm Password</label>
-                <input className={`input ${!arePasswordsMatching && 'invalid'}`} type="password" placeholder="Confirm password" />
+                <label className={`label ${arePasswordsMatching ? '' : 'invalid'}`}>Confirm Password</label>
+                <input className={`input ${arePasswordsMatching ? '' : 'invalid'}`} type="password" placeholder="Confirm password" />
                 {!isPasswordValid && <p className="invalid">Passwords do not match</p>}
 
-                <label className={`label ${!isEmailValid && 'invalid'}`}>Email</label>
-                <input className={`input ${!isEmailValid && 'invalid'}`} type="email" placeholder="Enter your email" />
-                {!isEmailValid && <p className="invalid">Email must contain an '@' character</p>}
+                <label className={`label ${isEmailValid ? '' : 'invalid'}`}>Email</label>
+                <input className={`input ${isEmailValid ? '' : 'invalid'}`} type="email" placeholder="Enter your email" />
+                {!isEmailValid && <p className="invalid">Please enter valid email</p>}
                 
-                <p>WIP reCaptha</p>
+                <div>
+                    <ReCAPTCHA
+                        sitekey="6LdSa2UqAAAAAH_dvmyJH3p5koMR8l5LWL2eZHjD"
+                        onChange={(token) => setCaptchaToken(token)}
+                    />
+                </div>
                 <button type="submit">Sign up</button>
             </form>
         </div>

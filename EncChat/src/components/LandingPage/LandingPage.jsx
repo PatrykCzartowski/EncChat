@@ -1,15 +1,10 @@
-import { useState } from 'react';
-
 import Logo from '../Logo/Logo.jsx';
 import LoginForm from '../Forms/LoginForm/LoginForm.jsx';
 import SignupForm from '../Forms/SignupForm/SignupForm.jsx';
 
 export default function LandingPage() {
 
-    const [signUpData, setSignUpData] = useState();
-
-    const handleSignUpData = (data) => {
-        setSignUpData(data)
+    const handleSignUpData = (signUpData) => {
         console.log(signUpData)
     }
 
