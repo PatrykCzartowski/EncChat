@@ -1,6 +1,7 @@
 import Logo from '../Logo/Logo.jsx';
 import LoginForm from '../Forms/LoginForm/LoginForm.jsx';
 import SignupForm from '../Forms/SignupForm/SignupForm.jsx';
+import { Outlet, Link } from "react-router-dom";
 
 export default function LandingPage() {
 
@@ -11,6 +12,9 @@ export default function LandingPage() {
     return (
         <>
             <Logo />
+            <div>
+                <Link to="/forgot-password">Forgot password?</Link>
+            </div>
             <div className="about_project">
                 <h1>Welcome.</h1>
                 <p>
@@ -28,6 +32,8 @@ export default function LandingPage() {
             <LoginForm />
             <div><p>or</p></div>
             <SignupForm onProcessSignUpData={handleSignUpData}/>
+        
+            <Outlet />
         </>
     );
 }

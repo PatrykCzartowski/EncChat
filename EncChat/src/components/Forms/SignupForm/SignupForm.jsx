@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import SHA256 from 'crypto-js/sha256';
 import styles from './SignUp.module.css';
@@ -18,6 +19,8 @@ export default function SignUpForm() {
     const upperCasePattern = /[A-Z]/;
     const lowerCasePattern = /[a-z]/;
 
+    const navigate = useNavigate();
+
     const processSignUp = (event) => {
         const signUpData = {
             username: event.target[0].value,
@@ -26,6 +29,7 @@ export default function SignUpForm() {
             captchaToken: captchaToken
         }
         console.log(signUpData);
+        navigate('/email-verification');
     }
 
     const validateUsername = (username) => {

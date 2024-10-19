@@ -1,24 +1,19 @@
+import { Link } from 'react-router-dom';
 import styles from './ForgotPassword.module.css';
 
 export default function ForgotPassword() {
 
-    const handleFormSubmit = (event) => {
-        event.preventDefault();
-        console.log('Form submitted');
-        const email = event.target[0].value;
-        console.log('Email:', email);
-    }
-
     return (
-        <div className={styles.forgotPassword}>
-            <div className={styles.forgotPasswordImage}>
-                <img src='' alt="forgot password"/>
+        <div >
+            <div >
+                <img src='' alt="forgot password"/> 
             </div>
-            <div className={styles.forgotPasswordForm}>
-                <form onSubmit={handleFormSubmit()}>
+            <div>
+                <form>
                     <input type="email" placeholder="Email"/>
                     <button>Send</button>
                 </form>
+                <Link to="/">Go back</Link>  
             </div>
         </div>
     )   
