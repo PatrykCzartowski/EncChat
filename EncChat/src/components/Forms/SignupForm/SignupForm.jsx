@@ -28,8 +28,7 @@ export default function SignUpForm() {
             email: event.target[3].value,
             captchaToken: captchaToken
         }
-        console.log(signUpData);
-        navigate('/email-verification');
+        navigate('/email-verification', {state: { email : signUpData.email }});
     }
 
     const validateUsername = (username) => {
