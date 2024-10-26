@@ -1,5 +1,5 @@
 import { useState } from 'react';
-
+import { Link } from 'react-router-dom';
 import './LoginForm.module.css';
 import SHA256 from 'crypto-js/sha256';
 import ReCAPTCHA from 'react-google-recaptcha';
@@ -39,7 +39,7 @@ export default function LoginForm() {
                         onChange={(token) => setCaptchaToken(token)}
                     />
                 </div>
-                <button type="submit">Login</button>
+                <button type="submit"><Link to="/forgot-password" state={{ checkVal: true }}>Login</Link></button>
             </form>
         </div>
     );

@@ -8,16 +8,22 @@ export default function EmailVerified() {
     const [seconds, setSeconds] = useState(10);
 
     useEffect(() => {
+
+        if (!location.state || !location.state.checkVal) {
+          // Redirect if he has not come from the email verification page
+          navigate('/');
+        }
+
         if (seconds > 0) {
           const timer = setInterval(() => {
-            setSeconds((prevSeconds) => prevSeconds - 1); // Zmniejszenie liczby sekund
+            setSeconds((prevSeconds) => prevSeconds - 1); // Decrease seconds by 1
           }, 1000);
           
           return () => clearInterval(timer);
         } else if (seconds === 0) {
             navigate('/');
         }
-      }, [seconds]);
+      }, [seconds, location, navigate]);
 
     return (
         <div>

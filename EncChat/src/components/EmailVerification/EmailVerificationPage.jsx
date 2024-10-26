@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import emailjs from 'emailjs-com';
 import styles from './EmailVerificationPage.module.css';
 
@@ -35,29 +36,35 @@ function SendEmailVerif(templateParams) {
 
 export default function EmailVerificationPage() {
 
-    const [isKeyValid, setIsKeyValid] = useState(true); 
-
     const navigate = useNavigate();
     const location = useLocation();
+
+    useEffect(() => {
+        if (!location.state || !location.state.email) {
+          // Redirect if he has not come from the email verification page
+          navigate('/');
+        }
+      }, [location, navigate]);
+
+    const [isKeyValid, setIsKeyValid] = useState(true); 
     const { email } = location.state || {};
-    const key = KeyGenerator(6); 
-    
+    const key = KeyGenerator(6);
+    console.log(key)
     const templateParams = {
         email: email,
         message: key
     }
-
+    // Send email verification
     SendEmailVerif(templateParams);
 
     const verifyEmail = (event) => {
         event.preventDefault();
         const providedKey = event.target[0].value;
         if(providedKey == key) {
-            navigate('/email-verified');
+            navigate('/email-verified', {state: { checkVal : true }});
         } else {
             setIsKeyValid(false);
-        }
-        
+        }    
     }
     
     return (
