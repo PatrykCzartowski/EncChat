@@ -1,0 +1,132 @@
+.landing_page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+    background-color: #f4f2f7;
+    background-image: url('./dots.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+@media (max-width: 1200px) {
+    .description {
+        display: none;
+    }
+}
+
+
+.banner {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+
+.contentContainer {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 40px;
+    flex: 1;
+    border-radius: 20px;
+    margin: 20px auto;
+    width: 80%;
+}
+
+.description {
+    flex: 1;
+    align-items:vertical;
+    max-width: 30%;
+    padding: 0px 20px;
+}
+
+.description h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #222;
+    line-height: 55px;
+}
+
+.description p {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-top: 10px;
+    color: #555;
+}
+
+.description a {
+    color: #6c63ff;
+    text-decoration: none;
+}
+
+.formsContainer {
+    display: flex;
+    align-items: center;
+}
+
+.form {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height:50vh;
+    width: 300px;
+    margin: 0 20px;
+}
+
+input[type="text"], input[type="password"], input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4F008F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #622396;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    color: white;
+    background-color: #4F008F;
+    border-radius: 50%;
+    margin: 0 20px;
+    text-align: center;
+}
+
+.footer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.footerContent {
+    padding: 20px;
+    text-align: center;
+    background-color: #4F008F;
+    color: white;
+    border-radius: 20px;
+    width: 60%;
+}
+
+
