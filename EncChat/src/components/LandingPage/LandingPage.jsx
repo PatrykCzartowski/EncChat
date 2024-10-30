@@ -20,7 +20,7 @@ export default function LandingPage() {
         
         fetchUsers();
     }, []);
-
+  
     return (
         <div className={Styles.landing_page}>
           <div className={Styles.banner}>
@@ -41,6 +41,12 @@ export default function LandingPage() {
                     )}
               <a href="#">about authors &rarr;</a>
             </div>
+            <LoginForm />
+            <div><p>or</p></div>
+            <SignupForm />
+        </>
+    );
+}
     
             <div className={Styles.formsContainer}>
               <div className={Styles.form}>
