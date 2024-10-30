@@ -41,13 +41,6 @@ export default function LandingPage() {
                     )}
               <a href="#">about authors &rarr;</a>
             </div>
-            <LoginForm />
-            <div><p>or</p></div>
-            <SignupForm />
-        </>
-    );
-}
-    
             <div className={Styles.formsContainer}>
               <div className={Styles.form}>
                 <LoginForm />
@@ -66,7 +59,6 @@ export default function LandingPage() {
               <p>authors: sampleEmail@email.com | sampleEmail2@email.com | sampleEmail3@email.com</p>
             </div>
           </footer>
-    
         </div>
-      );
+  );
 }
