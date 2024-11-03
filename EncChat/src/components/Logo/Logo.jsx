@@ -1,5 +1,5 @@
-import './Logo.module.css';
-import logoImg from './Logotyp.svg';
+import "./Logo.module.css";
+import logoImg from "./Logotyp.svg";
 
 export default function Logo() {
   return (
