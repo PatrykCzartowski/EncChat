@@ -40,7 +40,7 @@ export default function SignUpForm({ handleGoBack }) {
       if (response.ok) {
         const result = await response.json();
         console.log("Account created: ", result);
-        navigate("/email-verification", { state: { email: signUpData.email } });
+        navigate("/email-verification", { state: { signUpData: signUpData } });
       } else {
         const errorData = await response.json();
         console.error("Error creating account: ", errorData);
@@ -181,6 +181,7 @@ export default function SignUpForm({ handleGoBack }) {
           className={`input_date ${isDateValid ? "" : "invalid"}`}
           type="date"
         />
+        {!isDateValid && <p className="invalid">To create account you need to be at least 13 years old</p>}
         <div>
           <ReCAPTCHA
             sitekey="6LdSa2UqAAAAAH_dvmyJH3p5koMR8l5LWL2eZHjD"

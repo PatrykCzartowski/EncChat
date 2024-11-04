@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Styles from "./LandingPage.module.css";
 import Logo from "../Logo/Logo.jsx";
+import SignUpForm from "../Forms/SignupForm/SignupForm.jsx";
 import LoginForm from "../Forms/LoginForm/LoginForm.jsx";
-import SignUpForm from "../Forms/SignUpForm/SignUpForm.jsx";
 
 export default function LandingPage() {
   const [users, setUsers] = useState([]);

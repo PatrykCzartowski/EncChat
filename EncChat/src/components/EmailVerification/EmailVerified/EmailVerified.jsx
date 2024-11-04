@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 export default function EmailVerified() {
   const navigate = useNavigate();
   const [seconds, setSeconds] = useState(10);
 
+  const location = useLocation();
+
   useEffect(() => {
-    if (!location.state || !location.state.checkVal) {
-      // Redirect if he has not come from the email verification page
+    if (!location.state?.checkVal) {
       navigate("/");
     }
-
     if (seconds > 0) {
       const timer = setInterval(() => {
         setSeconds((prevSeconds) => prevSeconds - 1); // Decrease seconds by 1

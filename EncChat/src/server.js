@@ -30,7 +30,7 @@ app.get("/api/users", async (req, res) => {
 //ACCOUNTS
 app.get("/api/accounts", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM accounts");
+    const result = await pool.query("SELECT id, username, password, email FROM accounts");
     res.json(result.rows);
   } catch (error) {
     console.error(error);
@@ -52,6 +52,21 @@ app.post("/api/accounts", async (req, res) => {
       [username, password, email, dateOfBirth]
     );
     res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.put("/api/accounts/account/:username/:password/:email", async (req, res) => {
+  const { username, password, email } = req.params;
+
+  try {
+    const result = await pool.query(
+      "UPDATE accounts SET is_email_verified = true WHERE username=$1 AND password=$2 AND email = $3 RETURNING *",
+      [username, password, email]
+    );
+    res.json(result.rows[0]);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
