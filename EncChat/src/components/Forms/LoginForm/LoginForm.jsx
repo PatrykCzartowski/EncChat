@@ -20,7 +20,36 @@ export default function LoginForm({ handleSignUpButton }) {
       usernameIsEmail: usernameIsEmail,
       captchaToken: captchaToken,
     };
-    console.log(loginData);
+    validateLogin(loginData);
+  };
+
+  const validateLogin = async (loginData) => {
+    try {
+      const response = await fetch("/api/accounts/account", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if(result.emailNotVerified) {
+          console.log("Email not verified");
+        } else {
+          if(result.isUserValid){
+            console.log("Login successful");
+          } else {
+            console.log("Login failed");
+          }
+        }
+      } else {
+        const errorData = await response.json();
+        console.error("Error validating login: ", errorData);
+      }
+    } catch(error) {
+      console.error("Error validating login: ", error);
+    }
   };
 
   return (
@@ -50,9 +79,7 @@ export default function LoginForm({ handleSignUpButton }) {
             onChange={(token) => setCaptchaToken(token)}
           />
         </div>
-        <button type="submit">
-            Login
-        </button>
+        <button type="submit">Login</button>
         <p>or</p>
         <button type="button" onClick={() => handleSignUpButton(true)}>
           Sign Up
