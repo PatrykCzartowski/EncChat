@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg width="800px" height="800px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" id="Stock_cut" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<desc/>
+<g>
+<polyline fill="none" points="14,9 1,9 1,31    31,31 31,16  " stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/>
+<polyline fill="none" points="14,9 1,9 16,24    22,18  " stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/>
+<line fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" x1="1" x2="12" y1="31" y2="20"/>
+<line fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" x1="31" x2="20" y1="31" y2="20"/>
+<circle cx="24" cy="8" fill="none" r="7" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/>
+<line fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" x1="24" x2="24" y1="10" y2="12"/>
+<line fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" x1="24" x2="24" y1="8" y2="4"/>
+</g>
+</svg>

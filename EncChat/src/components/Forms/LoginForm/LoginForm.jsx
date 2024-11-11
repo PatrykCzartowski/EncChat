@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import "./LoginForm.module.css";
+import Styles from "./LoginForm.module.css";
 import SHA256 from "crypto-js/sha256";
 import ReCAPTCHA from "react-google-recaptcha";
 
@@ -53,8 +53,9 @@ export default function LoginForm({ handleSignUpButton }) {
   };
 
   return (
-    <div className="login_form">
+    <div className={Styles.login_form}>
       <h2>Login</h2>
+      <hr className={Styles.line} />
       <form onSubmit={processLogin}>
         <label>Username</label>
         <input

@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import emailjs from "emailjs-com";
-import styles from "./EmailVerificationPage.module.css";
+import Styles from "./EmailVerificationPage.module.css";
+import Logo from "../Logo/Logo";
+import emailImg from "../../assets/emailVerifcation.svg";
 
 function KeyGenerator(keyLength) {
   const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -84,8 +86,12 @@ export default function EmailVerificationPage() {
   };
 
   return (
-    <div className={styles.emailVerificationPage}>
-      <img src="" alt="Some dope ass image of email"></img>
+    <div className={Styles.emailVerificationPage}>
+      <Logo/>
+      <div className={Styles.container}>
+      <img src={emailImg} alt="logo" />
+      <h2>Verify your Email</h2>
+      <hr className={Styles.line} />
       <p>
         A verification email will be sent to your email address. Please enter
         the 6 character code from the email.
@@ -99,6 +105,7 @@ export default function EmailVerificationPage() {
           <button type="submit">Verify</button>
         </form>
       )}
+      </div>
     </div>
   );
 }
