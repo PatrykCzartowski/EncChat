@@ -2,6 +2,7 @@ import express from "express";
 import pkg from "pg";
 import dotenv from "dotenv";
 import cors from "cors";
+import jwt from "jwt-simple";
 
 dotenv.config();
 const { Pool } = pkg;
@@ -38,63 +39,40 @@ app.get("/api/accounts", async (req, res) => {
   }
 });
 
-app.post("/api/accounts/account", async (req, res) => {
-  console.log("Login validation request")
-  const { username, password, usernameIsEmail } = req.body;
-  console.log("-> Request body:", req.body);
-  try {
-    const result = await pool.query(
-      "SELECT username, password, email, is_email_verified FROM accounts WHERE username=$1 AND password=$2",
-      [username, password]
-    );
-    const data = result.rows[0];
-    console.log("-> Login data: ", data);
-    if(data.is_email_verified) {
-      if (usernameIsEmail) {
-        if(username === data.email && password === data.password){
-          console.log("-> usernameIsEmail: true");
-          console.log("-> username Checked: OK");
+//LOGIN AUTHENTICATION
+app.post("/api/auth/login", async (req, res) => {
+  console.log("Request body:", req.body);
+  const { username, password } = req.body;
 
-          const updateLastLogin = await pool.query(
-            "UPDATE accounts SET last_login = NOW() WHERE username=$1 AND password=$2 RETURNING *",
-            [data.username, data.password]
-          );
-          console.log("-> Last login updated: ", updateLastLogin.rows[0]);
-
-          return res.status(200).json({ isUserValid: true, user: updateLastLogin.rows[0] });
-        } else {
-          console.log("-> usernameIsEmail true");
-          console.log("-> username Checked: NOT OK");
-          return res.status(200).json({ isUserValid: false });
-        }
-      } else {
-        if(username === data.username && password === data.password){
-          console.log("-> usernameIsEmail: false");
-          console.log("-> username Checked: OK");
-
-          const updateLastLogin = await pool.query(
-            "UPDATE accounts SET last_login = NOW() WHERE username=$1 AND password=$2 RETURNING *",
-            [data.username, data.password]
-          );
-          console.log("-> Last login date updated to ", updateLastLogin.rows[0].last_login);
-
-          return res.status(200).json({ isUserValid: true });
-        } else {
-          console.log("-> usernameIsEmail false");
-          console.log("-> username Checked: NOT OK");
-          return res.status(200).json({ isUserValid: false });
-        }
-      }
-    } else {
-      console.log("-> Email not verified");
-      return res.status(200).json({ emailNotVerified: true });
-    }
-
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
+  const tokenForUser = (user) => {
+    const timestamp = new Date().getTime();
+    return jwt.encode({sub: user.id, iat: timestamp}, process.env.JWT_SECRET);
   }
 
+  try {
+    const result = await pool.query(
+      "SELECT * FROM accounts WHERE (username=$1 OR email=$1) AND password=$2",
+      [username, password]
+    );
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: "Invalid username or password" });
+    }
+    const user = result.rows[0];
+    const token = tokenForUser(user);
+
+    await pool.query(
+      "UPDATE accounts SET last_login = NOW() WHERE id=$1",
+      [user.id]
+    );
+
+    console.log("User:", user);
+    console.log("Token:", token);
+
+    return res.json({ token, user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 app.post("/api/accounts", async (req, res) => {
