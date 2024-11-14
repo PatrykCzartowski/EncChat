@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../../../Auth/AuthProvider/AuthProvider";
+import { useAuth } from "../../../Auth/AuthProvider";
 import { Link } from "react-router-dom";
 
 import "./LoginForm.module.css";

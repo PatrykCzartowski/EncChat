@@ -9,8 +9,8 @@ import EmailVerification from "./components/EmailVerification/EmailVerificationP
 import EmailVerified from "./components/EmailVerification/EmailVerified/EmailVerified";
 import AboutAuthors from "./components/AboutAuthors/AboutAuthors";
 import UserPage from "./components/UserPage/UserPage";
-import AuthProvider from "./Auth/AuthProvider/AuthProvider";
-import PrivateRoute from "./Auth/PrivateRoute/PrivateRoute";
+import AuthProvider from "./Auth/AuthProvider";
+import PrivateRoute from "./Auth/PrivateRoute";
 
 function App() {
   return (

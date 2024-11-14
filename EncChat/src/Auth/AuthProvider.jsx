@@ -19,12 +19,11 @@ export default function AuthProvider({ children }) {
             });
             const res = await response.json();
             if(res.user && res.token) {
-                console.log("User:", res.user);
-                console.log("Token:", res.token);
                 setUser(res.user);
                 setToken(res.token);
                 localStorage.setItem("token", res.token);
-                navigate("/user-page");
+                // send user to user-page
+                navigate("/user-page", { state: { user: res.user } });
                 return;
             } else {
                 throw new Error(res.message || 'Login failed');

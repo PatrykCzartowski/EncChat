@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import emailjs from "emailjs-com";
 import styles from "./EmailVerificationPage.module.css";
 
 import KeyGenerator from "../Utils/KeyGenerator";
