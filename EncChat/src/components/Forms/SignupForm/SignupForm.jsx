@@ -183,7 +183,7 @@ export default function SignUpForm({ handleGoBack }) {
           type="date"
         />
         {!isDateValid && <p className="invalid">To create account you need to be at least 13 years old</p>}
-        <div>
+        <div className={Styles.captcha_container}>
           <ReCAPTCHA
             sitekey="6LdSa2UqAAAAAH_dvmyJH3p5koMR8l5LWL2eZHjD"
             onChange={(token) => setCaptchaToken(token)}

@@ -74,7 +74,7 @@ export default function LoginForm({ handleSignUpButton }) {
         <Link to="/forgot-password" state={{ checkVal: true }}>
           Forgot password?
         </Link>
-        <div>
+        <div className={Styles.captcha_container}>
           <ReCAPTCHA
             sitekey="6LdSa2UqAAAAAH_dvmyJH3p5koMR8l5LWL2eZHjD"
             onChange={(token) => setCaptchaToken(token)}

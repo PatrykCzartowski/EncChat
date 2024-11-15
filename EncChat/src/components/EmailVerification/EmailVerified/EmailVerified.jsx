@@ -11,7 +11,7 @@ export default function EmailVerified() {
 
   const location = useLocation();
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (!location.state?.checkVal) {
       navigate("/");
     }
@@ -24,11 +24,13 @@ export default function EmailVerified() {
     } else if (seconds === 0) {
       navigate("/");
     }
-  }, [seconds, location, navigate]);
+  }, [seconds, location, navigate]);*/
 
   return (
     <div className={Styles.emailVerified}>
-      <Logo />
+      <div className={Styles.banner}>
+      <Logo/>
+      </div>
       <div className={Styles.container}>
       <img src={emailImg} alt="logo" />
       <h2>Your email was verified.</h2>

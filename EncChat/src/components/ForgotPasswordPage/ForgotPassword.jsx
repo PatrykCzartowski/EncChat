@@ -16,7 +16,9 @@ export default function ForgotPassword() {
 
   return (
     <div className={Styles.forgotPasswordPage}>
+      <div className={Styles.banner}>
       <Logo/>
+      </div>
       <div className={Styles.container}>
       <h2>Forgot password</h2>
       <hr className={Styles.line} />

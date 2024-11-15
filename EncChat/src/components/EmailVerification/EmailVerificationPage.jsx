@@ -48,11 +48,11 @@ export default function EmailVerificationPage() {
   const navigate = useNavigate();
   const email = location.state?.signUpData?.email;
   
-  useEffect(() => {
+  /*useEffect(() => {
     if(!location.state?.signUpData) {
       navigate('/');
     }
-  },[location, navigate]);
+  },[location, navigate]);*/
 
   const verifyEmail = async (event) => {
     event.preventDefault();
@@ -87,7 +87,9 @@ export default function EmailVerificationPage() {
 
   return (
     <div className={Styles.emailVerificationPage}>
+      <div className={Styles.banner}>
       <Logo/>
+      </div>
       <div className={Styles.container}>
       <img src={emailImg} alt="logo" />
       <h2>Verify your Email</h2>

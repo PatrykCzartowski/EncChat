@@ -1,19 +1,34 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+
 .landingPage {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
   height: 100vh;
   width: 100vw;
-  background-color: #f4f2f7;
-  background-image: url("../../assets/dots.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  margin:0;
+  padding:0;
 }
 
 @media (max-width: 1200px) {
   .landingPage .description {
     display: none;
   }
+
+  .landingPage .banner {
+    justify-content: center;
+  }
+
+  .landingPage .contentContainer {
+    margin: auto;
+  }
+
+  
 }
 
 .banner {
@@ -25,12 +40,12 @@
 
 .contentContainer {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-around;
   align-items: center;
   padding: 5px;
   flex: 1;
   border-radius: 20px;
-  margin: 40px auto;
+  margin-left:auto;
   width: 80%;
 }
 
@@ -103,6 +118,7 @@ button:hover {
 }
 
 .footer {
+  bottom: 0;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -113,8 +129,9 @@ button:hover {
   text-align: center;
   background-color: #4f008f;
   color: white;
-  border-radius: 20px;
+  border-radius: 20px 20px 0 0;
   width: 60%;
 }
+
 
 
