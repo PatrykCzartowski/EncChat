@@ -3,6 +3,7 @@ import './UserPage.css';
 import ProfileInfo from './UserPageComponents/ProfileInfo/ProfileInfo';
 import ProfileSearchBar from './UserPageComponents/ProfileSearchBar/ProfileSearchBar';
 import ProfileFriendsList from './UserPageComponents/ProfileFriendsList/ProfileFriendsList';
+import Chat from './UserPageComponents/Chat/Chat';
 
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -17,6 +18,7 @@ export default function UserPage() {
   const [userChatsList, setUserChatsList] = useState([]);
   const [userChatsData, setUserChatsData] = useState([]);
   const [userMessagesList, setUserMessagesList] = useState({});
+  const [openedChat, setOpenedChat] = useState(null);
 
   const getUserProfileData = async (userID) => {
     try {
@@ -162,11 +164,16 @@ export default function UserPage() {
     fetchData();
 }, [user]);
 
+  const handleChangeOpenedChat = (chatID) => {
+    setOpenedChat(chatID);
+  }
+
   return (
     <div>
       <ProfileInfo user={user} profile={userProfileData}/>
       <ProfileSearchBar />
-      <ProfileFriendsList friendData={userFriendsData} messages={userMessagesList}/>
+      <ProfileFriendsList friendData={userFriendsData} messages={userMessagesList} onChangeOpenedChat={handleChangeOpenedChat}/>
+      <Chat openedChat={openedChat} chatMessages={userMessagesList[openedChat]}/>
       </div>
   );
 }

@@ -2,8 +2,6 @@ import styles from './FriendListCard.module.css';
 import placeHolderImage from '../../../../../assets/placeholder_user.png';
 
 export default function FriendListCard({ friend, messages }) {
-    console.log(messages);
-    console.log(friend);
     return (
         <div className={styles.friendCard}>
             <img src={placeHolderImage} alt="Friend" />

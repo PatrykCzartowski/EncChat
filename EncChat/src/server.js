@@ -137,10 +137,8 @@ app.post('/api/user/chat', async (req, res) => {
 //GET CHAT MESSAGES
 app.post('/api/chat/messages', async (req, res) => {
   const { chatID } = req.body;
-  console.log(chatID);
   try {
     const result = await pool.query("SELECT * FROM messages WHERE chat_id = $1", [chatID]);
-    console.log(result);
     //if (result.rows.length === 0) {
     //  return res.status(404).json({ message: "Messages not found" });
     //}
