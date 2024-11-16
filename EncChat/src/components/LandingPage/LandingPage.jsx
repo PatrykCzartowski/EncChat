@@ -28,24 +28,15 @@ export default function LandingPage() {
   };
 
   return (
-    <div className={Styles.landing_page}>
+    <div className={Styles.landingPage}>
       <div className={Styles.banner}>
         <Logo />
       </div>
 
       <div className={Styles.contentContainer}>
-        {" "}
         {/* Main content */}
         <div className={Styles.description}>
           <h1>Welcome.</h1>
-          {users.length > 0
-            ? users.map((user, index) => (
-                <span key={index}>
-                  {user.username}
-                  <br />
-                </span>
-              ))
-            : "Loading user data..."}
           <Link to="/about-authors">about authors &rarr;</Link>
         </div>
         {isSignUpButtonClicked ? (

@@ -1,19 +1,34 @@
-.landing_page {
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+.landingPage {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  width: 100%;
-  background-color: #f4f2f7;
-  background-image: url("./dots.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  height: 100vh;
+  width: 100vw;
+  margin:0;
+  padding:0;
 }
 
 @media (max-width: 1200px) {
-  .description {
+  .landingPage .description {
     display: none;
   }
+
+  .landingPage .banner {
+    justify-content: center;
+  }
+
+  .landingPage .contentContainer {
+    margin: auto;
+  }
+
+  
 }
 
 .banner {
@@ -27,16 +42,17 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 40px;
+  padding: 5px;
   flex: 1;
   border-radius: 20px;
-  margin: 20px auto;
+  margin-left:auto;
   width: 80%;
 }
 
 .description {
-  flex: 1;
-  align-items: vertical;
+  display: flex;
+  flex-direction:column;
+  background-color: #f4f2f7;
   max-width: 30%;
   padding: 0px 20px;
 }
@@ -60,29 +76,31 @@
   text-decoration: none;
 }
 
-.formsContainer {
-  display: flex;
-  align-items: center;
-}
-
-.form {
-  background-color: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  height: 50vh;
-  width: 300px;
-  margin: 0 20px;
-}
-
 input[type="text"],
 input[type="password"],
 input[type="email"] {
-  width: 100%;
+  width: 90%;
   padding: 10px;
   margin: 10px 0;
   border-radius: 5px;
   border: 1px solid #ccc;
+}
+
+input {
+  background-color: #f4f2f7;
+  color: #333;
+  padding: 10px;
+  border-radius: 8px;
+  outline: none;
+}
+
+input::placeholder {
+  color: #333;
+}
+
+input:focus {
+  background-color: #ffffff;
+  border-color: #3700b3;
 }
 
 button {
@@ -99,22 +117,8 @@ button:hover {
   background-color: #622396;
 }
 
-.divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  padding: 0;
-  width: 40px;
-  height: 40px;
-  color: white;
-  background-color: #4f008f;
-  border-radius: 50%;
-  margin: 0 20px;
-  text-align: center;
-}
-
 .footer {
+  bottom: 0;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -125,6 +129,9 @@ button:hover {
   text-align: center;
   background-color: #4f008f;
   color: white;
-  border-radius: 20px;
+  border-radius: 20px 20px 0 0;
   width: 60%;
 }
+
+
+
