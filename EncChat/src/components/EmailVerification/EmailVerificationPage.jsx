@@ -1,45 +1,17 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import emailjs from "emailjs-com";
 import Styles from "./EmailVerificationPage.module.css";
 import Logo from "../Logo/Logo";
 import emailImg from "../../assets/emailVerifcation.svg";
 
-function KeyGenerator(keyLength) {
-  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let key = "";
+import KeyGenerator from "../Utils/KeyGenerator";
+import SendVerificationEmail from "../Utils/SendVerificationEmail";
 
-  for (let i = 0; i < keyLength; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    key += characters[randomIndex];
-  }
-
-  return key;
-}
-
-function SendEmailVerif(templateParams) {
-  emailjs
-    .send(
-      "service_vwslm5v",
-      "template_83c4oht",
-      templateParams,
-      "bQuJxmYn_RpyEwRv8"
-    )
-    .then(
-      (result) => {
-        console.log("Email sent successfully", result.text);
-      },
-      (error) => {
-        console.log("Email failed to send", error.text);
-      }
-    );
-}
 
 export default function EmailVerificationPage() {
   
   const location = useLocation();
-  const [verificationKey, setVerificationKey] = useState("");
   const [isKeyValid, setIsKeyValid] = useState(true);
   const [isButtonClicked, setIsButtonClicked] = useState(false);
 
@@ -76,12 +48,11 @@ export default function EmailVerificationPage() {
   };
 
   const handleButtonClick = () => {
-    setVerificationKey(key);
     const templateParams = {
       email: email,
       message: key,
     };
-    SendEmailVerif(templateParams);
+    SendVerificationEmail(templateParams);
     setIsButtonClicked(true);
   };
 
