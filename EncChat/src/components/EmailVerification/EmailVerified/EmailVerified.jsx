@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import Styles from "./EmailVerified.module.css";
+import Logo from "../../Logo/Logo";
+import emailImg from "../../../assets/emailVerified.svg";
 
 export default function EmailVerified() {
   const navigate = useNavigate();
@@ -24,15 +27,21 @@ export default function EmailVerified() {
   }, [seconds, location, navigate]);
 
   return (
-    <div>
-      <img src="" alt="Some dope ass image of email"></img>
+    <div className={Styles.emailVerified}>
+      <div className={Styles.banner}>
+      <Logo/>
+      </div>
+      <div className={Styles.container}>
+      <img src={emailImg} alt="logo" />
       <h2>Your email was verified.</h2>
+      <hr className={Styles.line} />
       <p>We'll automatically redirect you to landing page in</p>
       <h2>{seconds}</h2>
       <p>or you can go now by clicking on button below</p>
       <button>
         <Link to="/">Go back</Link>{" "}
       </button>
+      </div>
     </div>
   );
 }

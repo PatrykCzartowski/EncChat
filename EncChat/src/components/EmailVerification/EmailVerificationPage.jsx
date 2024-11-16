@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import styles from "./EmailVerificationPage.module.css";
+import Styles from "./EmailVerificationPage.module.css";
+import Logo from "../Logo/Logo";
+import emailImg from "../../assets/emailVerifcation.svg";
 
 import KeyGenerator from "../Utils/KeyGenerator";
 import SendVerificationEmail from "../Utils/SendVerificationEmail";
@@ -18,11 +20,11 @@ export default function EmailVerificationPage() {
   const navigate = useNavigate();
   const email = location.state?.signUpData?.email;
   
-//  useEffect(() => {
-//    if(!location.state?.signUpData) {
-//      navigate('/');
-//    }
-//  },[location, navigate]);
+  useEffect(() => {
+    if(!location.state?.signUpData) {
+      navigate('/');
+    }
+  },[location, navigate]);
 
   const verifyEmail = async (event) => {
     event.preventDefault();
@@ -55,8 +57,14 @@ export default function EmailVerificationPage() {
   };
 
   return (
-    <div className={styles.emailVerificationPage}>
-      <img src="" alt="Some dope ass image of email"></img>
+    <div className={Styles.emailVerificationPage}>
+      <div className={Styles.banner}>
+      <Logo/>
+      </div>
+      <div className={Styles.container}>
+      <img src={emailImg} alt="logo" />
+      <h2>Verify your Email</h2>
+      <hr className={Styles.line} />
       <p>
         A verification email will be sent to your email address. Please enter
         the 6 character code from the email.
@@ -70,6 +78,7 @@ export default function EmailVerificationPage() {
           <button type="submit">Verify</button>
         </form>
       )}
+      </div>
     </div>
   );
 }

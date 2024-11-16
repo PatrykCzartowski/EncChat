@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../../Auth/AuthProvider";
 import { Link } from "react-router-dom";
 
-import "./LoginForm.module.css";
+import Styles from "./LoginForm.module.css";
 
 import SHA256 from "crypto-js/sha256";
 import ReCAPTCHA from "react-google-recaptcha";
@@ -36,8 +36,9 @@ export default function LoginForm({ handleSignUpButton }) {
   };
 
   return (
-    <div className="login_form">
+    <div className={Styles.login_form}>
       <h2>Login</h2>
+      <hr className={Styles.line} />
       <form onSubmit={handleSubmitEvent}>
         <label>Username</label>
         <input
@@ -58,7 +59,7 @@ export default function LoginForm({ handleSignUpButton }) {
         <Link to="/forgot-password" state={{ checkVal: true }}>
           Forgot password?
         </Link>
-        <div>
+        <div className={Styles.captcha_container}>
           <ReCAPTCHA
             sitekey="6LdSa2UqAAAAAH_dvmyJH3p5koMR8l5LWL2eZHjD"
             onChange={(token) => setCaptchaToken(token)}

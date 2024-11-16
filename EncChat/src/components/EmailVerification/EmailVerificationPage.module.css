@@ -1,0 +1,46 @@
+.emailVerificationPage{
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+.line {
+  border: none;
+  border-top: 1px solid grey;
+  width: 60%;
+  margin: 20px 0;
+}
+
+.banner {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 400px;
+  max-width: 500px;
+  margin: 10vh auto auto auto;
+
+}
+
+button {
+    width: 200px;
+}
+
+@media (max-width: 1200px) {
+  .banner {
+    justify-content: center;
+  }
+}
+
+  

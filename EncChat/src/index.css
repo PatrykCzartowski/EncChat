@@ -5,7 +5,11 @@
 
   color-scheme: light dark;
   color: black;
-  background-color: #fef7ff;
+  background-color: #f4f2f7;
+  background-image: url("./assets/dots.png");
+  background-repeat: repeat-y;
+  background-size: cover;
+  background-position: center center;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

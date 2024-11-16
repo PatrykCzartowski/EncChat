@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import SHA256 from "crypto-js/sha256";
-import styles from "./SignUp.module.css";
+import Styles from "./SignUp.module.css";
 import ReCAPTCHA from "react-google-recaptcha";
 
 export default function SignUpForm({ handleGoBack }) {
@@ -124,8 +124,9 @@ export default function SignUpForm({ handleGoBack }) {
   };
 
   return (
-    <div className="signUpForm">
+    <div className={Styles.signUpForm}>
       <h2>Sign up</h2>
+      <hr className={Styles.line} />
       <form onSubmit={validateSignUp}>
         <label className={`label ${isUsernameValid ? "" : "invalid"}`}>
           Username
@@ -182,7 +183,7 @@ export default function SignUpForm({ handleGoBack }) {
           type="date"
         />
         {!isDateValid && <p className="invalid">To create account you need to be at least 13 years old</p>}
-        <div>
+        <div className={Styles.captcha_container}>
           <ReCAPTCHA
             sitekey="6LdSa2UqAAAAAH_dvmyJH3p5koMR8l5LWL2eZHjD"
             onChange={(token) => setCaptchaToken(token)}
