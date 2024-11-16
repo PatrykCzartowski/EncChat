@@ -7,12 +7,12 @@ import Styles from "./ForgotPassword.module.css";
 export default function ForgotPassword() {
   const navigate = useNavigate();
 
-  /*useEffect(() => {
+useEffect(() => {
     if (!location.state || !location.state.checkVal) {
       // Redirect if he has not come from the email verification page
       navigate("/");
     }
-  }, [location, navigate]);*/
+  }, [location, navigate]);
 
   return (
     <div className={Styles.forgotPasswordPage}>

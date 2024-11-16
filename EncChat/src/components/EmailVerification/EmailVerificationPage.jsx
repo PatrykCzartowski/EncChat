@@ -48,11 +48,11 @@ export default function EmailVerificationPage() {
   const navigate = useNavigate();
   const email = location.state?.signUpData?.email;
   
-  /*useEffect(() => {
+  useEffect(() => {
     if(!location.state?.signUpData) {
       navigate('/');
     }
-  },[location, navigate]);*/
+  },[location, navigate]);
 
   const verifyEmail = async (event) => {
     event.preventDefault();
