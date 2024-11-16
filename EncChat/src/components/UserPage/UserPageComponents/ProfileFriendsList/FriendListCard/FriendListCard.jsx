@@ -1,12 +1,14 @@
 import styles from './FriendListCard.module.css';
 import placeHolderImage from '../../../../../assets/placeholder_user.png';
 
-export default function FriendListCard({ friend, lastMessage }) {
+export default function FriendListCard({ friend, messages }) {
+    console.log(messages);
+    console.log(friend);
     return (
         <div className={styles.friendCard}>
-            <img className={styles.friendCardImage} src={placeHolderImage} alt="profile"/>
+            <img src={placeHolderImage} alt="Friend" />
             <h3>{friend.name_surname}</h3>
-            <p>{lastMessage? lastMessage.content : ''}</p>
+            <p>{messages ? messages[messages.length -1].content : 'no messages yet'}</p>
         </div>
     );
 }
