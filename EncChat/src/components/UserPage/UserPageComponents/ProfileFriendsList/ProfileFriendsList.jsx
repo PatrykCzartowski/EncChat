@@ -1,7 +1,7 @@
 import Styles from './ProfileFriendsList.module.css';
 import FriendListCard from './FriendListCard/FriendListCard';
 
-export default function ProfileFriendsList({ friendData = {}, messages = {}, onChangeOpenedChat }) {
+export default function ProfileFriendsList({ friendData = {}, lastMessages, onChangeOpenedChat }) {
     const friendsArray = Object.values(friendData);
 
     return (
@@ -13,7 +13,7 @@ export default function ProfileFriendsList({ friendData = {}, messages = {}, onC
                     <FriendListCard 
                         key={friend.id}
                         friend={friend}
-                        messages={messages[friend.chatID]}
+                        lastMessage={lastMessages[friend.chatID]?.content || 'No messages yet'}
                     />
                     </div>
                 ))}

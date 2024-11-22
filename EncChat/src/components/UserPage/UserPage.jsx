@@ -19,6 +19,7 @@ export default function UserPage() {
   const [userChatsData, setUserChatsData] = useState([]);
   const [userMessagesList, setUserMessagesList] = useState({});
   const [openedChat, setOpenedChat] = useState(null);
+  const [socket, setSocket] = useState(null);
 
   const getUserProfileData = async (userID) => {
     try {
@@ -164,15 +165,41 @@ export default function UserPage() {
     fetchData();
 }, [user]);
 
+  useEffect(() => {
+    const newSocket = new WebSocket('ws://localhost:5000');
+    setSocket(newSocket);
+
+    newSocket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      setUserMessagesList((prevMessages) => ({
+        ...prevMessages,
+        [message.chatID]: [...(prevMessages[message.chatID] || []), message]
+      }));
+    }
+
+    return () => newSocket.close();
+  }, []);
+
   const handleChangeOpenedChat = (chatID) => {
     setOpenedChat(chatID);
+  }
+
+  const getLastMessages = () => {
+    const lastMessages = {};
+    for(const chatID in userMessagesList) {
+      const messages = userMessagesList[chatID];
+      if(messages.length > 0) {
+        lastMessages[chatID] = messages[messages.length - 1];
+      }
+    }
+    return lastMessages;
   }
 
   return (
     <div>
       <ProfileInfo user={user} profile={userProfileData}/>
       <ProfileSearchBar />
-      <ProfileFriendsList friendData={userFriendsData} messages={userMessagesList} onChangeOpenedChat={handleChangeOpenedChat}/>
+      <ProfileFriendsList friendData={userFriendsData} lastMessages={getLastMessages()} onChangeOpenedChat={handleChangeOpenedChat}/>
       <Chat openedChat={openedChat} chatMessages={userMessagesList[openedChat]}/>
       </div>
   );

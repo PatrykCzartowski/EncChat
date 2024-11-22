@@ -3,12 +3,18 @@ import pkg from "pg";
 import dotenv from "dotenv";
 import cors from "cors";
 import jwt from "jwt-simple";
+import { WebSocketServer } from "ws";
+import http from "http";
 
 dotenv.config();
 const { Pool } = pkg;
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+//WEB SOCKET SERVER
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -17,6 +23,63 @@ const pool = new Pool({
 
 app.use(cors());
 app.use(express.json());
+
+//WEB SOCKET CONNECTION
+wss.on("connection", (ws) => {
+  console.log("Client connected");
+
+  ws.on("message", (message) => {
+    console.log(`Received message => ${message}`);
+    ws.send("Message received");
+  });
+
+  ws.on("close", () => {
+    console.log("Client disconnected");
+  });
+});
+
+//WEB SOCKET GET MESSAGES
+app.get("/api/messages/:chatID", async (req, res) => {
+  const { chatID } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM messages WHERE chat_id = $1",
+      [chatID]
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+//WEB SOCKET MESSAGE BROADCAST
+const broadcastMessage = (message) => {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+};
+
+//WEB SOCKET SEND MESSAGE
+app.post("/api/sendMessage", async (req, res) => {
+  const { chatID, senderID, content } = req.body;
+
+  try {
+    const result = await pool.query(
+      "INSERT INTO messages (chat_id, sender_id, content) VALUES ($1, $2, $3) RETURNING *",
+      [chatID, senderID, content]
+    );
+    const newMessage = result.rows[0];
+    broadcastMessage(newMessage);
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 app.get("/api/users", async (req, res) => {
   try {
