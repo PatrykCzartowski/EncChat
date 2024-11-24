@@ -24,6 +24,7 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 
+
 //WEB SOCKET CONNECTION
 wss.on("connection", (ws) => {
   console.log("Client connected");
@@ -213,7 +214,7 @@ app.post('/api/chat/messages', async (req, res) => {
   }
 });
 
-app.post("/api/accounts", async (req, res) => {
+app.post("/api/accounts/test", async (req, res) => {
   const { username, password, email, dateOfBirth } = req.body;
 
   if (!username || !password || !email) {

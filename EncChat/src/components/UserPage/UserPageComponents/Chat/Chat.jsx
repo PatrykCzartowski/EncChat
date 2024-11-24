@@ -2,8 +2,9 @@ import Styles from './Chat.module.css';
 
 import ChatMessage from './ChatMessage/ChatMessage';
 
-export default function Chat({ openedChat, chatMessages = {} }) {
+export default function Chat({ openedChat, chatMessages = {}, handleMessageSubmit }) {
     const messagesArray = Object.values(chatMessages);
+
 
     return (
         <div>
@@ -16,7 +17,15 @@ export default function Chat({ openedChat, chatMessages = {} }) {
                     />
                 )) : ''}
                 
+        </div>
+        {openedChat &&
+            <div className={Styles.messageInput}>
+                <form onSubmit={handleMessageSubmit}>
+                    <input type="text" placeholder="type your message here"/>
+                    <button>Send</button>
+                </form>
             </div>
+        }
         </div>
     );
 }

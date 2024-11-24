@@ -28,7 +28,7 @@ model Account {
     blockedUser BlockedUser[] @relation("AccountBlockedUsers")
     blockedAccounts BlockedUser[] @relation("BlockedAccountUsers")
     notification Notification[]
-    userSettings userSettings[]
+    userSettings UserSettings[]
     ChatSettings ChatSettings[]
 }
 
@@ -111,7 +111,7 @@ model Notification {
     createdAt DateTime @default(now())
 }
 
-model userSettings {
+model UserSettings {
     id Int @id @default(autoincrement())
     account Account @relation(fields: [accountId], references: [id])
     accountId Int

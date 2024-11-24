@@ -177,7 +177,11 @@ export default function UserPage() {
       }));
     }
 
-    return () => newSocket.close();
+    return () => {
+      if(newSocket.readyState === 1) {
+        newSocket.close();
+      }
+    }
   }, []);
 
   const handleChangeOpenedChat = (chatID) => {
@@ -195,12 +199,31 @@ export default function UserPage() {
     return lastMessages;
   }
 
+  const handleMessageSubmit = (event) => {
+    event.preventDefault();
+    const messageContent = event.target[0].value;
+    const chatID = openedChat;
+    const message = {
+      chatID,
+      content: messageContent,
+      senderID: user.id,
+    };
+    if(WebSocket.readyState === WebSocket.OPEN) {
+      WebSocket.send(JSON.stringify(message));
+      console.log('Message sent');
+    } else {
+      console.log("WebSocket is not open. ReadyState: ", WebSocket.readyState);
+    }
+
+    event.target.reset();
+  }
+
   return (
     <div>
       <ProfileInfo user={user} profile={userProfileData}/>
       <ProfileSearchBar />
       <ProfileFriendsList friendData={userFriendsData} lastMessages={getLastMessages()} onChangeOpenedChat={handleChangeOpenedChat}/>
-      <Chat openedChat={openedChat} chatMessages={userMessagesList[openedChat]}/>
+      <Chat openedChat={openedChat} chatMessages={userMessagesList[openedChat]} handleMessageSubmit={handleMessageSubmit}/>
       </div>
   );
 }

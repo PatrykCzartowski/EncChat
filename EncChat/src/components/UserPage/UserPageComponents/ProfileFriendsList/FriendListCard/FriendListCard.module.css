@@ -5,6 +5,8 @@
   padding: 10px;
   border-bottom: 1px solid #e0e0e0;
   cursor: pointer;
+  background-color: #f4f2f7;
+  border-radius: 15px;
 }
 
 .friendCardImage {

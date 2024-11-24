@@ -13,14 +13,20 @@ export default function LoginForm({ handleSignUpButton }) {
   const [input, setInput] = useState({
     username: "",
     password: "",
+    usernameIsEmail: false,
   });
+
+  const isEmail = (username) => {
+    return /\S+@\S+\.\S+/.test(username);
+  }
 
   const auth = useAuth();
 
   const handleSubmitEvent = (event) => {
     event.preventDefault();
     if(input.username !== "" && input.password !== "") {
-      input.password = SHA256(input.password).toString();
+      // input.password = SHA256(input.password).toString();
+      input.usernameIsEmail = isEmail(input.username);
       auth.loginAction(input);
       return;
     }

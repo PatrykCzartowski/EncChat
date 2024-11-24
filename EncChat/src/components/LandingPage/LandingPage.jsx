@@ -12,9 +12,10 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/users");
+        const response = await fetch("http://localhost:5000/api/accounts");
         const data = await response.json();
         setUsers(data);
+        console.log("Users fetched:", data);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
