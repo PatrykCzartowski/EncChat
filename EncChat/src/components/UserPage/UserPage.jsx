@@ -10,160 +10,106 @@ import { useEffect, useState } from 'react';
 
 export default function UserPage() {
   const location = useLocation();
-  const user = location.state?.user;
+  const account = location.state?.account;
 
-  const [userProfileData, setUserProfileData] = useState({});
-  const [userFriendsList, setUserFriendsList] = useState([]);
-  const [userFriendsData, setUserFriendsData] = useState({});
-  const [userChatsList, setUserChatsList] = useState([]);
-  const [userChatsData, setUserChatsData] = useState([]);
-  const [userMessagesList, setUserMessagesList] = useState({});
+  const [accountProfileData, setAccountProfileData] = useState({});
+  const [accountFriendsList, setAccountFriendsList] = useState([]);
+  const [accountFriendsData, setAccountFriendsData] = useState({});
+  const [accountChatsList, setAccountChatsList] = useState([]);
+  const [accountChatsData, setAccountChatsData] = useState([]);
+  const [accountMessagesList, setAccountMessagesList] = useState({});
   const [openedChat, setOpenedChat] = useState(null);
   const [socket, setSocket] = useState(null);
 
-  const getUserProfileData = async (userID) => {
+  const getAccountProfile = async (accountID) => {
     try {
-      const response = await fetch('/api/user/profile', {
+      const response = await fetch('/api/account/get_profile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({userID}),
+        body: JSON.stringify({ id: accountID }),
       });
-      const res = await response.json();
-      if(res.profile) {
-        return res.profile; 
-      } else {
-        throw new Error(res.message || 'Profile not found');
-      }
+      const profile = await response.json();
+      if(profile) setAccountProfileData(profile);
     } catch (error) {
-      console.error('Error in getUserProfileData during user fetch: ', error);
+      console.error('Error getting profile:', error);
     }
-  }
+  };
 
-  const getUserFriendsList = async (userID) => {
+  const getAccountFriends = async (accountID) => {
     try {
-      const response = await fetch('/api/user/friends', {
+      const response = await fetch('/api/account/get_friends', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({userID}),
+        body: JSON.stringify({ id: accountID }),
       });
-      const res = await response.json();
-      if(res.friends) {
-        return res.friends; 
-      } else {
-        throw new Error(res.message || 'Friends not found');
-      }
+      const friends = await response.json();
+      if(friends) setAccountFriendsList(friends);
     } catch (error) {
-      console.error('Error in getUserFriend during user fetch: ', error);
+      console.error('Error getting friends:', error);
     }
-  }
+  };
 
-  const getUserFriendData = async (friendID) => {
+  const getFriendProfile = async (friendID) => {
     try {
-      const response = await fetch('/api/user/friend/data', {
+      const response = await fetch('/api/account/get_friend_profile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({friendID}),
+        body: JSON.stringify({ id: friendID }),
       });
-      const res = await response.json();
-      if(res.friendData) {
-        return res.friendData; 
-      } else {
-        throw new Error(res.message || 'Friend data not found');
-      }
+      const profile = await response.json();
+      if(profile) setAccountFriendsData((prevData) => ({ ...prevData, [friendID]: profile }));
     } catch (error) {
-      console.error('Error in getUserFriendData during user fetch: ', error);
+      console.error('Error getting friend profile:', error);
     }
-  }
- 
-  const getChatID = async (userID, friendID) => {
+  };
+
+  const getChats = async (accountID) => {
     try {
-      const response = await fetch('/api/user/chat', {
+      const response = await fetch('/api/account/get_chats', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({userID, friendID}),
+        body: JSON.stringify({ id: accountID }),
       });
-      const res = await response.json();
-      if(res.chatID) {
-        return res.chatID; 
-      } else {
-        throw new Error(res.message || 'Chat not found');
-      }
+      const chats = await response.json();
+      if(chats) setAccountChatsList(chats);
     } catch (error) {
-      console.error('Error in getChatID during user fetch: ', error);
+      console.error('Error getting chats:', error);
     }
   };
 
   const getChatMessages = async (chatID) => {
     try {
-      const response = await fetch('/api/chat/messages', {
+      const response = await fetch('/api/account/get_chat_messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({chatID}),
+        body: JSON.stringify({ id: chatID }),
       });
-      const res = await response.json();
-      if(res.messages) {
-        return res.messages; 
-      } else {
-        throw new Error(res.message || 'Chat data not found');
-      }
+      const messages = await response.json();
+      if(messages) setAccountMessagesList((prevMessages) => ({ ...prevMessages, [chatID]: messages }));
     } catch (error) {
-      console.error('Error in getChatData during user fetch: ', error);
+      console.error('Error getting messages:', error);
     }
-  }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-        if (user) {
-            try {
-                const profileData = await getUserProfileData(user.id);
-                setUserProfileData(profileData);
-
-                if (profileData) {
-                    const friendsList = await getUserFriendsList(user.id);
-                    const friendsData = await Promise.all(friendsList.map(async (friendID) => {
-                        const friendData = await getUserFriendData(friendID);
-                        const chatID = await getChatID(user.id, friendID);
-                        return { [friendID]: { ...friendData, chatID } };
-                    }));
-
-                    const friendsDataObject = friendsData.reduce((acc, friendData) => ({
-                        ...acc,
-                        ...friendData
-                    }), {});
-
-                    setUserFriendsData(friendsDataObject);
-
-                    const messagesList = await Promise.all(friendsList.map(async (friendID) => {
-                        const chatID = await getChatID(user.id, friendID);
-                        const chatMessages = await getChatMessages(chatID);
-                        return { [chatID]: chatMessages };
-                    }));
-
-                    const messagesListObject = messagesList.reduce((acc, messages) => ({
-                        ...acc,
-                        ...messages
-                    }), {});
-
-                    setUserMessagesList(messagesListObject);
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        }
-    };
-
-    fetchData();
-}, [user]);
+    if(account) {
+      getAccountProfile(account.id);
+      getAccountFriends(account.id);
+      getChats(account.id);
+    }
+    accountFriendsList.length > 0 && accountFriendsList.forEach((friend) => getFriendProfile(friend.id));
+    accountChatsList.length > 0 && accountChatsList.forEach((chat) => getChatMessages(chat.id));
+  });
 
   useEffect(() => {
     const newSocket = new WebSocket('ws://localhost:5000');
@@ -190,8 +136,8 @@ export default function UserPage() {
 
   const getLastMessages = () => {
     const lastMessages = {};
-    for(const chatID in userMessagesList) {
-      const messages = userMessagesList[chatID];
+    for(const chatID in accountMessagesList) {
+      const messages = accountMessagesList[chatID];
       if(messages.length > 0) {
         lastMessages[chatID] = messages[messages.length - 1];
       }
@@ -206,7 +152,7 @@ export default function UserPage() {
     const message = {
       chatID,
       content: messageContent,
-      senderID: user.id,
+      senderID: account.id,
     };
     if(WebSocket.readyState === WebSocket.OPEN) {
       WebSocket.send(JSON.stringify(message));
@@ -220,10 +166,10 @@ export default function UserPage() {
 
   return (
     <div>
-      <ProfileInfo user={user} profile={userProfileData}/>
+      <ProfileInfo account={account} profile={accountProfileData}/>
       <ProfileSearchBar />
-      <ProfileFriendsList friendData={userFriendsData} lastMessages={getLastMessages()} onChangeOpenedChat={handleChangeOpenedChat}/>
-      <Chat openedChat={openedChat} chatMessages={userMessagesList[openedChat]} handleMessageSubmit={handleMessageSubmit}/>
+      <ProfileFriendsList friendData={accountFriendsData} lastMessages={getLastMessages()} onChangeOpenedChat={handleChangeOpenedChat}/>
+      <Chat openedChat={openedChat} chatMessages={accountMessagesList[openedChat]} handleMessageSubmit={handleMessageSubmit}/>
       </div>
   );
 }

@@ -24,6 +24,7 @@ export default function LoginForm({ handleSignUpButton }) {
 
   const handleSubmitEvent = (event) => {
     event.preventDefault();
+    console.log("form submitted.");
     if(input.username !== "" && input.password !== "") {
       // input.password = SHA256(input.password).toString();
       input.usernameIsEmail = isEmail(input.username);

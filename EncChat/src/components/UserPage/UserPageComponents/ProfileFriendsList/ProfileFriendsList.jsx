@@ -9,11 +9,11 @@ export default function ProfileFriendsList({ friendData = {}, lastMessages, onCh
             <h2>Friends</h2>
             <ul>
                 {friendsArray.map(friend => (
-                    <div onClick={() => onChangeOpenedChat(friend.chatID)}>
+                    <div key={friend.id} onClick={() => onChangeOpenedChat(friend.chatId)}>
                     <FriendListCard 
                         key={friend.id}
                         friend={friend}
-                        lastMessage={lastMessages[friend.chatID]?.content || 'No messages yet'}
+                        lastMessage={lastMessages[friend.chatId]?.content || 'No messages yet'}
                     />
                     </div>
                 ))}

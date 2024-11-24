@@ -38,11 +38,11 @@ export default function AuthProvider({ children }) {
                     body: JSON.stringify(data),
                 })
                 const res = await response.json();
-                if(res.result) {
-                    setUser(data);
+                if(res.account && res.token) {
+                    setUser(res.account);
                     setToken(res.token);
                     localStorage.setItem('token', res.token);
-                    navigate('/user-page', { state: { user: data } });
+                    navigate('/user-page', { state: { account: res.account } });
                 } else {
                     navigate('/', { state: { message: 'Login failed' } });
                 }
