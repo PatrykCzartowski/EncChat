@@ -1,0 +1,149 @@
+generator client {
+    provider = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Account {
+    id Int @id @default(autoincrement())
+    username String
+    password String
+    email String @unique
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    banned Boolean @default(false)
+    emailVerified Boolean @default(false)
+    profile Profile?
+    sessions Session[]
+    friends Friend[] @relation("AccountFriends")
+    friendOf Friend[] @relation("FriendAccounts")
+    Messages Message[]
+    Chats Chat[]
+    sentFriendRequests FriendRequest[] @relation("SenderRelation")
+    receivedFriendRequests FriendRequest[] @relation("ReceiverRelation")
+    blockedUser BlockedUser[] @relation("AccountBlockedUsers")
+    blockedAccounts BlockedUser[] @relation("BlockedAccountUsers")
+    notification Notification[]
+    userSettings UserSettings[]
+    ChatSettings ChatSettings[]
+    AccountChat AccountToChat[]
+}
+
+model Profile {
+    id Int @id @default(autoincrement())
+    firstName String
+    lastName String
+    bio String?
+    avatar String?
+    account Account @relation(fields: [accountId], references: [id])
+    accountId Int @unique
+}
+
+model Session {
+    id Int @id @default(autoincrement())
+    token String @unique
+    account Account @relation(fields: [accountId], references: [id])
+    accountId Int
+    createdAt DateTime @default(now())
+    expiresAt DateTime
+    active Boolean @default(true)
+}
+
+model Friend {
+    id Int @id @default(autoincrement())
+    account Account @relation("AccountFriends", fields: [accountId], references: [id])
+    accountId Int
+    friend Account @relation("FriendAccounts", fields: [friendId], references: [id])
+    friendId Int
+    createdAt DateTime @default(now())    
+}
+
+model Chat {
+    id Int @id @default(autoincrement())
+    name String
+    members Account[]
+    messages Message[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt @default(now())
+    group Boolean @default(false)
+    ChatSettings ChatSettings[]
+    AccountChat AccountToChat[]
+}
+
+model Message {
+    id Int @id @default(autoincrement())
+    content String
+    author Account @relation(fields: [authorId], references: [id])
+    authorId Int
+    chat Chat @relation(fields: [chatId], references: [id])
+    chatId Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt @default(now())
+}
+
+model FriendRequest {
+    id Int @id @default(autoincrement())
+    sender Account @relation("SenderRelation", fields: [senderId], references: [id])
+    senderId Int
+    receiver Account @relation("ReceiverRelation", fields: [receiverId], references: [id])
+    receiverId Int
+    createdAt DateTime @default(now())
+    accepted Boolean @default(false)
+}
+
+model BlockedUser {
+    id Int @id @default(autoincrement())
+    account Account @relation("AccountBlockedUsers", fields: [accountId], references: [id])
+    accountId Int
+    blockedAccount Account @relation("BlockedAccountUsers", fields: [blockedAccountId], references: [id])
+    blockedAccountId Int
+    createdAt DateTime @default(now())
+}
+
+model Notification {
+    id Int @id @default(autoincrement())
+    account Account @relation(fields: [accountId], references: [id])
+    accountId Int
+    content String
+    read Boolean @default(false)
+    createdAt DateTime @default(now())
+}
+
+model UserSettings {
+    id Int @id @default(autoincrement())
+    account Account @relation(fields: [accountId], references: [id])
+    accountId Int
+    theme String
+    language String
+    notifications Boolean @default(true)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt @default(now())
+}
+
+model ChatSettings {
+    id Int @id @default(autoincrement())
+    chat Chat @relation(fields: [chatId], references: [id])
+    chatId Int
+    account Account @relation(fields: [accountId], references: [id])
+    accountId Int
+    notifications Boolean @default(true)
+    disappearingMessages Boolean @default(false)
+    chatPin String?
+    multimediaPreview Boolean @default(true)
+    messageSearch Boolean @default(true)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt @default(now())
+}
+
+model AccountToChat {
+    account   Account @relation(fields: [accountId], references: [id])
+    accountId Int
+    chat      Chat    @relation(fields: [chatId], references: [id])
+    chatId    Int
+
+    @@id([accountId, chatId])
+}

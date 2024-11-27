@@ -9,28 +9,46 @@ export default function AuthProvider({ children }) {
     const navigate = useNavigate();
 
     const loginAction = async (data) => {
-        try {
-            const response = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-            const res = await response.json();
-            if(res.user && res.token) {
-                setUser(res.user);
-                setToken(res.token);
-                localStorage.setItem("token", res.token);
-                // send user to user-page
-                navigate("/user-page", { state: { user: res.user } });
-                return;
-            } else {
-                throw new Error(res.message || 'Login failed');
+        
+            //const response = await fetch("/api/auth/login", {
+            //    method: "POST",
+            //    headers: {
+            //        "Content-Type": "application/json",
+            //    },
+            //    body: JSON.stringify(data),
+            //});
+            //const res = await response.json();
+            //if(res.user && res.token) {
+            //    setUser(res.user);
+            //    setToken(res.token);
+            //    localStorage.setItem("token", res.token);
+            //    // send user to user-page
+            //    navigate("/user-page", { state: { user: res.user } });
+            //    return;
+            //} else {
+            //    throw new Error(res.message || 'Login failed');
+            //}
+
+            try {
+                const response = await fetch("/api/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                })
+                const res = await response.json();
+                if(res.account && res.token) {
+                    setUser(res.account);
+                    setToken(res.token);
+                    localStorage.setItem('token', res.token);
+                    navigate('/user-page', { state: { account: res.account } });
+                } else {
+                    navigate('/', { state: { message: 'Login failed' } });
+                }
+            } catch (error) {
+                console.error('Error logging in:', error);
             }
-        } catch (error) {
-            console.error('Error during login: ', error);
-        }
     };
 
     const logOut = () => {

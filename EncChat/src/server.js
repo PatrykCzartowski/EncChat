@@ -3,12 +3,18 @@ import pkg from "pg";
 import dotenv from "dotenv";
 import cors from "cors";
 import jwt from "jwt-simple";
+import { WebSocketServer } from "ws";
+import http from "http";
 
 dotenv.config();
 const { Pool } = pkg;
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+//WEB SOCKET SERVER
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -17,6 +23,64 @@ const pool = new Pool({
 
 app.use(cors());
 app.use(express.json());
+
+
+//WEB SOCKET CONNECTION
+wss.on("connection", (ws) => {
+  console.log("Client connected");
+
+  ws.on("message", (message) => {
+    console.log(`Received message => ${message}`);
+    ws.send("Message received");
+  });
+
+  ws.on("close", () => {
+    console.log("Client disconnected");
+  });
+});
+
+//WEB SOCKET GET MESSAGES
+app.get("/api/messages/:chatID", async (req, res) => {
+  const { chatID } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM messages WHERE chat_id = $1",
+      [chatID]
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+//WEB SOCKET MESSAGE BROADCAST
+const broadcastMessage = (message) => {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+};
+
+//WEB SOCKET SEND MESSAGE
+app.post("/api/sendMessage", async (req, res) => {
+  const { chatID, senderID, content } = req.body;
+
+  try {
+    const result = await pool.query(
+      "INSERT INTO messages (chat_id, sender_id, content) VALUES ($1, $2, $3) RETURNING *",
+      [chatID, senderID, content]
+    );
+    const newMessage = result.rows[0];
+    broadcastMessage(newMessage);
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 app.get("/api/users", async (req, res) => {
   try {
@@ -72,9 +136,9 @@ app.post("/api/auth/login", async (req, res) => {
 
 //GET PROFILE
 app.post('/api/user/profile', async (req, res) => {
-  const { id_users } = req.body;
+  const { userID } = req.body;
   try {
-    const result = await pool.query("SELECT * FROM users WHERE id = $1", [id_users]);
+    const result = await pool.query("SELECT * FROM users WHERE id = $1", [userID]);
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "Profile not found" });
     }
@@ -86,42 +150,71 @@ app.post('/api/user/profile', async (req, res) => {
   }
 });
 
-//GET FRIENDS
+//GET FRIENDS ID
 app.post('/api/user/friends', async (req, res) => {
-  const { id } = req.body;
+  const { userID } = req.body;
   try {
-    const getFriendsID = await pool.query("SELECT friend_id FROM friends WHERE user_id = $1", [id]);
-    if (getFriendsID.rows.length === 0) {
+    const result = await pool.query("SELECT friend_id FROM friends WHERE user_id = $1", [userID]);
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: "Friends not found" });
     }
-
-    const getFriends = await pool.query("SELECT * FROM users WHERE id = ANY($1)", [getFriendsID.rows.map(friend => friend.friend_id)]);
-    return res.json({ friends: getFriends.rows });
-
+    const friends = result.rows.map(friend => friend.friend_id);
+    return res.json({ friends: friends });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-//GET LAST MESSAGE
-app.post('/api/messages/last', async (req, res) => {
-  const { userID, friendID } = req.body;
+//GET FRIEND DATA
+app.post('/api/user/friend/data', async (req, res) => {
+  const { friendID } = req.body;
   try {
-    const result = await pool.query("SELECT content FROM messages WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1) ORDER BY sent_at DESC LIMIT 1", [userID, friendID]);
+    const result = await pool.query("SELECT * FROM users WHERE id = $1", [friendID]);
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Last message not found" });
+      return res.status(404).json({ message: "Friends data not found" });
     }
 
-    return res.json({ message: result.rows[0] });
+    return res.json({ friendData: result.rows[0] });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
+//GET USER CHAT ID
+app.post('/api/user/chat', async (req, res) => {
+  const { userID, friendID } = req.body;
+  try {
+    const result = await pool.query("SELECT c.id FROM chats c JOIN chat_users cu1 ON c.id = cu1.chat_id JOIN chat_users cu2 ON c.id = cu2.chat_id WHERE cu1.user_id = $1 AND cu2.user_id = $2 AND NOT EXISTS ( SELECT 1 FROM chat_users cu_other WHERE cu_other.chat_id = c.id AND cu_other.user_id NOT IN ($1, $2)); ", [userID, friendID]);
+    //if (result.rows.length === 0) {
+    //  return res.status(404).json({ message: "Chat not found" });
+    //}
 
-app.post("/api/accounts", async (req, res) => {
+    return res.json({ chatID: result.rows[0].id });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+//GET CHAT MESSAGES
+app.post('/api/chat/messages', async (req, res) => {
+  const { chatID } = req.body;
+  try {
+    const result = await pool.query("SELECT * FROM messages WHERE chat_id = $1", [chatID]);
+    //if (result.rows.length === 0) {
+    //  return res.status(404).json({ message: "Messages not found" });
+    //}
+
+    return res.json({ messages: result.rows });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/api/accounts/test", async (req, res) => {
   const { username, password, email, dateOfBirth } = req.body;
 
   if (!username || !password || !email) {
