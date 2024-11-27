@@ -2,29 +2,29 @@ import Styles from './Chat.module.css';
 
 import ChatMessage from './ChatMessage/ChatMessage';
 
-export default function Chat({ openedChat, chatMessages = {}, handleMessageSubmit }) {
-    const messagesArray = Object.values(chatMessages);
-
-
+export default function Chat({chatData, handleMessageSubmit }) {
     return (
         <div>
-        <div>Current chat {openedChat}</div>
-        <div className={Styles.chatContainer}>
-            {openedChat? messagesArray.map(message => (
+            {chatData.length > 0 ? (
+                <div>Current chat {chatData[0].id}</div>
+            ) : (
+                <div>No chat selected</div>
+            )}
+
+            {chatData.length > 0 ? (
+                chatData[0].messages.map(message => (
                     <ChatMessage 
                         key={message.id}
-                        message={message.content}
+                        message={message}
                     />
-                )) : ''}
-                
-        </div>
-        {openedChat &&
-            <div className={Styles.messageInput}>
-                <form onSubmit={handleMessageSubmit}>
-                    <input type="text" placeholder="type your message here"/>
-                    <button>Send</button>
-                </form>
-            </div>
+                ))
+            ) : ('No messages yet')}
+
+        {chatData.length > 0 &&
+            <form onSubmit={handleMessageSubmit}>
+                <input placeholder='type your message here'/>
+                <button type="submit">send</button>
+            </form>
         }
         </div>
     );

@@ -3,7 +3,7 @@ import prisma from "../prismaClient.js";
 export async function getProfile(userId) {
     const profile = await prisma.profile.findFirst({
         where: {
-            id: userId,
+            accountId: userId,
         },
     });
     return profile;

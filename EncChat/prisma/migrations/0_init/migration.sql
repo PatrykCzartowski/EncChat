@@ -1,6 +1,3 @@
-Need to install the following packages:
-prisma@5.22.0
-Ok to proceed? (y) -- CreateTable
 CREATE TABLE "Account" (
     "id" SERIAL NOT NULL,
     "username" TEXT NOT NULL,

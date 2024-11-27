@@ -24,7 +24,7 @@ app.use(express.json());
 import { findAccount, createAccount, updateAccount, deleteAccount, getAccounts, } from "./models/AccountModel.js";
 import { getProfile, updateProfile, } from "./models/ProfileModel.js";
 import { getFriends, getFriendProfile, } from "./models/FriendModel.js";
-import { getChats, getChatMessages, createMessage, createChat, } from "./models/ChatModel.js";
+import { getChatsList, getChatData, getChatMessages, getChatAccounts, getAggregatedChatData, createMessage, createChat, } from "./models/ChatModel.js";
 
 const tokenForUser = (user) => {
   const timestamp = new Date().getTime();
@@ -79,13 +79,24 @@ app.post("/api/account/get_friend_profile", async (req, res) => {
 });
 
 //Get list of chats for logged user
-app.post("/api/account/get_chats", async (req, res) => {
+app.post("/api/account/get_chats_list", async (req, res) => {
   try {
     const accountID = req.body.id;
-    const chats = await getChats(accountID);
+    const chats = await getChatsList(accountID);
     if(chats) return res.json(chats);
   } catch (error) {
     console.error("Error getting chats:", error);
+  }
+});
+
+//Get chat data for chat
+app.post("/api/account/get_chat_data", async (req, res) => {
+  try {
+    const chatID = req.body.id;
+    const chatData = await getChatData(chatID);
+    if(chatData) return res.json(chatData);
+  } catch (error) {
+    console.error("Error getting chat data:", error);
   }
 });
 
@@ -97,6 +108,27 @@ app.post("/api/account/get_chat_messages", async (req, res) => {
     if(messages) return res.json(messages);
   } catch (error) {
     console.error("Error getting messages:", error);
+  }
+});
+
+//Get list of accounts in chat
+app.post("/api/account/get_chat_accounts", async (req, res) => {
+  try {
+    const chatID = req.body.id;
+    const accounts = await getChatAccounts(chatID);
+    if(accounts) return res.json(accounts);
+  } catch (error) {
+    console.error("Error getting accounts:", error);
+  }
+});
+
+app.post("/api/account/get_aggregated_chat_data", async (req, res) => {
+  try {
+    const accountID = req.body.id;
+    const aggregateChatData = await getAggregatedChatData(accountID);
+    if(aggregateChatData) return res.json(aggregateChatData);
+  } catch (error) {
+    console.error("Error getting aggregated chat data:", error);
   }
 });
 

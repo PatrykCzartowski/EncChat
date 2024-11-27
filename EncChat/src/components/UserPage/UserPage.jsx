@@ -6,7 +6,7 @@ import ProfileFriendsList from './UserPageComponents/ProfileFriendsList/ProfileF
 import Chat from './UserPageComponents/Chat/Chat';
 
 import { useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 export default function UserPage() {
   const location = useLocation();
@@ -14,9 +14,10 @@ export default function UserPage() {
 
   const [accountProfileData, setAccountProfileData] = useState({});
   const [accountFriendsList, setAccountFriendsList] = useState([]);
-  const [accountFriendsData, setAccountFriendsData] = useState({});
+  const [accountFriendsData, setAccountFriendsData] = useState([]);
   const [accountChatsList, setAccountChatsList] = useState([]);
   const [accountChatsData, setAccountChatsData] = useState([]);
+  const [chatAggregatedData, setChatAggregatedData] = useState({});
   const [accountMessagesList, setAccountMessagesList] = useState({});
   const [openedChat, setOpenedChat] = useState(null);
   const [socket, setSocket] = useState(null);
@@ -63,41 +64,17 @@ export default function UserPage() {
         body: JSON.stringify({ id: friendID }),
       });
       const profile = await response.json();
-      if(profile) setAccountFriendsData((prevData) => ({ ...prevData, [friendID]: profile }));
+      if(profile) {
+        setAccountFriendsData((prevData) => {
+          // Check if the profile already exists in the array
+          if (!prevData.some(friend => friend.id === profile.id)) {
+            return [...prevData, profile];
+          }
+          return prevData;
+        });
+      }
     } catch (error) {
       console.error('Error getting friend profile:', error);
-    }
-  };
-
-  const getChats = async (accountID) => {
-    try {
-      const response = await fetch('/api/account/get_chats', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: accountID }),
-      });
-      const chats = await response.json();
-      if(chats) setAccountChatsList(chats);
-    } catch (error) {
-      console.error('Error getting chats:', error);
-    }
-  };
-
-  const getChatMessages = async (chatID) => {
-    try {
-      const response = await fetch('/api/account/get_chat_messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: chatID }),
-      });
-      const messages = await response.json();
-      if(messages) setAccountMessagesList((prevMessages) => ({ ...prevMessages, [chatID]: messages }));
-    } catch (error) {
-      console.error('Error getting messages:', error);
     }
   };
 
@@ -105,14 +82,19 @@ export default function UserPage() {
     if(account) {
       getAccountProfile(account.id);
       getAccountFriends(account.id);
-      getChats(account.id);
     }
-    accountFriendsList.length > 0 && accountFriendsList.forEach((friend) => getFriendProfile(friend.id));
-    accountChatsList.length > 0 && accountChatsList.forEach((chat) => getChatMessages(chat.id));
-  });
+  }, [account]);
 
   useEffect(() => {
-    const newSocket = new WebSocket('ws://localhost:5000');
+    if(accountFriendsList.length > 0) {
+      accountFriendsList.forEach((friend) => {
+        getFriendProfile(friend.friendId);
+      });
+    }
+  }, [accountFriendsList]);
+
+  useEffect(() => {
+  const newSocket = new WebSocket('ws://localhost:5000');
     setSocket(newSocket);
 
     newSocket.onmessage = (event) => {
@@ -129,20 +111,28 @@ export default function UserPage() {
       }
     }
   }, []);
+  
+
+  const getAggregatedChatData = async (accountID) => {
+    const response = await fetch('/api/account/get_aggregated_chat_data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: accountID }),
+    });
+    const res = await response.json();
+    if(res) setChatAggregatedData(res);
+  }
+
+  useEffect(() => {
+    if(account) {
+      getAggregatedChatData(account.id);
+    }
+  }, [account]);
 
   const handleChangeOpenedChat = (chatID) => {
     setOpenedChat(chatID);
-  }
-
-  const getLastMessages = () => {
-    const lastMessages = {};
-    for(const chatID in accountMessagesList) {
-      const messages = accountMessagesList[chatID];
-      if(messages.length > 0) {
-        lastMessages[chatID] = messages[messages.length - 1];
-      }
-    }
-    return lastMessages;
   }
 
   const handleMessageSubmit = (event) => {
@@ -168,8 +158,10 @@ export default function UserPage() {
     <div>
       <ProfileInfo account={account} profile={accountProfileData}/>
       <ProfileSearchBar />
-      <ProfileFriendsList friendData={accountFriendsData} lastMessages={getLastMessages()} onChangeOpenedChat={handleChangeOpenedChat}/>
-      <Chat openedChat={openedChat} chatMessages={accountMessagesList[openedChat]} handleMessageSubmit={handleMessageSubmit}/>
+      <ProfileFriendsList accountID={account.id} chatData={chatAggregatedData} friendData={accountFriendsData} onChangeOpenedChat={handleChangeOpenedChat}/>
+      <Chat 
+        chatData={Array.isArray(chatAggregatedData) ? chatAggregatedData.filter(chatData => chatData.id === openedChat) : []}
+        handleMessageSubmit={handleMessageSubmit}/>
       </div>
   );
 }

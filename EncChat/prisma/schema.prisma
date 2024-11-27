@@ -30,6 +30,7 @@ model Account {
     notification Notification[]
     userSettings UserSettings[]
     ChatSettings ChatSettings[]
+    AccountChat AccountToChat[]
 }
 
 model Profile {
@@ -67,9 +68,10 @@ model Chat {
     members Account[]
     messages Message[]
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    updatedAt DateTime @updatedAt @default(now())
     group Boolean @default(false)
     ChatSettings ChatSettings[]
+    AccountChat AccountToChat[]
 }
 
 model Message {
@@ -80,7 +82,7 @@ model Message {
     chat Chat @relation(fields: [chatId], references: [id])
     chatId Int
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    updatedAt DateTime @updatedAt @default(now())
 }
 
 model FriendRequest {
@@ -119,7 +121,7 @@ model UserSettings {
     language String
     notifications Boolean @default(true)
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    updatedAt DateTime @updatedAt @default(now())
 }
 
 model ChatSettings {
@@ -134,5 +136,14 @@ model ChatSettings {
     multimediaPreview Boolean @default(true)
     messageSearch Boolean @default(true)
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    updatedAt DateTime @updatedAt @default(now())
+}
+
+model AccountToChat {
+    account   Account @relation(fields: [accountId], references: [id])
+    accountId Int
+    chat      Chat    @relation(fields: [chatId], references: [id])
+    chatId    Int
+
+    @@id([accountId, chatId])
 }

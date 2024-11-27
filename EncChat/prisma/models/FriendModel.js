@@ -3,7 +3,7 @@ import prisma from "../prismaClient.js";
 export async function getFriends(userId) {
     const friends = await prisma.friend.findMany({
         where: {
-            id: userId,
+            accountId: userId,
         },
     });
     return friends;
@@ -12,7 +12,7 @@ export async function getFriends(userId) {
 export async function getFriendProfile(friendId) {
     const friendProfile = await prisma.profile.findFirst({
         where: {
-            id: friendId,
+            accountId: friendId,
         },
     });
     return friendProfile;
