@@ -1,12 +1,17 @@
 .friendCard {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px;
+  padding: 15px;
   border-bottom: 1px solid #e0e0e0;
   cursor: pointer;
   background-color: #f4f2f7;
   border-radius: 15px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.friendCard:hover {
+  background-color: #ece9f1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .friendCardImage {
@@ -14,4 +19,22 @@
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
+  margin-right: 15px;
+}
+
+.friendCardContent {
+  flex: 1;
+}
+
+.friendName {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.lastMessage {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
 }

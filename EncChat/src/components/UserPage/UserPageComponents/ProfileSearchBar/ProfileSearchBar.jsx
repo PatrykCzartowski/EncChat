@@ -1,10 +1,17 @@
 import './ProfileSearchBar.css';
+import { FaSearch } from 'react-icons/fa';
 
 export default function ProfileSearchBar() {
     return (
-        <div className="ProfileSearchBarContainer">
-            <input type="text" placeholder="Search for a user"/>
-            <button>Search</button>
+        <div className="searchBar">
+            <div className="searchInputWrapper">
+                <input
+                    className="searchInput"
+                    type="text"
+                    placeholder="Search for a user"
+                />
+                <FaSearch className="searchIcon" onClick={() => console.log('Search triggered')} />
+            </div>
         </div>
     );
 }
