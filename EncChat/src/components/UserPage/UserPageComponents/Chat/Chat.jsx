@@ -1,24 +1,18 @@
+import { renderMatches } from 'react-router-dom';
 import Styles from './Chat.module.css';
 
 import ChatMessage from './ChatMessage/ChatMessage';
 
-export default function Chat({chatData, handleMessageSubmit }) {
+export default function Chat({chatData, handleMessageSubmit, messages}) {
     return (
-        <div>
+        <div className={Styles.Background}>
             {chatData.length > 0 ? (
                 <div>Current chat {chatData[0].id}</div>
             ) : (
                 <div>No chat selected</div>
             )}
 
-            {chatData.length > 0 ? (
-                chatData[0].messages.map(message => (
-                    <ChatMessage 
-                        key={message.id}
-                        message={message}
-                    />
-                ))
-            ) : ('No messages yet')}
+            {messages}
 
         {chatData.length > 0 &&
             <form onSubmit={handleMessageSubmit}>

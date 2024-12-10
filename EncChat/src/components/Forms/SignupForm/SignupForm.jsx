@@ -26,7 +26,6 @@ export default function SignUpForm({ handleGoBack }) {
       username: event.target[0].value,
       password: SHA256(event.target[1].value).toString(),
       email: event.target[3].value,
-      dateOfBirth: event.target[4].value,
     };
         
     try {
