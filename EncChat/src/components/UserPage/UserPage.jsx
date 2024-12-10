@@ -1,12 +1,14 @@
 import './UserPage.css';
-
+import useWebSocket from 'react-use-websocket';
 import ProfileInfo from './UserPageComponents/ProfileInfo/ProfileInfo';
 import ProfileSearchBar from './UserPageComponents/ProfileSearchBar/ProfileSearchBar';
 import ProfileFriendsList from './UserPageComponents/ProfileFriendsList/ProfileFriendsList';
 import Chat from './UserPageComponents/Chat/Chat';
 
 import { useLocation } from 'react-router-dom';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
+
+const WS_URL = 'ws://127.0.0.1:8080';
 
 export default function UserPage() {
   const location = useLocation();
@@ -21,6 +23,28 @@ export default function UserPage() {
   const [accountMessagesList, setAccountMessagesList] = useState({});
   const [openedChat, setOpenedChat] = useState(null);
   const [socket, setSocket] = useState(null);
+
+  const {sendMessage, lastMessage, readyState} = useWebSocket(WS_URL, {
+    onOpen: () => {
+      console.log('Websocket connection established.')
+    },
+    onMessage: (event) => {
+      const message = JSON.parse(event.data);
+      if(message.type === 'NEW_MESSAGE') {
+        setChatAggregatedData((prevData => {
+          return prevData.map(chat => {
+            if(chat.id === message.payload.chatId) {
+              return {
+                ...chat,
+                messages: [...chat.messages, message.payload],
+              }
+            }
+            return chat;
+          });
+        }));
+      }
+    }
+  });
 
   const getAccountProfile = async (accountID) => {
     try {
@@ -93,26 +117,6 @@ export default function UserPage() {
     }
   }, [accountFriendsList]);
 
-  useEffect(() => {
-  const newSocket = new WebSocket('ws://localhost:5000');
-    setSocket(newSocket);
-
-    newSocket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      setUserMessagesList((prevMessages) => ({
-        ...prevMessages,
-        [message.chatID]: [...(prevMessages[message.chatID] || []), message]
-      }));
-    }
-
-    return () => {
-      if(newSocket.readyState === 1) {
-        newSocket.close();
-      }
-    }
-  }, []);
-  
-
   const getAggregatedChatData = async (accountID) => {
     const response = await fetch('/api/account/get_aggregated_chat_data', {
       method: 'POST',
@@ -129,6 +133,8 @@ export default function UserPage() {
     if(account) {
       getAggregatedChatData(account.id);
     }
+    console.log(chatAggregatedData);
+
   }, [account]);
 
   const handleChangeOpenedChat = (chatID) => {
@@ -140,19 +146,35 @@ export default function UserPage() {
     const messageContent = event.target[0].value;
     const chatID = openedChat;
     const message = {
-      chatID,
+      chatId: chatID,
       content: messageContent,
-      senderID: account.id,
+      authorId: account.id,
+      createdAt: new Date().toISOString(),
     };
-    if(WebSocket.readyState === WebSocket.OPEN) {
-      WebSocket.send(JSON.stringify(message));
+    
+    if(readyState === WebSocket.OPEN) {
+      sendMessage(JSON.stringify(message));
       console.log('Message sent');
     } else {
-      console.log("WebSocket is not open. ReadyState: ", WebSocket.readyState);
+      console.log("WebSocket is not open. ReadyState: ", readyState);
     }
 
     event.target.reset();
-  }
+  };
+
+  const renderMessages = () => {
+    if (!openedChat) return null;
+  
+    const chat = chatAggregatedData.find(chat => chat.id === openedChat);
+    if (!chat) return null;
+  
+    return chat.messages.map(message => (
+      <div key={message.id}>
+        <p><strong>{message.authorId}:</strong> {message.content}</p>
+        <p><small>{new Date(message.createdAt).toLocaleString()}</small></p>
+      </div>
+    ));
+  };
 
   return (
     <div className="userPage">
@@ -164,8 +186,9 @@ export default function UserPage() {
       <div className="rightSection">
       <Chat 
         chatData={Array.isArray(chatAggregatedData) ? chatAggregatedData.filter(chatData => chatData.id === openedChat) : []}
-        handleMessageSubmit={handleMessageSubmit}/>
-      </div>
+        handleMessageSubmit={handleMessageSubmit}
+        messages={renderMessages()}
+        />
     </div>
   );
 }

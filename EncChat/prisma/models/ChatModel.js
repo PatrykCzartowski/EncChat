@@ -39,9 +39,14 @@ export async function getChatAccounts(chatId) {
     return accounts.map(account => account.accountId);
 }
 
-export async function createMessage(messageData) {
+export async function createMessage(data) {
     const message = await prisma.message.create({
-        data: messageData,
+        data: {
+            chatId: data.chatId,
+            authorId: data.authorId,
+            content: data.content,
+            createdAt: new Date(data.createdAt),
+        },
     });
     return message;
 }

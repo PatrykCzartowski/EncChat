@@ -26,12 +26,11 @@ export default function LoginForm({ handleSignUpButton }) {
     event.preventDefault();
     console.log("form submitted.");
     if(input.username !== "" && input.password !== "") {
-      // input.password = SHA256(input.password).toString();
+       input.password = SHA256(input.password).toString();
       input.usernameIsEmail = isEmail(input.username);
       auth.loginAction(input);
       return;
     }
-    alert("Please fill in all fields");
   };
 
   const handleInput = (event) => {

@@ -3,9 +3,12 @@ import { Pool, neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
+import { WebSocketServer, WebSocket } from "ws";
 import ws from "ws";
+import http from "http";
 import cors from "cors";
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 neonConfig.webSocketConstructor = ws;
@@ -31,6 +34,47 @@ const tokenForUser = (user) => {
   return jwt.sign({ sub: user.id, iat: timestamp }, process.env.JWT_SECRET);
 }
 
+//---->WEB SOCKET SERVER<----//
+
+const server = http.createServer();
+const wsServer = new WebSocketServer({ server });
+const wsPort = process.env.WS_PORT || 8080;
+const clients = {}
+wsServer.on('connection', function(connection) {
+  const userId = uuidv4();
+  console.log(`Received connection from ${connection}`);
+  clients[userId] = connection;
+  console.log(`${userId} connected.`);
+
+  connection.on('message', async (message) => {
+    console.log(`Received message ${message}`);
+    try {
+      const data = JSON.parse(message);
+      const result = await createMessage(data);
+
+      Object.values(clients).forEach(client => {
+        if(client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: 'NEW_MESSAGE',
+            payload: data
+          }));
+        }
+      });
+    } catch (error) {
+      console.error("Error creating message: ", error);
+      connection.send(JSON.stringify({ success:false, error}));
+    }
+  }); 
+
+});
+
+
+server.listen(wsPort, () => {
+  console.log(`WebSocket server running on port ${wsPort}`);
+})
+
+//---->WEB SOCKET SERVER<----//
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
@@ -41,7 +85,7 @@ app.post("/api/auth/login", async (req, res) => {
     const account = await findAccount(accountData);
     if(account) return res.json({account,token: tokenForUser(accountData)});
   } catch (error) {
-    console.error("Error finding account:", error);
+    console.error("Error finding account: ", error);
   }
 });
 
@@ -52,7 +96,7 @@ app.post("/api/account/get_profile", async (req, res) => {
     const profile = await getProfile(accountID);
     if(profile) return res.json(profile);
   } catch(error) {
-    console.error("Error getting profile:", error);
+    console.error("Error getting profile: ", error);
   }
 });
 
@@ -63,7 +107,7 @@ app.post("/api/account/get_friends", async (req, res) => {
     const friends = await getFriends(accountID);
     if(friends) return res.json(friends);
   } catch (error) {
-    console.error("Error getting friends:", error);
+    console.error("Error getting friends: ", error);
   }
 });
 
@@ -74,7 +118,7 @@ app.post("/api/account/get_friend_profile", async (req, res) => {
     const profile = await getFriendProfile(friendID);
     if(profile) return res.json(profile);
   } catch(error) {
-    console.error("Error getting friend profile:", error);
+    console.error("Error getting friend profile: ", error);
   }
 });
 
@@ -85,7 +129,7 @@ app.post("/api/account/get_chats_list", async (req, res) => {
     const chats = await getChatsList(accountID);
     if(chats) return res.json(chats);
   } catch (error) {
-    console.error("Error getting chats:", error);
+    console.error("Error getting chats: ", error);
   }
 });
 
@@ -96,7 +140,7 @@ app.post("/api/account/get_chat_data", async (req, res) => {
     const chatData = await getChatData(chatID);
     if(chatData) return res.json(chatData);
   } catch (error) {
-    console.error("Error getting chat data:", error);
+    console.error("Error getting chat data: ", error);
   }
 });
 
@@ -107,7 +151,7 @@ app.post("/api/account/get_chat_messages", async (req, res) => {
     const messages = await getChatMessages(chatID);
     if(messages) return res.json(messages);
   } catch (error) {
-    console.error("Error getting messages:", error);
+    console.error("Error getting messages: ", error);
   }
 });
 
@@ -118,7 +162,7 @@ app.post("/api/account/get_chat_accounts", async (req, res) => {
     const accounts = await getChatAccounts(chatID);
     if(accounts) return res.json(accounts);
   } catch (error) {
-    console.error("Error getting accounts:", error);
+    console.error("Error getting accounts: ", error);
   }
 });
 
@@ -128,12 +172,25 @@ app.post("/api/account/get_aggregated_chat_data", async (req, res) => {
     const aggregateChatData = await getAggregatedChatData(accountID);
     if(aggregateChatData) return res.json(aggregateChatData);
   } catch (error) {
-    console.error("Error getting aggregated chat data:", error);
+    console.error("Error getting aggregated chat data: ", error);
   }
 });
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+});
+
+app.post("/api/account/create_new_account", async (req, res) => {
+  {
+    try {
+      const signUpData = req.body.signUpData;
+      const result = await createAccount(signUpData);
+      if(result) return res.status(201);
+    } catch(error) {
+      console.log("Error creating new account: ", error);
+    }
+    
+  }
 });
 // ↑↑↑↑↑ SERVER PART ↑↑↑↑↑
 
