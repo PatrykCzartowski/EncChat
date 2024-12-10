@@ -24,9 +24,6 @@ export default function FriendListCard({ chatID, friendID, isGroup, friendData, 
         //group 
         return (
             <li className={styles.friendCard}>
-                <img src={placeHolderImage} alt="profile image" />
-                <h3>{chatData && chatData.length > 0 ? chatData[0].name : 'Unknown'}</h3>
-                <p>{lastMessage.content}</p>
                 <img 
                     src={placeHolderImage} 
                     alt="Group profile" 
