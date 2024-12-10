@@ -162,20 +162,6 @@ export default function UserPage() {
     event.target.reset();
   };
 
-  const renderMessages = () => {
-    if (!openedChat) return null;
-  
-    const chat = chatAggregatedData.find(chat => chat.id === openedChat);
-    if (!chat) return null;
-  
-    return chat.messages.map(message => (
-      <div key={message.id}>
-        <p><strong>{message.authorId}:</strong> {message.content}</p>
-        <p><small>{new Date(message.createdAt).toLocaleString()}</small></p>
-      </div>
-    ));
-  };
-
   return (
     <div className="userPage">
       <div className="leftSection">
@@ -187,8 +173,10 @@ export default function UserPage() {
       <Chat 
         chatData={Array.isArray(chatAggregatedData) ? chatAggregatedData.filter(chatData => chatData.id === openedChat) : []}
         handleMessageSubmit={handleMessageSubmit}
-        messages={renderMessages()}
+        accountId={account.id}
+        friendsData = {accountFriendsData}
         />
+      </div>
     </div>
   );
 }

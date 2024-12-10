@@ -14,7 +14,7 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
         });
         if (!chatMessages || chatMessages.length === 0) return 'No messages yet';
         const lastMessage = chatMessages[chatMessages.length - 1];
-        return lastMessage.text || 'No text'
+        return lastMessage.content || 'No text'
     };
 
     const handleClick = (chatID) => {
