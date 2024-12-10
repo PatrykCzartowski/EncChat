@@ -155,13 +155,17 @@ export default function UserPage() {
   }
 
   return (
-    <div>
+    <div className="userPage">
+      <div className="leftSection">
       <ProfileInfo account={account} profile={accountProfileData}/>
       <ProfileSearchBar />
       <ProfileFriendsList accountID={account.id} chatData={chatAggregatedData} friendData={accountFriendsData} onChangeOpenedChat={handleChangeOpenedChat}/>
+      </div>
+      <div className="rightSection">
       <Chat 
         chatData={Array.isArray(chatAggregatedData) ? chatAggregatedData.filter(chatData => chatData.id === openedChat) : []}
         handleMessageSubmit={handleMessageSubmit}/>
       </div>
+    </div>
   );
 }
