@@ -24,8 +24,8 @@ app.use(express.json());
 
 // TRANSFER PART BELOW TO SERVER.JS LATER
 // ↓↓↓↓↓ SERVER PART ↓↓↓↓↓
-import { findAccount, createAccount, updateAccount, deleteAccount, getAccounts, } from "./models/AccountModel.js";
-import { getProfile, updateProfile, } from "./models/ProfileModel.js";
+import { findAccount, createAccount, updateAccount, deleteAccount, getAccounts } from "./models/AccountModel.js";
+import { getProfile, updateProfile, findProfileLike} from "./models/ProfileModel.js";
 import { getFriends, getFriendProfile, } from "./models/FriendModel.js";
 import { getChatsList, getChatData, getChatMessages, getChatAccounts, getAggregatedChatData, createMessage, createChat, } from "./models/ChatModel.js";
 
@@ -190,6 +190,16 @@ app.post("/api/account/create_new_account", async (req, res) => {
       console.log("Error creating new account: ", error);
     }
     
+  }
+});
+
+app.post("/api/account/find_profile_like", async (req, res) => {
+  try {
+    const providedString = req.body.providedString;
+    const profile = await findProfileLike(providedString);
+    if(profile) return res.json(profile);
+  } catch (error) {
+    console.error("Error finding account like: ", error);
   }
 });
 // ↑↑↑↑↑ SERVER PART ↑↑↑↑↑
