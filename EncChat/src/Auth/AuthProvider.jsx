@@ -42,9 +42,23 @@ export default function AuthProvider({ children }) {
                     setUser(res.account);
                     setToken(res.token);
                     localStorage.setItem('token', res.token);
+                    const accountProfile = await fetch('/api/account/get_profile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id: res.account.id }),
+                    });
+                    const accountProfileRes = await accountProfile.json();
+                    if(accountProfileRes.lastName === '' || accountProfileRes.firstName === '') {
+                        navigate('/profile-creation', { state: { account: res.account } });
+                        return;
+                    }
                     navigate('/user-page', { state: { account: res.account } });
+                    return;
                 } else {
                     navigate('/', { state: { message: 'Login failed' } });
+                    return;
                 }
             } catch (error) {
                 console.error('Error logging in:', error);

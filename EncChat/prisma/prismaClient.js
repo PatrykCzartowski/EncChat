@@ -24,7 +24,7 @@ app.use(express.json());
 
 // TRANSFER PART BELOW TO SERVER.JS LATER
 // ↓↓↓↓↓ SERVER PART ↓↓↓↓↓
-import { findAccount, createAccount, updateAccount, deleteAccount, getAccounts } from "./models/AccountModel.js";
+import { findAccount, createAccount, updateAccount, deleteAccount, getAccounts, verifyEmailAddress } from "./models/AccountModel.js";
 import { getProfile, updateProfile, findProfileLike} from "./models/ProfileModel.js";
 import { getFriends, getFriendProfile, } from "./models/FriendModel.js";
 import { getChatsList, getChatData, getChatMessages, getChatAccounts, getAggregatedChatData, createMessage, createChat, } from "./models/ChatModel.js";
@@ -187,7 +187,7 @@ app.post("/api/account/create_new_account", async (req, res) => {
       const result = await createAccount(signUpData);
       if(result) return res.status(201);
     } catch(error) {
-      console.log("Error creating new account: ", error);
+      console.error("Error creating new account: ", error);
     }
     
   }
@@ -202,6 +202,32 @@ app.post("/api/account/find_profile_like", async (req, res) => {
     console.error("Error finding account like: ", error);
   }
 });
+
+app.post("/api/account/create_account", async (req, res) => {
+  try {
+    const accountData = req.body;
+    const account = await createAccount(accountData);
+    if(account) {
+      console.log("Account created: ", account);
+      return res.json(account);
+    } 
+  } catch(error) {
+    console.error("Error creating account: ", error);
+  }
+})
+
+app.post("/api/account/verify_email", async (req, res) => {
+  try {
+    const accountData = req.body.signUpData;
+    const emailVerif = await verifyEmailAddress(accountData);
+    if(emailVerif) {
+      console.log("Email verified: ", emailVerif);
+      return res.json(emailVerif);
+    }
+  } catch(error) {
+    console.error("Error verifying email: ", error);
+  }
+})
 // ↑↑↑↑↑ SERVER PART ↑↑↑↑↑
 
 export default prisma;

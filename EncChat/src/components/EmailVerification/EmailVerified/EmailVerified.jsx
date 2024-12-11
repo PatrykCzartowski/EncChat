@@ -12,9 +12,6 @@ export default function EmailVerified() {
   const location = useLocation();
 
   useEffect(() => {
-    if (!location.state?.checkVal) {
-      navigate("/");
-    }
     if (seconds > 0) {
       const timer = setInterval(() => {
         setSeconds((prevSeconds) => prevSeconds - 1); // Decrease seconds by 1
