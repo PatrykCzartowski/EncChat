@@ -9,11 +9,15 @@ export async function getProfile(userId) {
     return profile;
 }
 
-export async function updateProfile(profileData) {
-    const { id, ...data } = profileData;
+export async function updateProfile(accountId, profileData) {
     const profile = await prisma.profile.update({
-        where: { id },
-        data,
+        where: { accountId },
+        data: {
+            firstName: profileData.firstName,
+            lastName: profileData.lastName,
+            bio: profileData.bio,
+            avatar: profileData.avatar,
+        }
     });
     return profile;
 }
