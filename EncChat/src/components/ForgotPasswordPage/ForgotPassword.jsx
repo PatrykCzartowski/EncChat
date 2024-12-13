@@ -1,18 +1,62 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useState } from "react";
 import Logo from "../Logo/Logo";
-
+import KeyGenerator from "../Utils/KeyGenerator.js";
 import Styles from "./ForgotPassword.module.css";
+import SendPasswordResetEmail from "../Utils/SendPasswordResetEmail.js";
+
+const key = KeyGenerator(6);
 
 export default function ForgotPassword() {
+  const [isButtonClicked, setIsButtonClicked] = useState(false);
+  const [emailIsValid, setEmailIsValid] = useState(true); // for conditional rendering
+  const [codeIsValid, setCodeIsValid] = useState(true); // for conditional rendering
+  const [foundAccount, setFoundAccount] = useState();
+
   const navigate = useNavigate();
 
-useEffect(() => {
-    if (!location.state || !location.state.checkVal) {
-      // Redirect if he has not come from the email verification page
-      navigate("/");
+  const handleEmailSubmit = async (event) => {
+    event.preventDefault();
+    if(event.target[0].value === "") {
+      setEmailIsValid(false);
+      return;
+    };
+    setIsButtonClicked(true);
+    const email = event.target[0].value;
+    const accountData = { //this is so i can use the same model function that i used in login
+      username: email,
+      password: '',
+      usernameIsEmail: true,
     }
-  }, [location, navigate]);
+    const response = await fetch('/api/forgot_password/find_account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ accountData }),
+    })
+    const account = await response.json();
+    if(account) {
+      setFoundAccount(account);
+      const templateParams = {
+        email: email,
+        message: key,
+      }
+      SendPasswordResetEmail(templateParams);
+      return;
+    }
+    setEmailIsValid(false);
+  }
+
+  const handleResetPassword = async (event) => {
+    event.preventDefault();
+    const code = event.target[0].value;
+    if(code === key) {
+      navigate('/reset-password-form', {state: {email: foundAccount.email, accountId: foundAccount.id}});
+      return;
+    }
+    setCodeIsValid(false);
+  }
 
   return (
     <div className={Styles.forgotPasswordPage}>
@@ -22,17 +66,33 @@ useEffect(() => {
       <div className={Styles.container}>
       <h2>Forgot password</h2>
       <hr className={Styles.line} />
-      <p>
-      Forgot password? Don’t worry, 
-      we will send you an email to reset your password.
-      </p>
-      <div>
-        <form>
-          <input type="email" placeholder="Email" />
-          <button>Send</button>
+      {!isButtonClicked ? (
+        <div>
+        <p>
+        Forgot password? Don’t worry, 
+        we will send you an email to reset your password.
+        </p>
+        <div>
+          <form onSubmit={handleEmailSubmit}>
+            <input type="email" placeholder="Email" />
+            {emailIsValid? null : <p>Provided email is Invalid</p>}
+            <button>Send</button>
+          </form>
+        </div>
+        </div>
+      ) : (
+        <div>
+        <p>
+        An email has been sent to your email address. 
+        please enter the code in the email to reset your password below.
+        </p>
+        <form onSubmit={handleResetPassword}>
+          <input type="text" placeholder="Enter your code here" />
+          <button type="submit">Reset password</button>
         </form>
-        <Link to="/">Go back</Link>
-      </div>
+        </div>
+      )}
+      <Link to="/">Go back</Link>
       </div>
     </div>
   );
