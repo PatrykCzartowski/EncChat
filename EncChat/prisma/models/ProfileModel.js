@@ -38,4 +38,5 @@ export default [
     getProfile,
     updateProfile,
     findProfileLike,
+    
 ]

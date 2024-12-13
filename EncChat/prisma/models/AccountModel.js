@@ -26,6 +26,14 @@ export async function updateAccount(accountData) {
     return account;
 }
 
+export async function updateAccountPassword(accountId, newPassword) {
+    const account = await prisma.account.update({
+        where: { id: accountId },
+        data: { password: newPassword },
+    });
+    return account;
+}
+
 export async function deleteAccount(accountData) {
     const { id } = accountData;
     const account = await prisma.account.delete({
@@ -70,4 +78,5 @@ export default [
     deleteAccount,
     getAccounts,
     verifyEmailAddress,
+    updateAccountPassword,
 ];

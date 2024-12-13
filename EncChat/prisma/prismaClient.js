@@ -24,7 +24,7 @@ app.use(express.json());
 
 // TRANSFER PART BELOW TO SERVER.JS LATER
 // ↓↓↓↓↓ SERVER PART ↓↓↓↓↓
-import { findAccount, createAccount, updateAccount, deleteAccount, getAccounts, verifyEmailAddress } from "./models/AccountModel.js";
+import { findAccount, createAccount, updateAccount, deleteAccount, getAccounts, verifyEmailAddress, updateAccountPassword } from "./models/AccountModel.js";
 import { getProfile, updateProfile, findProfileLike} from "./models/ProfileModel.js";
 import { getFriends, getFriendProfile, } from "./models/FriendModel.js";
 import { getChatsList, getChatData, getChatMessages, getChatAccounts, getAggregatedChatData, createMessage, createChat, } from "./models/ChatModel.js";
@@ -226,6 +226,26 @@ app.post("/api/account/verify_email", async (req, res) => {
     }
   } catch(error) {
     console.error("Error verifying email: ", error);
+  }
+})
+
+app.post("/api/forgot_password/find_account", async (req, res) => {
+  try {
+    const accountData = req.body;
+    const account = await findAccount(accountData);
+    if(account) return res.json(account);
+  } catch (error) {
+    console.error("Error finding account: ", error);
+  }
+})
+
+app.post("/api/forgot_password/change_password", async (req, res) => {
+  try {
+    const {accountId, newPassword} = req.body.data;
+    const result = await updateAccountPassword(accountId, newPassword);
+    if(result) return res.json(result);
+  } catch (error) {
+    console.error("Error changing password: ", error);
   }
 })
 // ↑↑↑↑↑ SERVER PART ↑↑↑↑↑
