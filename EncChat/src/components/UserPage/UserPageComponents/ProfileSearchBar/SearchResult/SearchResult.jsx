@@ -1,13 +1,16 @@
 import Styles from './SearchResult.module.css';
 import SearchResultCard from './SearchResultCard';
 
-export default function SearchResult({searchResults}) {
-    console.log(searchResults);
-    return(
-        <div>
-            {searchResults.map((user) => {
-                return <SearchResultCard key={user.id} user={user} />
-            })}
+export default function SearchResult({ searchResults, onSelectUser }) {
+    return (
+        <div className={Styles.searchResultContainer}>
+            {searchResults.map((user) => (
+                <SearchResultCard
+                    key={user.id}
+                    user={user}
+                    onSelectUser={() => onSelectUser(user)}
+                />
+            ))}
         </div>
-    )
+    );
 }

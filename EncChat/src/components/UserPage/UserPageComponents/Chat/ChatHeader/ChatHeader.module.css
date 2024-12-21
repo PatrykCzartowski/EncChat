@@ -1,0 +1,70 @@
+.chatHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f5f5f5;
+    color: black;
+    padding: 0.5rem 1.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+}
+
+.leftSection {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.profileButton {
+    background: none;
+    border: none;
+    padding: 0;
+    width:8vw;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.profileButton:hover {
+    transform: scale(1.1);
+}
+
+.profileButton:not(:first-child) {
+    width: 2vw;
+    height: 30px;
+}
+
+.lastChatImage {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin: 0;
+}
+
+.chatName {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #333;
+    margin-left: 0.3rem;
+    display: flex;
+    align-items: center;
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.icon {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #6a5acd;
+    transition: color 0.3s ease;
+}
+
+.icon:hover {
+    color: #d8d8ff;
+}

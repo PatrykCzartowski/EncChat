@@ -26,6 +26,7 @@
 .nameAndEmailBox {
     flex: 1;
     display: flex;
+    text-align: left;
     flex-direction: column;
     justify-content: center;
 }

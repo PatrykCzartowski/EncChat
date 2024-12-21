@@ -18,9 +18,12 @@ export default function LandingPage() {
         <Logo />
       </div>
 
+
       <div className={Styles.contentContainer}>
-        {/* Main content */}
         <div className={Styles.description}>
+          <div className={Styles.secondaryLogoContainer}>
+            <Logo />
+          </div>
           <h1>Welcome.</h1>
           <Link to="/about-authors">about authors &rarr;</Link>
         </div>

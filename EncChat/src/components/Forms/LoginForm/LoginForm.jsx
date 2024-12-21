@@ -51,6 +51,7 @@ export default function LoginForm({ handleSignUpButton }) {
           id="username"
           name="username"
           type="text"
+          className={Styles.loginInput}
           placeholder="Enter your username"
           onChange={handleInput}
         />
@@ -59,6 +60,7 @@ export default function LoginForm({ handleSignUpButton }) {
           id="password"
           name="password"
           type="password"
+          className={Styles.loginInput}
           placeholder="Enter your password"
           onChange={handleInput}
         />
@@ -71,9 +73,9 @@ export default function LoginForm({ handleSignUpButton }) {
             onChange={(token) => setCaptchaToken(token)}
           />
         </div>
-        <button type="submit">Login</button>
+        <button className={Styles.buttonLoginForm} type="submit">Login</button>
         <p>or</p>
-        <button type="button" onClick={() => handleSignUpButton(true)}>
+        <button className={Styles.buttonLoginForm} type="button" onClick={() => handleSignUpButton(true)}>
           Sign Up
         </button>
       </form>

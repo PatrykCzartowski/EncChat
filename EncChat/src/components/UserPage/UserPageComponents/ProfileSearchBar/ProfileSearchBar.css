@@ -1,4 +1,5 @@
 .searchBar {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -12,11 +13,13 @@
 }
 
 .searchInput {
-    width: 100%;
+    width: 80%;
     padding: 0.5rem 2.5rem 0.5rem 1rem;
     border: 1px solid #ccc;
-    border-radius: 5%;
+    border-radius: 2%;
     font-size: 1rem;
+    background-color: #f4f2f7;
+    color: #333;
 }
 
 .searchIcon {
@@ -33,3 +36,5 @@
 .searchIcon:hover {
     color: #6a5acd;
 }
+
+
