@@ -1,8 +1,11 @@
 import Styles from './ProfileForm.module.css';
+import { useNavigate } from 'react-router-dom';
 
-export default function ProfileForm() {
+export default function ProfileForm({ account }) {
 
-    const handleFormSubmit = (event) => {
+    const navigate = useNavigate();
+
+    const handleFormSubmit = async (event) => {
         event.preventDefault();
         console.log("Form Submitted");
         const ProfileData = {
@@ -11,7 +14,18 @@ export default function ProfileForm() {
             lastName: event.target[2].value,
             bio: event.target[3].value,
         }
-        console.log(ProfileData);
+        const response = await fetch('/api/account/create_profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ accountId: account.id ,ProfileData }),
+        })
+        const result = await response.json();
+        if(result) {
+            navigate('/user-page', { state: { account } });
+            return;
+        }
     }
 
     return (
