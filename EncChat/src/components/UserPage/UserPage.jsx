@@ -162,7 +162,7 @@ export default function UserPage() {
     <div className="userPage">
       <div className="leftSection">
       <ProfileInfo account={account} profile={accountProfileData}/>
-      <ProfileSearchBar accountId={account.id}/>
+      <ProfileSearchBar accountId={account.id} friendData={accountFriendsData}/>
       <ProfileFriendsList accountID={account.id} chatData={chatAggregatedData} friendData={accountFriendsData} onChangeOpenedChat={handleChangeOpenedChat}/>
       </div>
       <div className="rightSection">

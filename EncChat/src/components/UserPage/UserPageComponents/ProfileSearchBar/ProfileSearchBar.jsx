@@ -3,12 +3,11 @@ import { FaSearch } from 'react-icons/fa';
 import { useState } from 'react';
 import SearchResult from './SearchResult/SearchResult';
 
-export default function ProfileSearchBar() {
+export default function ProfileSearchBar({friendData}) {
     const [input, setInput] = useState('');
     const [searchResults, setSearchResults] = useState([]);
 
     const findUsers = async (input) => {
-        console.log("input", input);
         try {
             const response = await fetch('/api/account/find_profile_like', {
                 method: 'POST',
@@ -18,7 +17,6 @@ export default function ProfileSearchBar() {
                 body: JSON.stringify({ providedString: input }),
             });
             const users = await response.json();
-            console.log(users);
             return users;
         } catch(error) {
             console.error('Error finding users:', error);
@@ -45,7 +43,7 @@ export default function ProfileSearchBar() {
                 <FaSearch className="searchIcon" />
                 </form>
             </div>
-            <SearchResult searchResults={searchResults} />
+            <SearchResult searchResults={searchResults} friendData={friendData}/>
         </div>
     );
 }
