@@ -1,0 +1,42 @@
+.notificationsContainer {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    width: 250px;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.notificationsContainer::-webkit-scrollbar {
+    width: 10px;
+}
+
+.notificationsContainer::-webkit-scrollbar-track {
+    background: #f4f4f8;
+    border-radius: 10px;
+}
+
+.notificationsContainer::-webkit-scrollbar-thumb {
+    background: #6a5acd;
+    border-radius: 10px;
+}
+
+.notificationsContainer::-webkit-scrollbar-thumb:hover {
+    background: #4a4cad;
+}
+
+.notificationItem {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.notificationItem:last-child {
+    border-bottom: none;
+}

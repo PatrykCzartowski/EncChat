@@ -1,18 +1,18 @@
 import Styles from './SearchResult.module.css';
+import { FaUserPlus, FaBan, FaUserTimes } from 'react-icons/fa';
 
 export default function SearchResultCard({ user, friendData, onSelectUser }) {
-    
     const handleSendFriendRequest = async () => {
         console.log("Friend Request Sent");
-    }
+    };
 
     const handleBlockAccount = async () => {
         console.log("Account Blocked");
-    }
-    
+    };
+
     const handleRemoveFriend = async () => {
         console.log("Friend Removed");
-    }
+    };
 
     const searchResultIsFriend = (searchResult) => {
         for (let i = 0; i < friendData.length; i++) {
@@ -21,23 +21,46 @@ export default function SearchResultCard({ user, friendData, onSelectUser }) {
             }
         }
         return false;
-    }
-    const userIsFriend = searchResultIsFriend(user);   
+    };
+
+    const userIsFriend = searchResultIsFriend(user);
+
     return (
-        
         <div className={Styles.searchResultCard} onClick={onSelectUser}>
-            {user.profile.firstName} {user.profile.lastName}
-            {userIsFriend? (
-                <div>
-                    <div onClick={handleRemoveFriend}>Remove</div>
+            <div className={Styles.rowContainer}>
+                <span className={Styles.userName}>{user.profile.firstName} {user.profile.lastName}</span>
+                <div className={Styles.actionIcons}>
+                    {userIsFriend ? (
+                        <FaUserTimes
+                            className={Styles.icon}
+                            title="Remove Friend"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveFriend();
+                            }}
+                        />
+                    ) : (
+                        <>
+                            <FaUserPlus
+                                className={Styles.icon}
+                                title="Add Friend"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSendFriendRequest();
+                                }}
+                            />
+                            <FaBan
+                                className={Styles.icon}
+                                title="Block User"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleBlockAccount();
+                                }}
+                            />
+                        </>
+                    )}
                 </div>
-            ) : (
-            <div>
-                <div onClick={handleSendFriendRequest}>Add</div>
-                <div onClick={handleBlockAccount}>Block</div>
             </div>
-            )}
-            
         </div>
-    )
+    );
 }
