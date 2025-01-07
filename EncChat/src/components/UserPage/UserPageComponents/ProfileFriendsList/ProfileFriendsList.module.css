@@ -40,3 +40,9 @@
     background-color: #867aff;
     color: white;
 }
+
+.ulFriendList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }

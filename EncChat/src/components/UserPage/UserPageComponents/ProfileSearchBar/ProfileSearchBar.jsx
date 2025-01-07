@@ -24,11 +24,17 @@ export default function ProfileSearchBar({friendData}) {
     }
 
     const handleInputChange = async (event) => {
-        if(event.target.value != '') {
-            const res = await findUsers(event.target.value);
-            if(res) setSearchResults(res);
+        const value = event.target.value;
+        setInput(value);
+    
+        if (value === '') {
+            setSearchResults([]);
+        } else {
+            const res = await findUsers(value);
+            if (res) setSearchResults(res);
         }
-    }
+    };
+    
 
     return (
         <div className="searchBar">

@@ -1,18 +1,19 @@
 import Styles from './ChatMessage.module.css';
 import placeHolderImage from '../../../../../assets/placeholder_user.png';
 
-export default function ChatMessage({ message, accountId, fData }) {
-    const isUserMessage = message.authorId === accountId ? true : false;
+export default function ChatMessage({ message, accountId, fData, position }) {
+    const isUserMessage = message.authorId === accountId;
+
     return (
         <div
             className={`${Styles.messageBubble} ${
                 isUserMessage ? Styles.userMessage : Styles.otherMessage
-            }`}
+            } ${Styles[position]}`}
         >
-            <p className={Styles.messageContent}>
-                {isUserMessage? null : <img className={Styles.messageImg} src={placeHolderImage} />}
-                {message.content}
-            </p>
+            {!isUserMessage && (position === 'first' || position === 'single') && (
+                <img className={Styles.messageImg} src={placeHolderImage} alt="User" />
+            )}
+            <p className={Styles.messageContent}>{message.content}</p>
         </div>
     );
 }
