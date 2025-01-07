@@ -15,22 +15,6 @@ html, body {
   padding:0;
 }
 
-@media (max-width: 1200px) {
-  .landingPage .description {
-    display: none;
-  }
-
-  .landingPage .banner {
-    justify-content: center;
-  }
-
-  .landingPage .contentContainer {
-    margin: auto;
-  }
-
-  
-}
-
 .banner {
   padding: 20px;
   display: flex;
@@ -76,34 +60,7 @@ html, body {
   text-decoration: none;
 }
 
-input[type="text"],
-input[type="password"],
-input[type="email"] {
-  width: 90%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-input {
-  background-color: #f4f2f7;
-  color: #333;
-  padding: 10px;
-  border-radius: 8px;
-  outline: none;
-}
-
-input::placeholder {
-  color: #333;
-}
-
-input:focus {
-  background-color: #ffffff;
-  border-color: #3700b3;
-}
-
-button {
+.buttonLandingPage {
   width: 100%;
   padding: 10px;
   background-color: #4f008f;
@@ -113,7 +70,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+.buttonLandingPage:hover {
   background-color: #622396;
 }
 
@@ -131,6 +88,45 @@ button:hover {
   color: white;
   border-radius: 20px 20px 0 0;
   width: 60%;
+}
+
+.secondaryLogoContainer {
+  display: none;
+}
+
+@media (max-width: 1600px) {
+  .banner {
+    display: none;
+  }
+
+  .secondaryLogoContainer {
+    display: block;
+    left: 20px;
+    top: 20px;
+    z-index: 10;
+  }
+
+
+}
+
+@media (max-width: 1200px) {
+  .banner {
+    display:flex;
+  }
+
+  .landingPage .description {
+    display: none;
+  }
+
+  .landingPage .banner {
+    justify-content: center;
+  }
+
+  .landingPage .contentContainer {
+    margin: auto;
+  }
+
+  
 }
 
 

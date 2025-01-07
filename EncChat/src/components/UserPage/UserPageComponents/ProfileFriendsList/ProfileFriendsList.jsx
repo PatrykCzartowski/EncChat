@@ -38,7 +38,7 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
                 </button>
             </div>
 
-            <ul>
+            <ul className={Styles.ulFriendList}>
                 {Array.isArray(chatData)
                     ? chatData.map((chat) => {
                           if (!showGroupChats && !chat.group) {

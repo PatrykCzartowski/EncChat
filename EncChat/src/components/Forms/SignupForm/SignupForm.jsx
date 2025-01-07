@@ -131,7 +131,7 @@ export default function SignUpForm({ handleGoBack }) {
           Username
         </label>
         <input
-          className={`input ${isUsernameValid ? "" : "invalid"}`}
+          className={Styles.signUpInput}
           type="text"
           placeholder="Enter your username"
         />
@@ -146,7 +146,7 @@ export default function SignUpForm({ handleGoBack }) {
           Password
         </label>
         <input
-          className={`input ${isPasswordValid ? "" : "invalid"}`}
+          className={Styles.signUpInput}
           type="password"
           placeholder="Enter your password"
         />
@@ -161,7 +161,7 @@ export default function SignUpForm({ handleGoBack }) {
           Confirm Password
         </label>
         <input
-          className={`input ${arePasswordsMatching ? "" : "invalid"}`}
+          className={Styles.signUpInput}
           type="password"
           placeholder="Confirm password"
         />
@@ -171,14 +171,14 @@ export default function SignUpForm({ handleGoBack }) {
           Email
         </label>
         <input
-          className={`input ${isEmailValid ? "" : "invalid"}`}
+          className={Styles.signUpInput}
           type="email"
           placeholder="Enter your email"
         />
         {!isEmailValid && <p className="invalid">Please enter valid email</p>}
         <label className={`label ${isDateValid ? "" : "invalid"}`}>Date of Birth</label>
         <input
-          className={`input_date ${isDateValid ? "" : "invalid"}`}
+          className={Styles.signUpInput}
           type="date"
         />
         {!isDateValid && <p className="invalid">To create account you need to be at least 13 years old</p>}
@@ -188,9 +188,9 @@ export default function SignUpForm({ handleGoBack }) {
             onChange={(token) => setCaptchaToken(token)}
           />
         </div>
-        <button type="submit">Sign up</button>
+        <button className={Styles.buttonSignupForm} type="submit">Sign up</button>
         <p>or</p>
-        <button onClick={() => handleGoBack(false)}>Login</button>
+        <button className={Styles.buttonSignupForm} onClick={() => handleGoBack(false)}>Login</button>
       </form>
     </div>
   );

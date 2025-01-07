@@ -1,6 +1,6 @@
 import Styles from './SearchResult.module.css';
 
-export default function SearchResultCard({ user, friendData }) {
+export default function SearchResultCard({ user, friendData, onSelectUser }) {
     
     const handleSendFriendRequest = async () => {
         console.log("Friend Request Sent");
@@ -25,7 +25,7 @@ export default function SearchResultCard({ user, friendData }) {
     const userIsFriend = searchResultIsFriend(user);   
     return (
         
-        <div>
+        <div className={Styles.searchResultCard} onClick={onSelectUser}>
             {user.profile.firstName} {user.profile.lastName}
             {userIsFriend? (
                 <div>

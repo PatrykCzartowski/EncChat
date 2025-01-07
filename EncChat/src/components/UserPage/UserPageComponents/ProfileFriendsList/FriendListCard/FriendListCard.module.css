@@ -1,12 +1,12 @@
 .friendCard {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+  width: 100%;
   padding: 15px;
-  border-bottom: 1px solid #e0e0e0;
   cursor: pointer;
-  background-color: #f4f2f7;
-  border-radius: 15px;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  list-style: none; 
 }
 
 .friendCard:hover {
@@ -24,6 +24,7 @@
 
 .friendCardContent {
   flex: 1;
+  text-align:left;
 }
 
 .friendName {

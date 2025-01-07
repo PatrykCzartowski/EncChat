@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: #f9f9f9;
     border-radius: 10px;
     border: 1px solid #ddd;
     overflow: hidden;
@@ -32,13 +31,11 @@
 
 .chatInputForm {
     padding: 1rem;
-    background-color: #f9f9f9;
-    border-top: 1px solid #ddd;
 }
 
 .inputWrapper {
     position: relative;
-    width: 100%;
+    width: 96%;
     display: flex;
     align-items: center;
     background-color: #f4f4f8;
@@ -56,6 +53,7 @@
     font-size: 1rem;
     padding: 0.5rem;
     border-radius: 25px;
+    color:black;
 }
 
 .chatInput::placeholder {
@@ -64,7 +62,7 @@
 
 .chatArrowButton {
     position: absolute;
-    right: 15px; 
+    right: 1px; 
     background: none;
     border: none;
     color: #6a5acd;
@@ -77,4 +75,27 @@
 .chatArrowButton:hover {
     color: #4a4cad;
     background-color: #f4f4f8;
+}
+
+.chatMessages::-webkit-scrollbar {
+    width: 10px;
+}
+
+.chatMessages::-webkit-scrollbar-track {
+    background: #f4f4f8;
+    border-radius: 10px;
+}
+
+.chatMessages::-webkit-scrollbar-thumb {
+    background: #6a5acd;
+    border-radius: 10px;
+}
+
+.chatMessages::-webkit-scrollbar-thumb:hover {
+    background: #4a4cad;
+}
+
+.chatMessages {
+    scrollbar-width: thin;
+    scrollbar-color: #6a5acd #f4f4f8;
 }
