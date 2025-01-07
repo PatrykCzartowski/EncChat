@@ -17,12 +17,8 @@ export default function UserPage() {
   const [accountProfileData, setAccountProfileData] = useState({});
   const [accountFriendsList, setAccountFriendsList] = useState([]);
   const [accountFriendsData, setAccountFriendsData] = useState([]);
-  const [accountChatsList, setAccountChatsList] = useState([]);
-  const [accountChatsData, setAccountChatsData] = useState([]);
   const [chatAggregatedData, setChatAggregatedData] = useState({});
-  const [accountMessagesList, setAccountMessagesList] = useState({});
   const [openedChat, setOpenedChat] = useState(null);
-  const [socket, setSocket] = useState(null);
 
   const {sendMessage, lastMessage, readyState} = useWebSocket(WS_URL, {
     onOpen: () => {
@@ -166,7 +162,7 @@ export default function UserPage() {
     <div className="userPage">
       <div className="leftSection">
       <ProfileInfo account={account} profile={accountProfileData}/>
-      <ProfileSearchBar />
+      <ProfileSearchBar accountId={account.id} friendData={accountFriendsData}/>
       <ProfileFriendsList accountID={account.id} chatData={chatAggregatedData} friendData={accountFriendsData} onChangeOpenedChat={handleChangeOpenedChat}/>
       </div>
       <div className="rightSection">

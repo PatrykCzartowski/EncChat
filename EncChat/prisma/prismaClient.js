@@ -229,6 +229,16 @@ app.post("/api/account/verify_email", async (req, res) => {
   }
 })
 
+app.post("/api/account/create_profile", async (req, res) => {
+  try {
+    const {accountId, ProfileData} = req.body;
+    const profile = await updateProfile(accountId, ProfileData);
+    if(profile) return res.json(profile);
+  } catch (error) {
+    console.error("Error creating profile: ", error);
+  }
+})
+
 app.post("/api/forgot_password/find_account", async (req, res) => {
   try {
     const accountData = req.body;
