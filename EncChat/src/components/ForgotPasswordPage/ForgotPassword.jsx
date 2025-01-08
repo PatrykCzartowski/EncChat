@@ -74,9 +74,9 @@ export default function ForgotPassword() {
         </p>
         <div>
           <form onSubmit={handleEmailSubmit}>
-            <input type="email" placeholder="Email" />
+            <input className={Styles.passwordInput} type="email" placeholder="Email" />
             {emailIsValid? null : <p>Provided email is Invalid</p>}
-            <button>Send</button>
+            <button className={Styles.buttonForgotPassword}>Send</button>
           </form>
         </div>
         </div>
@@ -87,8 +87,8 @@ export default function ForgotPassword() {
         please enter the code in the email to reset your password below.
         </p>
         <form onSubmit={handleResetPassword}>
-          <input type="text" placeholder="Enter your code here" />
-          <button type="submit">Reset password</button>
+          <input className={Styles.passwordInput} type="text" placeholder="Enter your code here" />
+          <button className={Styles.buttonForgotPassword} type="submit">Reset password</button>
         </form>
         </div>
       )}

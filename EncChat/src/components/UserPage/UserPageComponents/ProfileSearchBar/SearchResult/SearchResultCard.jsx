@@ -1,14 +1,8 @@
 import Styles from "./SearchResult.module.css";
+import { FaUserPlus, FaBan, FaUserTimes } from 'react-icons/fa';
 
-export default function SearchResultCard({
-  user,
-  friendData,
-  onSelectUser,
-  currentUserId,
-  onHandleSendFriendRequest,
-  onHandleBlockAccount,
-  onHandleRemoveFriend,
-}) {
+export default function SearchResultCard({user, friendData, onSelectUser, currentUserId, onHandleSendFriendRequest, onHandleBlockAccount, onHandleRemoveFriend}) {
+  
   const searchResultIsFriend = (searchResult) => {
     for (let i = 0; i < friendData.length; i++) {
       if (friendData[i].accountId === searchResult.id) {
@@ -35,27 +29,49 @@ export default function SearchResultCard({
   if (foundUserIsCurrentUser) {
     return (
       <div className={Styles.searchResultCard} onClick={onSelectUser}>
-        {user.profile.firstName} {user.profile.lastName}
-        <div>
-          <p>That's you!</p>
+        <div className={Styles.rowContainer}>
+          {user.profile.firstName} {user.profile.lastName}
+          <div>
+            <p>That's you!</p>
+          </div>
         </div>
       </div>
     );
   } else {
     return (
       <div className={Styles.searchResultCard} onClick={onSelectUser}>
-        {user.profile.firstName} {user.profile.lastName}
-        {userIsFriend ? (
-          <div>
-            <button onClick={handleRemoveFriend}>Remove</button>
-          </div>
-        ) : (
-          <div>
-            {user.profile.firstName} {user.profile.lastName}
-            <button onClick={handleSendFriendRequest}>Add</button>
-            <button onClick={handleBlockAccount}>Block</button>
-          </div>
-        )}
+        <div className={Styles.rowContainer}>
+          {user.profile.firstName} {user.profile.lastName}
+          {userIsFriend ? (
+            <FaUserTimes
+              className={Styles.icon}
+              title="Remove Friend"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRemoveFriend();
+              }}
+            />
+            ) : (
+            <>
+             <FaUserPlus
+                className={Styles.icon}
+                title="Add Friend"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSendFriendRequest();
+                }}
+             />
+             <FaBan
+                className={Styles.icon}
+                title="Block User"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBlockAccount();
+                }}
+             />
+            </>
+          )}
+        </div>
       </div>
     );
   }

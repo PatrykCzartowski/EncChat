@@ -11,7 +11,7 @@ export default function SearchResult({ searchResults, onSelectUser, friendData, 
                     key={user.id}
                     user={user}
                     friendData={friendData}
-//                    onSelectUser={() => onSelectUser(user)}
+//                  onSelectUser={() => onSelectUser(user)}
                     currentUserId={currentUserId}
                     onHandleSendFriendRequest={onHandleSendFriendRequest}
                     onHandleBlockAccount={onHandleBlockAccount}
