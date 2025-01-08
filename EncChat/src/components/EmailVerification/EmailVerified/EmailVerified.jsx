@@ -35,7 +35,7 @@ export default function EmailVerified() {
       <p>We'll automatically redirect you to landing page in</p>
       <h2>{seconds}</h2>
       <p>or you can go now by clicking on button below</p>
-      <button>
+      <button className={Styles.buttonEmailVerified}>
         <Link to="/">Go back</Link>{" "}
       </button>
       </div>

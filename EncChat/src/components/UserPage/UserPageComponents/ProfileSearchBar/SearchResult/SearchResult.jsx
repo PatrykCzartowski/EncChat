@@ -12,3 +12,6 @@ export default function SearchResult({ searchResults, onSelectUser, friendData }
                     onSelectUser={() => onSelectUser(user)}
                 />
             ))}
+        </div> 
+    );
+}

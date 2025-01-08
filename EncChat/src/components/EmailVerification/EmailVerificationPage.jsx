@@ -75,12 +75,12 @@ export default function EmailVerificationPage() {
         the 6 character code from the email.
       </p>
       {!isButtonClicked ? (
-        <button onClick={() => handleButtonClick()}>Send email</button>
+        <button className={Styles.buttonEmailVerificication} onClick={() => handleButtonClick()}>Send email</button>
       ) : (
         <form onSubmit={verifyEmail}>
-          <input type="text" />
+          <input className={Styles.emailVerificationInput} type="text" />
           {!isKeyValid && <p>Entered Key is not valid.</p>}
-          <button type="submit">Verify</button>
+          <button className={Styles.buttonEmailVerificication} type="submit">Verify</button>
         </form>
       )}
       </div>

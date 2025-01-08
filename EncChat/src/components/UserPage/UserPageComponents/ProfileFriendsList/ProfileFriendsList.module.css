@@ -31,13 +31,13 @@
 }
 
 .toggleButton.active {
-    background-color: #6a5acd;
+    background-color: #4F008F;
     color: white;
     font-weight: bold;
 }
 
 .toggleButton:hover {
-    background-color: #867aff;
+    background-color: #4F008F;
     color: white;
 }
 

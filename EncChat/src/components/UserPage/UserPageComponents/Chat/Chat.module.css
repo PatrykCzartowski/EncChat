@@ -65,7 +65,7 @@
     right: 1px; 
     background: none;
     border: none;
-    color: #6a5acd;
+    color: #4F008F;
     font-size: 1.5rem;
     cursor: pointer;
     transition: color 0.3s ease;
@@ -87,7 +87,7 @@
 }
 
 .chatMessages::-webkit-scrollbar-thumb {
-    background: #6a5acd;
+    background: #4F008F;
     border-radius: 10px;
 }
 
