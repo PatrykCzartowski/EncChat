@@ -4,7 +4,7 @@ import { FaBell, FaCog } from 'react-icons/fa';
 import placeHolderImage from '../../../../../assets/placeholder_user.png';
 import Notifications from './Notifications/Notifications';
 
-export default function ChatHeader({ name, showSettings }) {
+export default function ChatHeader({ name, showSettings, accountId }) {
     const [showNotifications, setShowNotifications] = useState(false);
 
     const toggleNotifications = () => {
@@ -45,7 +45,7 @@ export default function ChatHeader({ name, showSettings }) {
                 />
                 {showSettings && <FaCog className={styles.icon} />}
             </div>
-            <Notifications show={showNotifications} />
+            <Notifications show={showNotifications} accountId={accountId}/>
         </div>
     );
 }

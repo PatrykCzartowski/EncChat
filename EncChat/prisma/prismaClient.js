@@ -26,8 +26,9 @@ app.use(express.json());
 // ↓↓↓↓↓ SERVER PART ↓↓↓↓↓
 import { findAccount, createAccount, updateAccount, deleteAccount, getAccounts, verifyEmailAddress, updateAccountPassword } from "./models/AccountModel.js";
 import { getProfile, updateProfile, findProfileLike} from "./models/ProfileModel.js";
-import { getFriends, getFriendProfile, } from "./models/FriendModel.js";
+import { getFriends, getFriendProfile, createFriend } from "./models/FriendModel.js";
 import { getChatsList, getChatData, getChatMessages, getChatAccounts, getAggregatedChatData, createMessage, createChat, } from "./models/ChatModel.js";
+import { createFriendRequest, getFriendRequests, acceptFriendRequest, declineFriendRequest, } from "./models/FriendRequestModel.js";
 
 const tokenForUser = (user) => {
   const timestamp = new Date().getTime();
@@ -50,10 +51,10 @@ wsServer.on('connection', function(connection) {
     try {
       const data = JSON.parse(message);
       
-      if(data.type === 'FRIEND_REQUEST') {
+      if(data.type === 'SEND_FRIEND_REQUEST') {
         const { senderId, receiverId } = data.payload;
-
-        if(clients[receiverId] && clients[receiverId],readyState === WebSocket.OPEN) {
+        const result = await createFriendRequest(data.payload);
+        if(clients[receiverId] && clients[receiverId].readyState === WebSocket.OPEN) {
           clients[receiverId].send(
             JSON.stringify({
               type: 'FRIEND_REQUEST_RECEIVED',
@@ -278,6 +279,46 @@ app.post("/api/forgot_password/change_password", async (req, res) => {
     if(result) return res.json(result);
   } catch (error) {
     console.error("Error changing password: ", error);
+  }
+})
+
+app.post("/api/account/get_friend_requests", async (req, res) => {
+  try {
+    const accountId = req.body.id;
+    const friendRequests = await getFriendRequests(accountId);
+    if(friendRequests) return res.json(friendRequests);
+  } catch (error) {
+    console.error("Error getting friend requests: ", error);
+  }
+})
+
+app.post("/api/account/accept_friend_request", async (req, res) => {
+  try {
+    const requestId = req.body.id;
+    const result = await acceptFriendRequest(requestId);
+    if(result) return res.json(result);
+  } catch (error) {
+    console.error("Error accepting friend request: ", error);
+  }
+})
+
+app.post("/api/account/decline_friend_request", async (req, res) => {
+  try {
+    const requestId = req.body.id;
+    const result = await declineFriendRequest(requestId);
+    if(result) return res.json(result);
+  } catch (error) {
+    console.error("Error declining friend request: ", error);
+  }
+})
+
+app.post("/api/account/create_friend", async (req, res) => {
+  try {
+    const {accountId, friendId} = req.body;
+    const result = await createFriend(accountId, friendId);
+    if(result) return res.json(result);
+  } catch (error) {
+    console.error("Error creating friend: ", error);
   }
 })
 // ↑↑↑↑↑ SERVER PART ↑↑↑↑↑

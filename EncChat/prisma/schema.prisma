@@ -93,7 +93,8 @@ model FriendRequest {
     receiver Account @relation("ReceiverRelation", fields: [receiverId], references: [id])
     receiverId Int
     createdAt DateTime @default(now())
-    accepted Boolean @default(false)
+    status String @default("SEND")
+    hidden Boolean @default(false)
 }
 
 model BlockedUser {

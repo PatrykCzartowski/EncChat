@@ -25,6 +25,8 @@ export default function SearchResultCard({user, friendData, onSelectUser, curren
     onHandleRemoveFriend(user.id);
   };
 
+  console.log("user: ", user);
+
   const foundUserIsCurrentUser = user.id === currentUserId;
   if (foundUserIsCurrentUser) {
     return (

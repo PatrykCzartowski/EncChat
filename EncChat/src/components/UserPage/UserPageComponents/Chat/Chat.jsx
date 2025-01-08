@@ -24,7 +24,7 @@ export default function Chat({ chatData, handleMessageSubmit, accountId, friends
 
     return (
         <div className={Styles.chatContainer}>
-            <ChatHeader name={chatHeaderName} showSettings={!!selectedChat} />
+            <ChatHeader name={chatHeaderName} showSettings={!!selectedChat} accountId={accountId}/>
 
             {selectedChat ? (
                 <div className={Styles.chatMessages}>
