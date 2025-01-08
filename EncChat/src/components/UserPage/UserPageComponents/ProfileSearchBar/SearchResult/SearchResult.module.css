@@ -23,7 +23,7 @@
 }
 
 .searchResultContainer::-webkit-scrollbar-thumb {
-    background: #6a5acd;
+    background: #4F008F;
     border-radius: 10px;
 }
 
@@ -33,7 +33,7 @@
 
 .searchResultContainer {
     scrollbar-width: thin;
-    scrollbar-color: #6a5acd #f4f4f8;
+    scrollbar-color: #4F008F #f4f4f8;
 }
 
 .searchResultCard {
@@ -81,5 +81,5 @@
 }
 
 .icon:hover {
-    color: #6a5acd;
+    color: #4F008F;
 }
