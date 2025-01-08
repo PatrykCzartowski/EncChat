@@ -162,7 +162,13 @@ export default function UserPage() {
     <div className="userPage">
       <div className="leftSection">
       <ProfileInfo account={account} profile={accountProfileData}/>
-      <ProfileSearchBar accountId={account.id} friendData={accountFriendsData}/>
+      <ProfileSearchBar 
+        accountId={account.id} 
+        friendData={accountFriendsData} 
+        currentUserId={account.id} 
+        socketUrl={WS_URL}
+        sendMessage={sendMessage}
+      />
       <ProfileFriendsList accountID={account.id} chatData={chatAggregatedData} friendData={accountFriendsData} onChangeOpenedChat={handleChangeOpenedChat}/>
       </div>
       <div className="rightSection">

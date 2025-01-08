@@ -35,14 +35,13 @@ const tokenForUser = (user) => {
 }
 
 //---->WEB SOCKET SERVER<----//
-
 const server = http.createServer();
 const wsServer = new WebSocketServer({ server });
 const wsPort = process.env.WS_PORT || 8080;
 const clients = {}
 wsServer.on('connection', function(connection) {
   const userId = uuidv4();
-  console.log(`Received connection from ${connection}`);
+  console.log(`Received connection from ${userId}`);
   clients[userId] = connection;
   console.log(`${userId} connected.`);
 
@@ -50,22 +49,45 @@ wsServer.on('connection', function(connection) {
     console.log(`Received message ${message}`);
     try {
       const data = JSON.parse(message);
-      const result = await createMessage(data);
+      
+      if(data.type === 'FRIEND_REQUEST') {
+        const { senderId, receiverId } = data.payload;
 
-      Object.values(clients).forEach(client => {
-        if(client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({
-            type: 'NEW_MESSAGE',
-            payload: data
-          }));
+        if(clients[receiverId] && clients[receiverId],readyState === WebSocket.OPEN) {
+          clients[receiverId].send(
+            JSON.stringify({
+              type: 'FRIEND_REQUEST_RECEIVED',
+              payload: {senderId}
+            })
+          )
+          console.log(`Friend request sent from ${senderId} to ${receiverId}`);
+        } else {
+          console.log(`Friend request failed from ${senderId} to ${receiverId}`);
+          connection.send(JSON.stringify({ success: false, error: "Receiver not connected"}));
         }
-      });
+      } else if(data.type === 'NEW_MESSAGE') {
+        const result = await createMessage(data.payload);
+
+        Object.values(clients).forEach(client => {
+          if(client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'NEW_MESSAGE',
+              payload: data
+            })
+          );
+          }
+        });
+      }
     } catch (error) {
-      console.error("Error creating message: ", error);
-      connection.send(JSON.stringify({ success:false, error}));
-    }
+        console.error("Error creating message: ", error);
+        connection.send(JSON.stringify({ success:false, error}));
+      } 
   }); 
 
+  connection.on('close', () => {
+    console.log(`${userId} disconnected.`);
+    delete clients[userId];
+  });
 });
 
 

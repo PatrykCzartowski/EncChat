@@ -2,8 +2,9 @@ import './ProfileSearchBar.css';
 import { FaSearch } from 'react-icons/fa';
 import { useState } from 'react';
 import SearchResult from './SearchResult/SearchResult';
+import { useWebSocket } from 'react-use-websocket';
 
-export default function ProfileSearchBar({friendData}) {
+export default function ProfileSearchBar({friendData, currentUserId, sendMessage}) {
     const [input, setInput] = useState('');
     const [searchResults, setSearchResults] = useState([]);
 
@@ -35,6 +36,26 @@ export default function ProfileSearchBar({friendData}) {
         }
     };
     
+        const handleSendFriendRequest = (userId) => {
+            const payload = {
+                type: 'SEND_FRIEND_REQUEST',
+                payload: {
+                    senderId: currentUserId,
+                    receiverId: userId,
+                },
+            };
+    
+            sendMessage(JSON.stringify(payload));
+            console.log("Friend Request Sent");
+        };
+    
+        const handleBlockAccount = async () => {
+            console.log("Account Blocked");
+        }
+        
+        const handleRemoveFriend = async () => {
+            console.log("Friend Removed");
+        }
 
     return (
         <div className="searchBar">
@@ -49,7 +70,14 @@ export default function ProfileSearchBar({friendData}) {
                 <FaSearch className="searchIcon" />
                 </form>
             </div>
-            <SearchResult searchResults={searchResults} friendData={friendData}/>
+            <SearchResult 
+                searchResults={searchResults} 
+                friendData={friendData} 
+                currentUserId={currentUserId} 
+                onHandleSendFriendRequest={handleSendFriendRequest}
+                onHandleBlockAccount={handleBlockAccount}
+                onHandleRemoveFriend={handleRemoveFriend}
+            />
         </div>
     );
 }
