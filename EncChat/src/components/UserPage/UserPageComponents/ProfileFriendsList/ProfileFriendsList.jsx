@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Styles from './ProfileFriendsList.module.css';
 import FriendListCard from './FriendListCard/FriendListCard';
 
-export default function ProfileFriendsList({ accountID, friendData, chatData, onChangeOpenedChat }) {
+export default function ProfileFriendsList({ accountID, friendData, chatData, onChangeOpenedChat, onUpdateCurrentlyOpenedChats }) {
     const [showGroupChats, setShowGroupChats] = useState(false);
 
     const getLastMessage = (chatID) => {
@@ -18,7 +18,15 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
     };
 
     const handleClick = (chatID) => {
+        const openedChats = JSON.parse(localStorage.getItem('openedChats')) || [];
+        
+        if (!openedChats.includes(chatID)) {
+            openedChats.push(chatID);
+            localStorage.setItem('openedChats', JSON.stringify(openedChats));
+        }
+
         onChangeOpenedChat(chatID);
+        onUpdateCurrentlyOpenedChats();
     };
 
     return (

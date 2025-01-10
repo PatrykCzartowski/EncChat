@@ -19,6 +19,7 @@ export default function UserPage() {
   const [accountFriendsData, setAccountFriendsData] = useState([]);
   const [chatAggregatedData, setChatAggregatedData] = useState({});
   const [openedChat, setOpenedChat] = useState(null);
+  const [currentOpenedChats, setCurrentOpenedChats] = useState([]);
 
   const {sendMessage, lastMessage, readyState} = useWebSocket(WS_URL, {
     onOpen: () => {
@@ -27,17 +28,20 @@ export default function UserPage() {
     onMessage: (event) => {
       const message = JSON.parse(event.data);
       if(message.type === 'NEW_MESSAGE') {
-        setChatAggregatedData((prevData => {
+        setChatAggregatedData((prevData) => {
           return prevData.map(chat => {
-            if(chat.id === message.payload.chatId) {
+            if(chat.id === message.payload.payload.chatId) {
               return {
                 ...chat,
-                messages: [...chat.messages, message.payload],
+                messages: [...chat.messages, message.payload.payload],
               }
             }
             return chat;
           });
-        }));
+        });
+      } else if (message.type === 'FRIEND_CREATED') {
+        getAccountFriends(account.id);
+        getAggregatedChatData(account.id);
       }
     }
   });
@@ -129,7 +133,6 @@ export default function UserPage() {
     if(account) {
       getAggregatedChatData(account.id);
     }
-    console.log(chatAggregatedData);
 
   }, [account]);
 
@@ -141,15 +144,17 @@ export default function UserPage() {
     event.preventDefault();
     const messageContent = event.target[0].value;
     const chatID = openedChat;
-    const message = {
-      chatId: chatID,
-      content: messageContent,
-      authorId: account.id,
-      createdAt: new Date().toISOString(),
-    };
-    
+    const payload = {
+      type: 'NEW_MESSAGE',
+      payload: {
+        chatId: chatID,
+        content: messageContent,
+        authorId: account.id,
+        createdAt: new Date().toISOString(),
+      }
+    }
     if(readyState === WebSocket.OPEN) {
-      sendMessage(JSON.stringify(message));
+      sendMessage(JSON.stringify(payload));
       console.log('Message sent');
     } else {
       console.log("WebSocket is not open. ReadyState: ", readyState);
@@ -157,6 +162,17 @@ export default function UserPage() {
 
     event.target.reset();
   };
+
+  const updateCurrentlyOpenedChats = () => {
+    const openedChats = JSON.parse(localStorage.getItem('openedChats')) || [];
+
+    const openedChatAggregatedData = Array.isArray(chatAggregatedData)
+  ? chatAggregatedData.filter(chat => openedChats.includes(chat.id))
+  : [];
+
+    setCurrentOpenedChats(openedChatAggregatedData)
+    console.log(currentOpenedChats)
+  }
 
   return (
     <div className="userPage">
@@ -169,7 +185,7 @@ export default function UserPage() {
         socketUrl={WS_URL}
         sendMessage={sendMessage}
       />
-      <ProfileFriendsList accountID={account.id} chatData={chatAggregatedData} friendData={accountFriendsData} onChangeOpenedChat={handleChangeOpenedChat}/>
+      <ProfileFriendsList accountID={account.id} chatData={chatAggregatedData} friendData={accountFriendsData} onChangeOpenedChat={handleChangeOpenedChat} onUpdateCurrentlyOpenedChats={updateCurrentlyOpenedChats}/>
       </div>
       <div className="rightSection">
       <Chat 
@@ -177,6 +193,9 @@ export default function UserPage() {
         handleMessageSubmit={handleMessageSubmit}
         accountId={account.id}
         friendsData = {accountFriendsData}
+        sendMessage={sendMessage}
+        currentOpenedChats = {currentOpenedChats}
+        onChangeOpenedChat={handleChangeOpenedChat}
         />
       </div>
     </div>
