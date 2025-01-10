@@ -1,41 +1,29 @@
 import React, { useState } from 'react';
 import styles from './ChatHeader.module.css';
 import { FaBell, FaCog } from 'react-icons/fa';
-import placeHolderImage from '../../../../../assets/placeholder_user.png';
 import Notifications from './Notifications/Notifications';
 
-export default function ChatHeader({ name, showSettings }) {
+import ChatHeaderCard from './ChatHeaderCard/ChatHeaderCard';
+
+export default function ChatHeader({ name, showSettings, accountId, sendMessage, currentOpenedChats, onChangeOpenedChat }) {
     const [showNotifications, setShowNotifications] = useState(false);
 
     const toggleNotifications = () => {
         setShowNotifications((prev) => !prev);
     };
 
+    const handleCardClick = (chatID) => {
+        onChangeOpenedChat(chatID);
+    }
+
     return (
         <div className={styles.chatHeader}>
             <div className={styles.leftSection}>
-                <button className={styles.profileButton}>
-                    <img 
-                        src={placeHolderImage} 
-                        alt="friend icon" 
-                        className={styles.lastChatImage} 
-                    />
-                    <span className={styles.chatName}>{name}</span>
-                </button>
-                <button className={styles.profileButton}>
-                    <img 
-                        src={placeHolderImage} 
-                        alt="friend icon" 
-                        className={styles.lastChatImage} 
-                    />
-                </button>
-                <button className={styles.profileButton}>
-                    <img 
-                        src={placeHolderImage} 
-                        alt="friend icon" 
-                        className={styles.lastChatImage} 
-                    />
-                </button>
+                {currentOpenedChats.length > 0 && (
+                    currentOpenedChats.map((chat) => (
+                        <ChatHeaderCard key={chat.id} chatData={chat} onCardClick={handleCardClick}/>
+                    ))
+                )}
             </div>
 
             <div className={styles.rightSection}>
@@ -45,7 +33,7 @@ export default function ChatHeader({ name, showSettings }) {
                 />
                 {showSettings && <FaCog className={styles.icon} />}
             </div>
-            <Notifications show={showNotifications} />
+            <Notifications show={showNotifications} accountId={accountId} sendMessage={sendMessage}/>
         </div>
     );
 }

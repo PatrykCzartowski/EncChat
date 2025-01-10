@@ -1,8 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './Notifications.module.css';
+import FriendRequestCard from './NotificationsCards/FriendRequestCard';
 
-export default function Notifications({ show }) {
+
+export default function Notifications({ show, accountId, sendMessage }) {
     const [activeTab, setActiveTab] = useState('others');
+
+    const [friendRequests, setFriendRequests] = useState([]);
+    const [otherNotifications, setOtherNotifications] = useState([]);
+
+    const getFriendRequests = async () => {
+        const response = await fetch('/api/account/get_friend_requests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: accountId }),
+        })
+        if(response.ok) {
+            const requests = await response.json();
+            setFriendRequests(requests);
+        }
+    }
+
+    const createFriend = async (friendId) => {
+        const response = await fetch('/api/account/create_friend', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ accountId, friendId }),
+        });
+        if(response.ok) {
+            const result = await response.json();
+            if(result) {
+                getFriendRequests();
+            }
+        }
+    }
+
+    const HandleAcceptFriendRequest = async (requestId, senderId) => {
+        // Notify the server about the accepted friend request
+        const payload = {
+            type: 'FRIEND_REQUEST_ACCEPTED',
+            payload: {
+                requestId: requestId,
+                friendId: senderId,
+                accountId: accountId,
+                senderId: senderId
+            }
+        };
+        sendMessage(JSON.stringify(payload));
+        getFriendRequests();
+//      createFriend(senderId);
+    }
+
+    const HandleDeclineFriendRequest = async (requestId) => {
+        const response = await fetch('/api/account/decline_friend_request', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: requestId }),
+        });
+        if(response.ok) {
+            const result = await response.json();
+            if(result) {
+                getFriendRequests();
+            }
+        }
+    }
+    
+    useEffect(() => {
+        getFriendRequests();
+    }, []);
 
     if (!show) return null;
 
@@ -31,7 +102,21 @@ export default function Notifications({ show }) {
                 )}
                 {activeTab === 'requests' && (
                     <div>
-                        <p className={styles.notificationItem}>No friend requests</p>
+                        {friendRequests.filter(request => !request.hidden).length > 0 ? (
+                            friendRequests.filter(request => !request.hidden).map((request) => (
+                                <div key={request.id} className={styles.notificationItem}>
+                                    <FriendRequestCard 
+                                        key={request.id+10} 
+                                        senderId={request.senderId}
+                                        onHandleAcceptFriendRequest={HandleAcceptFriendRequest}
+                                        onHandleDeclineFriendRequest={HandleDeclineFriendRequest}
+                                        requestId={request.id}
+                                    />
+                                </div>
+                            ))
+                        ) : (
+                            <p className={styles.notificationItem}>No friend requests</p>
+                        )}
                     </div>
                 )}
             </div>

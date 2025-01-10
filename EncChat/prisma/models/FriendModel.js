@@ -18,9 +18,26 @@ export async function getFriendProfile(friendId) {
     return friendProfile;
 }
 
+export async function createFriend(accountId, newFriendId) {
+    const friend = await prisma.friend.create({
+        data: {
+            accountId: accountId,
+            friendId: newFriendId,
+        },
+    });
+    const newFriend = await prisma.friend.create({
+        data: {
+            accountId: newFriendId,
+            friendId: accountId,
+        },
+    });
+    return friend;
+}
+
 export default [
     getFriends, 
-    getFriendProfile
+    getFriendProfile,
+    createFriend,
 ];
 
 
