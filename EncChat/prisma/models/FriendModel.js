@@ -9,6 +9,18 @@ export async function getFriends(userId) {
     return friends;
 }
 
+export async function getFriendsIds(accountId) {
+    const ids = await prisma.friend.findMany({
+        where: {
+            accountId: accountId,
+        },
+        select: {
+            friendId: true,
+        }
+    });
+    return ids;
+}
+
 export async function getFriendProfile(friendId) {
     const friendProfile = await prisma.profile.findFirst({
         where: {
@@ -35,7 +47,8 @@ export async function createFriend(accountId, newFriendId) {
 }
 
 export default [
-    getFriends, 
+    getFriends,
+    getFriendsIds, 
     getFriendProfile,
     createFriend,
 ];

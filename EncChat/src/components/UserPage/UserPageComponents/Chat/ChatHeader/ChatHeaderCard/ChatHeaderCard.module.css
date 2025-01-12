@@ -24,3 +24,8 @@
     display: flex;
     align-items: center;
 }
+
+.CancelButton {
+    margin-left: 10px;
+    color:black;
+}

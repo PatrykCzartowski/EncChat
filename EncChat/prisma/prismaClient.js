@@ -41,6 +41,7 @@ import {
   getFriends,
   getFriendProfile,
   createFriend,
+  getFriendsIds,
 } from "./models/FriendModel.js";
 import {
   getChatsList,
@@ -50,6 +51,7 @@ import {
   getAggregatedChatData,
   createMessage,
   createChat,
+  getLastMessageForPrivateChat,
 } from "./models/ChatModel.js";
 import {
   createFriendRequest,
@@ -184,16 +186,6 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-//Get profile data for logged user
-app.post("/api/account/get_profile", async (req, res) => {
-  try {
-    const accountID = req.body.id;
-    const profile = await getProfile(accountID);
-    if (profile) return res.json(profile);
-  } catch (error) {
-    console.error("Error getting profile: ", error);
-  }
-});
 
 //Get list of friends for logged user
 app.post("/api/account/get_friends", async (req, res) => {
@@ -392,6 +384,69 @@ app.post("/api/account/create_friend", async (req, res) => {
     console.error("Error creating friend: ", error);
   }
 });
+
+// ↓↓↓↓↓ REFORMED SERVER PART ↓↓↓↓↓
+
+app.post("/api/account/get_friends_ids", async (req, res) => {
+  console.log("");
+  console.log("Received request to /api/account/get_friends_ids");
+  try {
+    const accountId = req.body.id;
+    console.log("   Account ID received: ", accountId);
+    const ids = await getFriendsIds(accountId);
+    console.log("   Friend IDs fetched");
+    if (ids){
+      console.log("   Sending response with friend IDs");
+      return res.json(ids);
+    } else {
+      console.log("   No friend IDs found for account ID: ", accountId);
+    }
+  } catch (error) {
+    console.error("Error getting friends ids: ", error);
+  }
+});
+
+app.post("/api/account/get_profile", async (req, res) => {
+  console.log("");
+  console.log("Received request to /api/account/get_profile");
+  try {
+    const accountID = req.body.id;
+    console.log("   Account ID received: ", accountID);
+    const profile = await getProfile(accountID);
+    console.log("   Profile fetched");
+    if (profile) {
+      console.log("   Sending response with profile");
+      return res.json(profile);
+    } else {
+      console.log("   No profile found for account ID: ", accountID);
+    }
+  } catch (error) {
+    console.error("Error getting profile: ", error);
+  }
+});
+
+
+app.post("/api/friend_list/private_chat/get_last_message", async (req, res) => {
+  console.log("");
+  console.log("Received request to /api/friend_list/private_chat/get_last_message");
+  try {
+    const {userId, friendId} = req.body;
+    console.log("   User ID received: ", userId);
+    console.log("   Friend ID received: ", friendId);
+    const lastMessage = await getLastMessageForPrivateChat(userId, friendId);
+    console.log("   Last message fetched");
+    if (lastMessage) {
+      console.log("   Sending response with last message");
+      return res.json(lastMessage);
+    } else {
+      console.log("   No last message found for user ID: ", userId, "and friend ID: ", friendId);
+    }
+  } catch (error) {
+    console.error("Error getting last message: ", error);
+  }
+});
+// ↑↑↑↑↑ REFORMED SERVER PART ↑↑↑↑↑
+
 // ↑↑↑↑↑ SERVER PART ↑↑↑↑↑
 
 export default prisma;

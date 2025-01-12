@@ -196,6 +196,7 @@ export default function UserPage() {
         sendMessage={sendMessage}
         currentOpenedChats = {currentOpenedChats}
         onChangeOpenedChat={handleChangeOpenedChat}
+        updateCurrentlyOpenedChats={updateCurrentlyOpenedChats}
         />
       </div>
     </div>

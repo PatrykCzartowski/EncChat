@@ -5,7 +5,7 @@ import Notifications from './Notifications/Notifications';
 
 import ChatHeaderCard from './ChatHeaderCard/ChatHeaderCard';
 
-export default function ChatHeader({ name, showSettings, accountId, sendMessage, currentOpenedChats, onChangeOpenedChat }) {
+export default function ChatHeader({ name, showSettings, accountId, sendMessage, currentOpenedChats, onChangeOpenedChat, updateCurrentlyOpenedChats }) {
     const [showNotifications, setShowNotifications] = useState(false);
 
     const toggleNotifications = () => {
@@ -21,7 +21,7 @@ export default function ChatHeader({ name, showSettings, accountId, sendMessage,
             <div className={styles.leftSection}>
                 {currentOpenedChats.length > 0 && (
                     currentOpenedChats.map((chat) => (
-                        <ChatHeaderCard key={chat.id} chatData={chat} onCardClick={handleCardClick}/>
+                        <ChatHeaderCard key={chat.id} chatData={chat} onCardClick={handleCardClick} updateCurrentlyOpenedChats={updateCurrentlyOpenedChats}/>
                     ))
                 )}
             </div>

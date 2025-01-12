@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Styles from './ProfileFriendsList.module.css';
 import FriendListCard from './FriendListCard/FriendListCard';
 
 export default function ProfileFriendsList({ accountID, friendData, chatData, onChangeOpenedChat, onUpdateCurrentlyOpenedChats }) {
+
     const [showGroupChats, setShowGroupChats] = useState(false);
 
     const getLastMessage = (chatID) => {
@@ -29,6 +30,47 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
         onUpdateCurrentlyOpenedChats();
     };
 
+//TEST CODE
+
+    const [friendsProfiles, setFriendsProfiles] = useState([]);
+
+    const getFriendData = async (accountId) => {
+        const dbUserFriendsIdsResponse = await fetch("api/account/get_friends_ids", {
+            method: "POST", headers: {"Content-Type": "application/json",},
+            body: JSON.stringify({id: accountId}),
+        })
+        const userFriendsIds = await dbUserFriendsIdsResponse.json();
+        if(userFriendsIds)    {
+            const userFriendsProfiles = [];
+            userFriendsIds.forEach(async (friend) => {
+                const dbFriendProfileDataResponse = await fetch("/api/account/get_profile", {
+                    method: "POST", headers: {"Content-Type": "application/json",},
+                    body: JSON.stringify({id: friend.friendId}),
+                });
+                const friendProfileData = await dbFriendProfileDataResponse.json();
+                if(friendProfileData) {
+                    userFriendsProfiles.push(friendProfileData);
+                }
+            });
+            setFriendsProfiles(userFriendsProfiles);
+        }
+    }
+
+    const getLastMessageForPrivateChat = async (userId, friendId) => {
+        const lastMessageDbResponse = await fetch("/api/friend_list/private_chat/get_last_message", {
+            method: "POST", headers: {"Content-Type": "application/json",},
+            body: JSON.stringify({userId: userId, friendId: friendId}),
+        });
+        const lastMessage = await lastMessageDbResponse.json();
+        return lastMessage;
+    }
+
+    useEffect(() => {
+        getFriendData(accountID);
+    }, [accountID]);
+    
+//TEST CODE
+
     return (
         <div className={Styles.friendsListContainer}>
             <div className={Styles.toggleContainer}>
@@ -47,49 +89,16 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
             </div>
 
             <ul className={Styles.ulFriendList}>
-                {Array.isArray(chatData)
-                    ? chatData.map((chat) => {
-                          if (!showGroupChats && !chat.group) {
-                              const friendID = chat.accounts.filter(
-                                  (account) => account !== accountID
-                              );
-                              return (
-                                  <div key={chat.id + 10} onClick={() => handleClick(chat.id)}>
-                                      <FriendListCard
-                                          key={chat.id}
-                                          chatID={chat.chatId}
-                                          friendID={friendID[0]}
-                                          isGroup={false}
-                                          friendData={friendData.filter(
-                                              (data) => data.accountId === friendID[0]
-                                          )}
-                                          lastMessage={getLastMessage(chat.id)}
-                                      />
-                                  </div>
-                              );
-                          } else if (showGroupChats && chat.group) {
-                              const friendsID = chat.accounts.filter(
-                                  (account) => account !== accountID
-                              );
-                              return (
-                                  <div key={chat.id + 10} onClick={() => handleClick(chat.id)}>
-                                      <FriendListCard
-                                          key={chat.id}
-                                          chatID={chat.id}
-                                          friendID={friendsID}
-                                          isGroup={true}
-                                          friendData={friendData}
-                                          lastMessage={getLastMessage(chat.id)}
-                                          chatData={chatData.filter(
-                                              (chatData) => chatData.id === chat.id
-                                          )}
-                                      />
-                                  </div>
-                              );
-                          }
-                          return null;
-                      })
-                    : 'No chat data available'}
+                {friendsProfiles.map(friendProfile => (
+                    console.log(friendProfile),
+                    <FriendListCard
+                        key={friendProfile.id}
+                        friendProfile={friendProfile}
+                        lastMessage={getLastMessageForPrivateChat(accountID, friendProfile.accountId)}
+//                        lastMessage={getLastMessage(friendProfile.chatID)}
+//                        onClick={() => handleClick(friendProfile.chatID)}
+                    />
+                ))}
             </ul>
         </div>
     );

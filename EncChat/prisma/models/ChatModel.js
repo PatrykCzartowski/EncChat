@@ -87,6 +87,23 @@ export async function getAggregatedChatData(accountId) {
     return aggregatedChatData;
 }
 
+export async function getLastMessageForPrivateChat(userId, friendId) {
+    const lastMessage = await prisma.message.findFirst({
+        where: {
+            chat: {
+                AND: [
+                    { members: { some: { id: userId } } },
+                    { members: { some: { id: friendId } } },
+                    { group: false }
+                ]
+            }
+        },
+        orderBy: { createdAt: 'desc' }
+    });
+
+    return lastMessage;
+}
+
 export default [
     getChatsList,
     getChatData,
@@ -95,4 +112,5 @@ export default [
     getAggregatedChatData,
     createMessage,
     createChat,
+    getLastMessageForPrivateChat,
 ];

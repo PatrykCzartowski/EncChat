@@ -4,7 +4,7 @@ import ChatMessage from './ChatMessage/ChatMessage';
 import ChatHeader from './ChatHeader/ChatHeader';
 import { useEffect } from 'react';
 
-export default function Chat({ chatData, handleMessageSubmit, accountId, friendsData, sendMessage, currentOpenedChats, onChangeOpenedChat }) {
+export default function Chat({ chatData, handleMessageSubmit, accountId, friendsData, sendMessage, currentOpenedChats, onChangeOpenedChat, updateCurrentlyOpenedChats }) {
     const fallbackHeaderName = "No Chat Selected";
     const selectedChat = chatData && chatData.length > 0 ? chatData[0] : null;
     const friendsInChat = selectedChat
@@ -24,7 +24,15 @@ export default function Chat({ chatData, handleMessageSubmit, accountId, friends
 
     return (
         <div className={Styles.chatContainer}>
-<ChatHeader name={chatHeaderName} showSettings={!!selectedChat} accountId={accountId} sendMessage={sendMessage} currentOpenedChats={currentOpenedChats} onChangeOpenedChat={onChangeOpenedChat}/>
+<ChatHeader 
+    name={chatHeaderName} 
+    showSettings={!!selectedChat} 
+    accountId={accountId} 
+    sendMessage={sendMessage} 
+    currentOpenedChats={currentOpenedChats} 
+    onChangeOpenedChat={onChangeOpenedChat}
+    updateCurrentlyOpenedChats={updateCurrentlyOpenedChats}
+/>
 
             {selectedChat ? (
                 <div className={Styles.chatMessages}>
