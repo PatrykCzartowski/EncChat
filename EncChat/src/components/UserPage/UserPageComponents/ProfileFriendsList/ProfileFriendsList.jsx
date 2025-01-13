@@ -64,6 +64,7 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
                                               (data) => data.accountId === friendID[0]
                                           )}
                                           lastMessage={getLastMessage(chat.id)}
+                                          unreadCount={chat.unreadCount}
                                       />
                                   </div>
                               );

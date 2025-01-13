@@ -31,9 +31,11 @@ export default function UserPage() {
         setChatAggregatedData((prevData) => {
           return prevData.map(chat => {
             if(chat.id === message.payload.payload.chatId) {
+              const isCurrentChatOpen = openedChat === message.payload.payload.chatId;
               return {
                 ...chat,
                 messages: [...chat.messages, message.payload.payload],
+                unreadCount: isCurrentChatOpen ? 0 : (chat.unreadCount || 0) +1,                
               }
             }
             return chat;
@@ -138,6 +140,11 @@ export default function UserPage() {
 
   const handleChangeOpenedChat = (chatID) => {
     setOpenedChat(chatID);
+    setChatAggregatedData((prevData) => 
+      prevData.map(chat =>
+        chat.id === chatID ? { ...chat, unreadCount: 0 } : chat
+      )
+    );
   }
 
   const handleMessageSubmit = (event) => {

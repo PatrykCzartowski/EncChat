@@ -1,7 +1,7 @@
 import styles from './FriendListCard.module.css';
 import placeHolderImage from '../../../../../assets/placeholder_user.png';
 
-export default function FriendListCard({ chatID, friendID, isGroup, friendData, lastMessage, chatData }) {
+export default function FriendListCard({ chatID, friendID, isGroup, friendData, lastMessage, chatData, unreadCount }) {
     if (!isGroup) {
         //individual
         return (
@@ -17,6 +17,7 @@ export default function FriendListCard({ chatID, friendID, isGroup, friendData, 
                         {friendData && `${friendData[0]?.firstName} ${friendData[0]?.lastName}`}
                     </h3>
                     <p className={styles.lastMessage}>{lastMessage? lastMessage : null}</p>
+                    <span>{unreadCount}</span>
                 </div>
             </li>
         );
