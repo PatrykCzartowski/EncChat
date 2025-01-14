@@ -18,8 +18,10 @@ export default function UserPage() {
   const [accountFriendsList, setAccountFriendsList] = useState([]);
   const [accountFriendsData, setAccountFriendsData] = useState([]);
   const [chatAggregatedData, setChatAggregatedData] = useState({});
+  const [notifications, setNotifications] = useState([]);
   const [openedChat, setOpenedChat] = useState(null);
   const [currentOpenedChats, setCurrentOpenedChats] = useState([]);
+  const [wsClientId, setWsClientId] = useState(null);
 
   const {sendMessage, lastMessage, readyState} = useWebSocket(WS_URL, {
     onOpen: () => {
@@ -29,22 +31,44 @@ export default function UserPage() {
       const message = JSON.parse(event.data);
       if(message.type === 'NEW_MESSAGE') {
         setChatAggregatedData((prevData) => {
-          return prevData.map(chat => {
+          const updatedData = prevData.map(chat => {
             if(chat.id === message.payload.payload.chatId) {
-              return {
+              const isCurrentChatOpen = openedChat === message.payload.payload.chatId;
+              const updatedChat = {
                 ...chat,
                 messages: [...chat.messages, message.payload.payload],
+                unreadCount: isCurrentChatOpen ? 0 : (chat.unreadCount || 0) +1,                
               }
+              saveUnreadCountsToLocalStorage(updatedChat.id, updatedChat.unreadCount+1);
+
+              return updatedChat;
             }
             return chat;
           });
+          return updatedData;
         });
+      } else if(message.type === 'FRIEND_REQUEST') {
+        setNotifications((prev) => [...prev, { type: 'FRIEND_REQUEST', data: message.payload }]);
+      } else if(message.type === 'OTHER_NOTIFICATION') {
+        setNotifications((prev) => [...prev, { type: 'OTHER_NOTIFICATION', data: message.payload }]);
       } else if (message.type === 'FRIEND_CREATED') {
         getAccountFriends(account.id);
         getAggregatedChatData(account.id);
+      } else if (message.type === 'CONNECTED') {
+        sessionStorage.setItem('wsClientId', message.payload.userId);
       }
     }
   });
+
+  const saveUnreadCountsToLocalStorage = (chatId, unreadCount) => {
+    const unreadCounts = JSON.parse(localStorage.getItem('unreadCounts')) || {};
+    unreadCounts[chatId] = unreadCount;
+    localStorage.setItem('unreadCounts', JSON.stringify(unreadCounts));
+  };
+  
+  const loadUnreadCountsFromLocalStorage = () => {
+    return JSON.parse(localStorage.getItem('unreadCounts')) || {};
+  };
 
   const getAccountProfile = async (accountID) => {
     try {
@@ -126,7 +150,14 @@ export default function UserPage() {
       body: JSON.stringify({ id: accountID }),
     });
     const res = await response.json();
-    if(res) setChatAggregatedData(res);
+    if(res) {
+        const unreadCounts = loadUnreadCountsFromLocalStorage();
+        const updatedChatData = res.map(chat => ({
+          ...chat,
+          unreadCount: unreadCounts[chat.id] || 0,
+        }));
+        setChatAggregatedData(updatedChatData);
+    }
   }
 
   useEffect(() => {
@@ -138,6 +169,15 @@ export default function UserPage() {
 
   const handleChangeOpenedChat = (chatID) => {
     setOpenedChat(chatID);
+    setChatAggregatedData((prevData) => 
+      prevData.map(chat => {
+        if(chat.id === chatID) {
+          saveUnreadCountsToLocalStorage(chatID, 0);
+          return { ...chat, unreadCount: 0 };
+        }
+        return chat;
+      })
+    );
   }
 
   const handleMessageSubmit = (event) => {
@@ -196,6 +236,8 @@ export default function UserPage() {
         sendMessage={sendMessage}
         currentOpenedChats = {currentOpenedChats}
         onChangeOpenedChat={handleChangeOpenedChat}
+        setCurrentOpenedChats={setCurrentOpenedChats}
+        notifications={notifications}
         />
       </div>
     </div>

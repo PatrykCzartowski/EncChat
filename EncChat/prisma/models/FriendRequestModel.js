@@ -1,8 +1,11 @@
 import prisma from "../prismaClient.js";
 
-export async function createFriendRequest(friendRequestData) {
+export async function createFriendRequest(senderId, receiverId) {
     const friendRequest = await prisma.friendRequest.create({
-        data: friendRequestData,
+        data: {
+            senderId: senderId,
+            receiverId: receiverId,
+        }
     });
     return friendRequest;
 }

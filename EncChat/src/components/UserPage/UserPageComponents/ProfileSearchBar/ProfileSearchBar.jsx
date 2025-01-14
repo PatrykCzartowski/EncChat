@@ -37,11 +37,13 @@ export default function ProfileSearchBar({friendData, currentUserId, sendMessage
     };
     
         const handleSendFriendRequest = (userId) => {
+            const wsClientId = sessionStorage.getItem('wsClientId');
             const payload = {
                 type: 'SEND_FRIEND_REQUEST',
                 payload: {
                     senderId: currentUserId,
                     receiverId: userId,
+                    senderWsClientId: wsClientId,
                 },
             };
     

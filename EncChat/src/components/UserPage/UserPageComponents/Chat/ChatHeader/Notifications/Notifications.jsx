@@ -3,7 +3,7 @@ import styles from './Notifications.module.css';
 import FriendRequestCard from './NotificationsCards/FriendRequestCard';
 
 
-export default function Notifications({ show, accountId, sendMessage }) {
+export default function Notifications({ show, accountId, sendMessage, notifications, notificationsCount }) {
     const [activeTab, setActiveTab] = useState('others');
 
     const [friendRequests, setFriendRequests] = useState([]);
@@ -67,13 +67,23 @@ export default function Notifications({ show, accountId, sendMessage }) {
             const result = await response.json();
             if(result) {
                 getFriendRequests();
-            }
+            }  
         }
     }
     
     useEffect(() => {
         getFriendRequests();
-    }, []);
+        setFriendRequests((prev) => [
+            ...prev,
+            ...notifications.filter((notification) => notification.type === 'FRIEND_REQUEST')
+        ])
+        setOtherNotifications((prev) => [
+            ...prev,
+            ...notifications.filter((notification) => notification.type === 'OTHER_NOTIFICATION')
+        ])
+        console.log("friendRequests: ",friendRequests);
+        console.log("otherNotifications: ",otherNotifications);
+    }, [notificationsCount]);
 
     if (!show) return null;
 
@@ -102,11 +112,11 @@ export default function Notifications({ show, accountId, sendMessage }) {
                 )}
                 {activeTab === 'requests' && (
                     <div>
-                        {friendRequests.filter(request => !request.hidden).length > 0 ? (
+                        {friendRequests && friendRequests.filter(request => !request.hidden).length > 0 ? (
                             friendRequests.filter(request => !request.hidden).map((request) => (
                                 <div key={request.id} className={styles.notificationItem}>
                                     <FriendRequestCard 
-                                        key={request.id+10} 
+                                        key={request.id} 
                                         senderId={request.senderId}
                                         onHandleAcceptFriendRequest={HandleAcceptFriendRequest}
                                         onHandleDeclineFriendRequest={HandleDeclineFriendRequest}
