@@ -57,8 +57,6 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
                                   <div key={chat.id + 10} onClick={() => handleClick(chat.id)}>
                                       <FriendListCard
                                           key={chat.id}
-                                          chatID={chat.chatId}
-                                          friendID={friendID[0]}
                                           isGroup={false}
                                           friendData={friendData.filter(
                                               (data) => data.accountId === friendID[0]

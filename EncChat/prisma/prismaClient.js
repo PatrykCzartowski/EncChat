@@ -73,34 +73,31 @@ wsServer.on("connection", function (connection) {
   console.log(`Received connection from ${userId}`);
   clients[userId] = connection;
   console.log(`${userId} connected.`);
-
+  clients[userId].send(
+    JSON.stringify({ type: "CONNECTED", payload: { userId } })
+  )
   connection.on("message", async (message) => {
     console.log(`Received message ${message}`);
     try {
       const data = JSON.parse(message);
 
       if (data.type === "SEND_FRIEND_REQUEST") {
-        const { senderId, receiverId } = data.payload;
-        const result = await createFriendRequest(data.payload);
-        if (
-          clients[receiverId] &&
-          clients[receiverId].readyState === WebSocket.OPEN
-        ) {
-          clients[receiverId].send(
-            JSON.stringify({
-              type: "FRIEND_REQUEST_RECEIVED",
-              payload: { senderId },
-            })
-          );
-          console.log(`Friend request sent from ${senderId} to ${receiverId}`);
-        } else {
-          console.log(
-            `Friend request failed from ${senderId} to ${receiverId}`
-          );
-          connection.send(
-            JSON.stringify({ success: false, error: "Receiver not connected" })
-          );
-        }
+        const { senderId, receiverId, senderWsClientId } = data.payload;
+        const result = await createFriendRequest(senderId, receiverId);
+        console.log(`sender ID: ${senderId}`);
+        console.log(`Receiver ID: ${receiverId}`);
+        console.log(`senderWsClientId: ${senderWsClientId}`);
+        Object.entries(clients).forEach(([clientId, clientConnection]) => {
+          if(clientId !== senderWsClientId && clientConnection.readyState === WebSocket.OPEN) {
+            clientConnection.send(
+              JSON.stringify({
+                type: "FRIEND_REQUEST",
+                payload: { senderId },
+              })
+            );
+          }
+        })
+        console.log(`Friend request sent from ${senderId} to ${receiverId}`);
       } else if (data.type === "FRIEND_REQUEST_ACCEPTED") {
         const { requestId, accountId, friendId, senderId } = data.payload;
         console.log(
