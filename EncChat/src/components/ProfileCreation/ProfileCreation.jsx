@@ -9,7 +9,6 @@ export default function ProfileCreation() {
 
     return (
         <div className={Styles.container}>
-            <h1>Profile Creation</h1>
             <ProfileForm account={account}/>
         </div>
     );

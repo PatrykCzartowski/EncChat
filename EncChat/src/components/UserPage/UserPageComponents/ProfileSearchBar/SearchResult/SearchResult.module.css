@@ -70,7 +70,9 @@
 
 .actionIcons {
     display: flex;
+    justify-content: flex-end;
     gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .icon {

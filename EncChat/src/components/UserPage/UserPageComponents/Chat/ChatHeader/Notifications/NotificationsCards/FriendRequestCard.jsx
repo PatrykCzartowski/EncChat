@@ -1,46 +1,69 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { FaUserCircle, FaCheck, FaTimes } from "react-icons/fa";
+import styles from "./FriendRequestCard.module.css";
 
 export default function FriendRequestCard({ requestId, senderId, onHandleAcceptFriendRequest, onHandleDeclineFriendRequest }) {
-    
-    const [senderProfile, setSenderProfile] = useState(null);
+  const [senderProfile, setSenderProfile] = useState(null);
 
-    const getSenderProfile = async () => {
-        const response = await fetch('/api/account/get_profile', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: senderId }),
-        });
-        if(response.ok) {
-            const profile = await response.json();
-            setSenderProfile(profile);
-        }
+  const getSenderProfile = async () => {
+    const response = await fetch("/api/account/get_profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: senderId }),
+    });
+    if (response.ok) {
+      const profile = await response.json();
+      setSenderProfile(profile);
     }
-    
-    useEffect(() => {
-        getSenderProfile();
-    }, []);
+  };
 
-    const handleAcceptFriendRequest = () => {
-        onHandleAcceptFriendRequest(requestId, senderId);
-    };
+  useEffect(() => {
+    getSenderProfile();
+  }, []);
 
-    const handleDeclineFriendRequest = () => {
-        onHandleDeclineFriendRequest(requestId);
-    };
+  const handleAcceptFriendRequest = () => {
+    onHandleAcceptFriendRequest(requestId, senderId);
+  };
 
-    return (
-        <div >
-            {senderProfile? ( 
-                <div >
-                    <p>{senderProfile.firstName} {senderProfile.lastName} sent you a friend request</p>
-                    <div>
-                        <button onClick={handleAcceptFriendRequest}>Accept</button>
-                        <button onClick={handleDeclineFriendRequest}>Decline</button>
-                    </div>
-                </div>
-            ) : (null)}
+  const handleDeclineFriendRequest = () => {
+    onHandleDeclineFriendRequest(requestId);
+  };
+
+  return (
+    <div className={styles.friendRequestCard}>
+      {senderProfile ? (
+        <div className={styles.cardContent}>
+          <div className={styles.profileSection}>
+            <FaUserCircle className={styles.profileIcon} />
+            <div className={styles.profileDetails}>
+              <p className={styles.name}>
+                {senderProfile.firstName} {senderProfile.lastName}
+              </p>
+              <p className={styles.message}>sent you a friend request</p>
+            </div>
+          </div>
+          <div className={styles.actions}>
+            <button
+              className={styles.acceptButton}
+              onClick={handleAcceptFriendRequest}
+            >
+              <FaCheck className={styles.actionIcon} />
+              Accept
+            </button>
+            <button
+              className={styles.declineButton}
+              onClick={handleDeclineFriendRequest}
+            >
+              <FaTimes className={styles.actionIcon} />
+              Decline
+            </button>
+          </div>
         </div>
-    );
+      ) : (
+        <p>Loading...</p>
+      )}
+    </div>
+  );
 }

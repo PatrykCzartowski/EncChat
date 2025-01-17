@@ -1,26 +1,123 @@
-.profileButton {
-    background: none;
-    border: none;
-    padding: 0;
-    width:8vw;
-    cursor: pointer;
+.chatHeader {
     display: flex;
     align-items: center;
-    transition: transform 0.2s ease;
+    justify-content: space-between;
+    gap: 10px;
+    height: 100%;
+    padding: 0;
+    overflow-x: auto;
+}
+
+.leftSection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    overflow-x: auto;
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+.profileButton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    background-color: #f5f5f5;
+    color: black;
+    border-radius: 12px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: normal;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    height: 100%;
+    min-width: 150px;
+    max-width: 250px;
+    overflow: hidden;
+    flex-shrink: 1;
+}
+
+.profileButton:hover {
+    background-color: #ececec;
+}
+
+.activeChat {
+    background-color: #4F008F;
+    color: white;
+    border-radius: 12px;
+    border: 2px solid #4F008F;
+    font-weight: bold;
+    height: 100%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.activeChat:hover {
+    background-color: #3B006E;
+}
+
+
+.activeChat .chatName {
+    color: white;
+}
+
+.activeChat .closeButton {
+    color: white;
 }
 
 .lastChatImage {
     width: 35px;
     height: 35px;
     border-radius: 50%;
-    margin: 0;
+    margin-right: 10px;
 }
 
 .chatName {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: bold;
     color: #333;
-    margin-left: 0.3rem;
-    display: flex;
-    align-items: center;
+    margin-left: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: bold;
+    color: black;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: color 0.3s ease;
+}
+
+.closeButton:hover {
+    color: #ff4d4d;
+}
+
+.closeButton:focus {
+    outline: none;
+}
+
+@media (max-width: 768px) {
+    .chatHeader {
+        gap: 5px;
+    }
+
+    .profileButton {
+        min-width: 100px;
+    }
+
+    .rightSection {
+        gap: 10px;
+    }
 }
