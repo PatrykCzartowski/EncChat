@@ -3,10 +3,9 @@ import placeHolderImage from '../../../../../assets/placeholder_user.png';
 
 export default function FriendListCard({ isGroup, friendData, lastMessage, chatData, unreadCount }) {
     if (!isGroup) {
-        //individual
+        // Individual
         return (
             <li className={styles.friendCard}>
-
                 <img 
                     src={friendData && friendData[0]?.profilePicture || placeHolderImage} 
                     alt="Friend profile" 
@@ -16,13 +15,15 @@ export default function FriendListCard({ isGroup, friendData, lastMessage, chatD
                     <h3 className={styles.friendName}>
                         {friendData && `${friendData[0]?.firstName} ${friendData[0]?.lastName}`}
                     </h3>
-                    <p className={styles.lastMessage}>{lastMessage? lastMessage : null}</p>
-                    <span>{unreadCount > 0 && unreadCount}</span>
+                    <p className={styles.lastMessage}>{lastMessage ? lastMessage : null}</p>
                 </div>
+                {unreadCount > 0 && (
+                    <span className={styles.unreadCount}>{unreadCount}</span>
+                )}
             </li>
         );
     } else {
-        //group 
+        // Group
         return (
             <li className={styles.friendCard}>
                 <img 
@@ -34,9 +35,13 @@ export default function FriendListCard({ isGroup, friendData, lastMessage, chatD
                     <h3 className={styles.friendName}>
                         {chatData && chatData[0]?.name}
                     </h3>
-                    <p className={styles.lastMessage}>{lastMessage? lastMessage : null}</p>
+                    <p className={styles.lastMessage}>{lastMessage ? lastMessage : null}</p>
                 </div>
+                {unreadCount > 0 && (
+                    <span className={styles.unreadCount}>{unreadCount}</span>
+                )}
             </li>
         );
     }
 }
+

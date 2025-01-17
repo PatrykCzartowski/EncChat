@@ -1,20 +1,28 @@
 import styles from './ChatHeaderCard.module.css';
 import placeHolderImage from '../../../../../../assets/placeholder_user.png';
 
-export default function ChatHeaderCard({ chatData, onCardClick, onRemoveCard }) {
+export default function ChatHeaderCard({ chatData, onCardClick, onRemoveCard, isActive }) {
     return (
-        <>
-        <button className={styles.profileButton} onClick={() => onCardClick(chatData.id)}>
-            <img 
-                src={placeHolderImage} 
-                alt="friend icon" 
-                className={styles.lastChatImage} 
+        <div
+            className={`${styles.profileButton} ${isActive ? styles.activeChat : ''}`}
+            onClick={() => onCardClick(chatData.id)}
+        >
+            <img
+                src={chatData.image || placeHolderImage}
+                alt="friend icon"
+                className={styles.lastChatImage}
             />
-            <span className={styles.chatName}>{chatData.name}</span>
-        </button>
-        <button onClick={() => onRemoveCard(chatData.id)}>
-            ✕
-        </button>
-        </>
-    )
+            <div className={styles.chatName}>{chatData.name}</div>
+            <button
+                className={styles.closeButton}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveCard(chatData.id);
+                }}
+            >
+                ✕
+            </button>
+        </div>
+    );
 }
+
