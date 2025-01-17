@@ -32,6 +32,7 @@ model Account {
     userSettings UserSettings[]
     ChatSettings ChatSettings[]
     AccountChat AccountToChat[]
+    WebSocketSession WebSocketSession[]
 }
 
 model Profile {
@@ -148,4 +149,11 @@ model AccountToChat {
     chatId    Int
 
     @@id([accountId, chatId])
+}
+
+model WebSocketSession {
+    sessionId String @id
+    account Account @relation(fields: [accountId], references: [id])
+    accountId Int
+    createdAt DateTime @default(now())
 }

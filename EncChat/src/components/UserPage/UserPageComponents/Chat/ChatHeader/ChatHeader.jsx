@@ -12,9 +12,6 @@ export default function ChatHeader({ name, showSettings, accountId, sendMessage,
     const toggleNotifications = () => {
     
         setShowNotifications((prev) => !prev);
-        if (notificationCount > 0) {
-            setNotificationCount(0);
-        }
     };
 
     const handleCardClick = (chatID) => {
@@ -60,7 +57,7 @@ export default function ChatHeader({ name, showSettings, accountId, sendMessage,
                 {notifications.length > 0 && <span>{notifications.length}</span>}
                 {showSettings && <FaCog className={styles.icon} />}
             </div>
-            <Notifications show={showNotifications} accountId={accountId} sendMessage={sendMessage} notifications={notifications} notificationsCount={notifications.length}/>
+            <Notifications show={showNotifications} accountId={accountId} sendMessage={sendMessage} notifications={notifications} setNotificationCount={setNotificationCount}/>
         </div>
     );
 }

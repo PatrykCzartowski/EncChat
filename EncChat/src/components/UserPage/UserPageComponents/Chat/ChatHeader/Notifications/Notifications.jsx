@@ -3,9 +3,9 @@ import styles from './Notifications.module.css';
 import FriendRequestCard from './NotificationsCards/FriendRequestCard';
 
 
-export default function Notifications({ show, accountId, sendMessage, notifications, notificationsCount }) {
+export default function Notifications({ show, accountId, sendMessage, notifications, setNotificationCount }) {
     const [activeTab, setActiveTab] = useState('others');
-
+    const [notificationsCount, setNotificationsCount] = useState(0);
     const [friendRequests, setFriendRequests] = useState([]);
     const [otherNotifications, setOtherNotifications] = useState([]);
 
@@ -20,6 +20,7 @@ export default function Notifications({ show, accountId, sendMessage, notificati
         if(response.ok) {
             const requests = await response.json();
             setFriendRequests(requests);
+            setNotificationCount(requests.length);
         }
     }
 
@@ -50,12 +51,24 @@ export default function Notifications({ show, accountId, sendMessage, notificati
                 senderId: senderId
             }
         };
+        const localStorageNotificationCount = JSON.parse(localStorage.getItem('notificationCount')) || 0;
+        if(localStorageNotificationCount > 0) {
+            const updatedNotificationCount = localStorageNotificationCount - 1;
+            localStorage.setItem('notificationCount', JSON.stringify(updatedNotificationCount));
+            setNotificationsCount(updatedNotificationCount);
+        }
         sendMessage(JSON.stringify(payload));
         getFriendRequests();
 //      createFriend(senderId);
     }
 
     const HandleDeclineFriendRequest = async (requestId) => {
+        const localStorageNotificationCount = JSON.parse(localStorage.getItem('notificationCount')) || 0;
+        if(localStorageNotificationCount > 0) {
+            const updatedNotificationCount = localStorageNotificationCount - 1;
+            localStorage.setItem('notificationCount', JSON.stringify(updatedNotificationCount));
+            setNotificationsCount(updatedNotificationCount);
+        }
         const response = await fetch('/api/account/decline_friend_request', {
             method: 'POST',
             headers: {
@@ -70,7 +83,7 @@ export default function Notifications({ show, accountId, sendMessage, notificati
             }  
         }
     }
-    
+
     useEffect(() => {
         getFriendRequests();
         setFriendRequests((prev) => [
@@ -81,8 +94,6 @@ export default function Notifications({ show, accountId, sendMessage, notificati
             ...prev,
             ...notifications.filter((notification) => notification.type === 'OTHER_NOTIFICATION')
         ])
-        console.log("friendRequests: ",friendRequests);
-        console.log("otherNotifications: ",otherNotifications);
     }, [notificationsCount]);
 
     if (!show) return null;

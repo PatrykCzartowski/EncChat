@@ -4,6 +4,8 @@ import ProfileInfo from './UserPageComponents/ProfileInfo/ProfileInfo';
 import ProfileSearchBar from './UserPageComponents/ProfileSearchBar/ProfileSearchBar';
 import ProfileFriendsList from './UserPageComponents/ProfileFriendsList/ProfileFriendsList';
 import Chat from './UserPageComponents/Chat/Chat';
+import Loading from '../Utils/Loading/Loading';
+import Logo from '../Logo/Logo';
 
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -21,11 +23,11 @@ export default function UserPage() {
   const [notifications, setNotifications] = useState([]);
   const [openedChat, setOpenedChat] = useState(null);
   const [currentOpenedChats, setCurrentOpenedChats] = useState([]);
-  const [wsClientId, setWsClientId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const {sendMessage, lastMessage, readyState} = useWebSocket(WS_URL, {
     onOpen: () => {
-      console.log('Websocket connection established.')
+      sendMessage(JSON.stringify({ type: 'CONNECT', payload: { accountId: account.id } }));
     },
     onMessage: (event) => {
       const message = JSON.parse(event.data);
@@ -49,6 +51,7 @@ export default function UserPage() {
         });
       } else if(message.type === 'FRIEND_REQUEST') {
         setNotifications((prev) => [...prev, { type: 'FRIEND_REQUEST', data: message.payload }]);
+        
       } else if(message.type === 'OTHER_NOTIFICATION') {
         setNotifications((prev) => [...prev, { type: 'OTHER_NOTIFICATION', data: message.payload }]);
       } else if (message.type === 'FRIEND_CREATED') {
@@ -113,13 +116,28 @@ export default function UserPage() {
       });
       const profile = await response.json();
       if(profile) {
-        setAccountFriendsData((prevData) => {
-          // Check if the profile already exists in the array
-          if (!prevData.some(friend => friend.id === profile.id)) {
-            return [...prevData, profile];
-          }
-          return prevData;
-        });
+        const webSocketSessionToken = await fetch('/api/session/get_session_id_by_account_id', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: profile.accountId })
+        })
+        if(webSocketSessionToken) {
+          setAccountFriendsData((prevData) => {
+            if (!prevData.some(friend => friend.id === profile.id)) {
+              return [
+                ...prevData, 
+                profile,
+                webSocketSessionToken,
+              ];
+            }
+            return prevData;
+          })
+        } else {
+          setAccountFriendsData((prevData) => {
+            if (!prevData.some(friend => friend.id === profile.id)) {
+              return [...prevData, profile];
+            }
+            return prevData;
+          });
+        }
       }
     } catch (error) {
       console.error('Error getting friend profile:', error);
@@ -162,7 +180,18 @@ export default function UserPage() {
 
   useEffect(() => {
     if(account) {
-      getAggregatedChatData(account.id);
+      const fetchData = async () => {
+        await getAccountProfile(account.id);
+        await getAccountFriends(account.id);
+        await getAggregatedChatData(account.id);
+
+        await Promise.all(
+          accountFriendsList.map((friend) => getFriendProfile(friend.friendId))
+        );
+
+        setLoading(false);
+      }
+      fetchData();
     }
 
   }, [account]);
@@ -212,6 +241,14 @@ export default function UserPage() {
 
     setCurrentOpenedChats(openedChatAggregatedData)
     console.log(currentOpenedChats)
+  }
+
+  if (loading) {
+    return (
+      <div className='loadingPage'>
+        <Loading />
+      </div>
+    );
   }
 
   return (

@@ -9,25 +9,6 @@ export default function AuthProvider({ children }) {
     const navigate = useNavigate();
 
     const loginAction = async (data) => {
-        
-            //const response = await fetch("/api/auth/login", {
-            //    method: "POST",
-            //    headers: {
-            //        "Content-Type": "application/json",
-            //    },
-            //    body: JSON.stringify(data),
-            //});
-            //const res = await response.json();
-            //if(res.user && res.token) {
-            //    setUser(res.user);
-            //    setToken(res.token);
-            //    localStorage.setItem("token", res.token);
-            //    // send user to user-page
-            //    navigate("/user-page", { state: { user: res.user } });
-            //    return;
-            //} else {
-            //    throw new Error(res.message || 'Login failed');
-            //}
 
             try {
                 const response = await fetch("/api/auth/login", {
