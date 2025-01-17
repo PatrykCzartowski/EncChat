@@ -1,15 +1,9 @@
 import Styles from "./SearchResult.module.css";
 import { FaUserPlus, FaBan, FaUserTimes } from 'react-icons/fa';
 
-export default function SearchResultCard({user, friendData, onSelectUser, currentUserId, onHandleSendFriendRequest, onHandleBlockAccount, onHandleRemoveFriend}) {
-  
+export default function SearchResultCard({ user, friendData, onSelectUser, currentUserId, onHandleSendFriendRequest, onHandleBlockAccount, onHandleRemoveFriend }) {
   const searchResultIsFriend = (searchResult) => {
-    for (let i = 0; i < friendData.length; i++) {
-      if (friendData[i].accountId === searchResult.id) {
-        return true;
-      }
-    }
-    return false;
+    return friendData.some((friend) => friend.accountId === searchResult.id);
   };
   const userIsFriend = searchResultIsFriend(user);
 
@@ -30,7 +24,9 @@ export default function SearchResultCard({user, friendData, onSelectUser, curren
     return (
       <div className={Styles.searchResultCard} onClick={onSelectUser}>
         <div className={Styles.rowContainer}>
-          {user.profile.firstName} {user.profile.lastName}
+          <span className={Styles.userName}>
+            {user.profile.firstName} {user.profile.lastName}
+          </span>
           <div>
             <p>That's you!</p>
           </div>
@@ -41,36 +37,40 @@ export default function SearchResultCard({user, friendData, onSelectUser, curren
     return (
       <div className={Styles.searchResultCard} onClick={onSelectUser}>
         <div className={Styles.rowContainer}>
-          {user.profile.firstName} {user.profile.lastName}
-          {userIsFriend ? (
-            <FaUserTimes
-              className={Styles.icon}
-              title="Remove Friend"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemoveFriend();
-              }}
-            />
+          <span className={Styles.userName}>
+            {user.profile.firstName} {user.profile.lastName}
+          </span>
+          <div className={Styles.actionIcons}>
+            {userIsFriend ? (
+              <FaUserTimes
+                className={Styles.icon}
+                title="Remove Friend"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveFriend();
+                }}
+              />
             ) : (
-            <>
-             <FaUserPlus
-                className={Styles.icon}
-                title="Add Friend"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSendFriendRequest();
-                }}
-             />
-             <FaBan
-                className={Styles.icon}
-                title="Block User"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleBlockAccount();
-                }}
-             />
-            </>
-          )}
+              <>
+                <FaUserPlus
+                  className={Styles.icon}
+                  title="Add Friend"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSendFriendRequest();
+                  }}
+                />
+                <FaBan
+                  className={Styles.icon}
+                  title="Block User"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleBlockAccount();
+                  }}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
     );

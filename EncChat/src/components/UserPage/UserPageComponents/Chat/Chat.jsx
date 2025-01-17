@@ -24,7 +24,17 @@ export default function Chat({ chatData, handleMessageSubmit, accountId, friends
 
     return (
         <div className={Styles.chatContainer}>
-<ChatHeader name={chatHeaderName} showSettings={!!selectedChat} accountId={accountId} sendMessage={sendMessage} currentOpenedChats={currentOpenedChats} onChangeOpenedChat={onChangeOpenedChat} setCurrentOpenedChats={setCurrentOpenedChats} notifications={notifications} />
+        <ChatHeader
+            name={chatHeaderName}
+            showSettings={!!selectedChat}
+            accountId={accountId}
+            sendMessage={sendMessage}
+            currentOpenedChats={currentOpenedChats}
+            onChangeOpenedChat={onChangeOpenedChat}
+            setCurrentOpenedChats={setCurrentOpenedChats}
+            notifications={notifications}
+            activeChatId={selectedChat?.id}
+        />
 
             {selectedChat ? (
                 <div className={Styles.chatMessages}>

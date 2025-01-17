@@ -7,6 +7,7 @@
   cursor: pointer;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   list-style: none; 
+  position: relative;
 }
 
 .friendCard:hover {
@@ -39,3 +40,22 @@
   color: #666;
   margin: 0;
 }
+
+.unreadCount {
+  background-color: #4F008F;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+

@@ -1,11 +1,76 @@
-.ProfileForm {    
+.ProfileForm {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     background-color: white;
     border-radius: 12px;
-    padding: 15px;
+    padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 500px;
     margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.inputField[type="text"],
+.inputField[type="file"],
+.inputField,
+textarea.inputField {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #f4f2f7;
+    color: #333;
+    font-size: 1rem;
+    resize: none;
+}
+
+.inputField::placeholder {
+    color: #999;
+}
+
+.inputField:focus {
+    background-color: #ffffff;
+    border-color: #3700b3;
+    outline: none;
+}
+
+.buttonSubmit {
+    width: 90%;
+    padding: 10px;
+    background-color: #4f008f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.buttonSubmit:hover {
+    background-color: #622396;
+}
+
+.label {
+    align-self: flex-start;
+    margin-left: 5%;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #333;
+}
+
+.line {
+    border: none;
+    border-top: 1px solid grey;
+    width: 80%;
+    margin: 20px 0;
+}
+
+textarea.inputField {
+    height: 100px;
 }
