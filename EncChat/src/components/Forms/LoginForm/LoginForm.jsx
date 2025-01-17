@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../../Auth/AuthProvider";
 import { Link } from "react-router-dom";
 
@@ -7,9 +7,11 @@ import Styles from "./LoginForm.module.css";
 import SHA256 from "crypto-js/sha256";
 import ReCAPTCHA from "react-google-recaptcha";
 
+
 export default function LoginForm({ handleSignUpButton }) {
   const [captchaToken, setCaptchaToken] = useState(null);
-  
+  const siteKey = '6LepW7gqAAAAAIjKGm1-98cvEsq4xqra3S-uU1ks';
+
   const [input, setInput] = useState({
     username: "",
     password: "",
@@ -22,11 +24,14 @@ export default function LoginForm({ handleSignUpButton }) {
 
   const auth = useAuth();
 
-  const handleSubmitEvent = (event) => {
+  const handleCaptchaChange = (token) => {
+    setCaptchaToken(token);
+  };
+
+  const handleSubmitEvent = async (event) => {
     event.preventDefault();
-    console.log("form submitted.");
     if(input.username !== "" && input.password !== "") {
-       input.password = SHA256(input.password).toString();
+      input.password = SHA256(input.password).toString();
       input.usernameIsEmail = isEmail(input.username);
       auth.loginAction(input);
       return;
@@ -69,8 +74,9 @@ export default function LoginForm({ handleSignUpButton }) {
         </Link>
         <div className={Styles.captcha_container}>
           <ReCAPTCHA
-            sitekey="6LdSa2UqAAAAAH_dvmyJH3p5koMR8l5LWL2eZHjD"
-            onChange={(token) => setCaptchaToken(token)}
+            sitekey={siteKey}
+            onChange={handleCaptchaChange}
+            onExpired={() => setCaptchaToken(null)} // Reset token if expired
           />
         </div>
         <button className={Styles.buttonLoginForm} type="submit">Login</button>

@@ -73,6 +73,7 @@ export default function ChatHeader({
                 {notifications.length > 0 && <span>{notifications.length}</span>}
                 {showSettings && <FaCog className={styles.icon} />}
             </div>
+
             {showNotifications && (
                 <div ref={notificationsRef}>
                     <Notifications
@@ -80,10 +81,11 @@ export default function ChatHeader({
                         accountId={accountId}
                         sendMessage={sendMessage}
                         notifications={notifications}
-                        notificationsCount={notifications.length}
+                        setNotificationCount={setNotificationCount}
                     />
                 </div>
             )}
+
         </div>
     );
 }

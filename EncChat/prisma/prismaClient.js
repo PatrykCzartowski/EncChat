@@ -9,6 +9,7 @@ import http from "http";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 dotenv.config();
 neonConfig.webSocketConstructor = ws;
@@ -23,40 +24,12 @@ app.use(express.json());
 
 // TRANSFER PART BELOW TO SERVER.JS LATER
 // ↓↓↓↓↓ SERVER PART ↓↓↓↓↓
-import {
-  findAccount,
-  createAccount,
-  updateAccount,
-  deleteAccount,
-  getAccounts,
-  verifyEmailAddress,
-  updateAccountPassword,
-} from "./models/AccountModel.js";
-import {
-  getProfile,
-  updateProfile,
-  findProfileLike,
-} from "./models/ProfileModel.js";
-import {
-  getFriends,
-  getFriendProfile,
-  createFriend,
-} from "./models/FriendModel.js";
-import {
-  getChatsList,
-  getChatData,
-  getChatMessages,
-  getChatAccounts,
-  getAggregatedChatData,
-  createMessage,
-  createChat,
-} from "./models/ChatModel.js";
-import {
-  createFriendRequest,
-  getFriendRequests,
-  acceptFriendRequest,
-  declineFriendRequest,
-} from "./models/FriendRequestModel.js";
+import { findAccount, createAccount, updateAccount, verifyEmailAddress, updateAccountPassword } from "./models/AccountModel.js";
+import { getProfile, updateProfile, findProfileLike, } from "./models/ProfileModel.js";
+import { getFriends, getFriendProfile, createFriend, } from "./models/FriendModel.js";
+import { getChatsList, getChatData, getChatMessages, getChatAccounts, getAggregatedChatData, createMessage, createChat, } from "./models/ChatModel.js";
+import { createFriendRequest, getFriendRequests, acceptFriendRequest, declineFriendRequest, } from "./models/FriendRequestModel.js";
+import { createWebSocketSession, getSessionIdByAccountId, deleteWebSocketSession } from "./models/WebSocketSessionModel.js";
 
 const tokenForUser = (user) => {
   const timestamp = new Date().getTime();
@@ -83,12 +56,10 @@ wsServer.on("connection", function (connection) {
 
       if (data.type === "SEND_FRIEND_REQUEST") {
         const { senderId, receiverId, senderWsClientId } = data.payload;
+        const receiverWsSessionTokens = await getSessionIdByAccountId(receiverId);
         const result = await createFriendRequest(senderId, receiverId);
-        console.log(`sender ID: ${senderId}`);
-        console.log(`Receiver ID: ${receiverId}`);
-        console.log(`senderWsClientId: ${senderWsClientId}`);
         Object.entries(clients).forEach(([clientId, clientConnection]) => {
-          if(clientId !== senderWsClientId && clientConnection.readyState === WebSocket.OPEN) {
+          if(receiverWsSessionTokens.find((sessionToken) => sessionToken === clientId) && clientConnection.readyState === WebSocket.OPEN) {
             clientConnection.send(
               JSON.stringify({
                 type: "FRIEND_REQUEST",
@@ -148,6 +119,9 @@ wsServer.on("connection", function (connection) {
             );
           }
         });
+      } else if (data.type === "CONNECT") {
+        const accountId = data.payload.accountId;
+        const result = await createWebSocketSession(accountId, userId);
       }
     } catch (error) {
       console.error("Error creating message: ", error);
@@ -155,8 +129,9 @@ wsServer.on("connection", function (connection) {
     }
   });
 
-  connection.on("close", () => {
+  connection.on("close", async () => {
     console.log(`${userId} disconnected.`);
+    await deleteWebSocketSession(userId);
     delete clients[userId];
   });
 });
@@ -166,6 +141,28 @@ server.listen(wsPort, () => {
 });
 
 //---->WEB SOCKET SERVER<----//
+
+app.post('/api/verify_recaptcha', async (req, res) => {
+  const { token } = req.body;
+  const secretKey = '6LepW7gqAAAAANjzcVSUUqLK5xs429qZm2jaEk7c';
+  try {
+  const response = await axios.post(
+    'https://www.google.com/recaptcha/api/siteverify',
+    null,
+    {
+      params: {
+        secret: secretKey,
+        response: token,
+      },
+    }
+  )
+  if (response.data.success) { res.status(200).send({ success: true }) } 
+  else { res.status(400).send({ success: false, error: response.data['error-codes'] }) }
+  } catch (error) {
+    res.status(500).send({ success: false, error: error.message });
+  }
+
+});
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -387,6 +384,16 @@ app.post("/api/account/create_friend", async (req, res) => {
     if (result) return res.json(result);
   } catch (error) {
     console.error("Error creating friend: ", error);
+  }
+});
+
+app.post("/api/session/get_session_id_by_account_id", async (req, res) => {
+  try {
+    const accountId = req.body.id;
+    const result = await getSessionIdByAccountId(accountId);
+    return res.json(result);
+  } catch (error) {
+    console.error("Error getting session ID: ", error);
   }
 });
 // ↑↑↑↑↑ SERVER PART ↑↑↑↑↑
