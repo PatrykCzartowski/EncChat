@@ -1,24 +1,32 @@
 import Styles from './ProfileForm.module.css';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import UploadAvatar from './UploadAvatar';
+import { CloudinaryImage } from '@cloudinary/url-gen';
+import { scale } from '@cloudinary/url-gen/actions/resize';
+import { quality } from '@cloudinary/url-gen/actions/delivery';
+import { format } from '@cloudinary/url-gen/actions/delivery';
+import { auto as autoQuality } from '@cloudinary/url-gen/qualifiers/quality';
+import { auto as autoFormat } from '@cloudinary/url-gen/qualifiers/format';
 
 export default function ProfileForm({ account }) {
     const navigate = useNavigate();
 
+    const [avatar, setAvatar] = useState(null);
+    console.log(account);
     const handleFormSubmit = async (event) => {
         event.preventDefault();
-        console.log("Form Submitted");
-        const ProfileData = {
-            avatar: event.target[0].files[0],
-            firstName: event.target[1].value,
-            lastName: event.target[2].value,
-            bio: event.target[3].value,
-        };
+        console.log(event.target);
+        const formData = new FormData();
+        formData.append('accountId', account.id);
+        formData.append('avatar', avatar);
+        formData.append('firstName', event.target.firstName.value);
+        formData.append('lastName', event.target.lastName.value);
+        formData.append('bio', event.target.bio.value);
+        console.log(formData);
         const response = await fetch('/api/account/create_profile', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ accountId: account.id, ProfileData }),
+            body: formData,
         });
         const result = await response.json();
         if (result) {
@@ -31,9 +39,8 @@ export default function ProfileForm({ account }) {
         <div className={Styles.ProfileForm}>
             <h2>Profile Creation</h2>
             <hr className={Styles.line} />
+            <UploadAvatar setAvatar={setAvatar}/>
             <form onSubmit={handleFormSubmit}>
-                <label className={Styles.label} htmlFor="avatar">Profile Picture</label>
-                <input className={Styles.inputField} type="file" id="avatar" name="avatar" />
 
                 <label className={Styles.label} htmlFor="firstName">First Name</label>
                 <input className={Styles.inputField} type="text" id="firstName" name="firstName" placeholder="Enter your first name" />
