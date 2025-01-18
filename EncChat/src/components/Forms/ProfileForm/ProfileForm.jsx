@@ -1,24 +1,30 @@
 import Styles from './ProfileForm.module.css';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import UploadAvatar from './UploadAvatar';
 
 export default function ProfileForm({ account }) {
     const navigate = useNavigate();
 
+    const [avatar, setAvatar] = useState(null);
+    console.log(account);
     const handleFormSubmit = async (event) => {
         event.preventDefault();
-        console.log("Form Submitted");
-        const ProfileData = {
-            avatar: event.target[0].files[0],
-            firstName: event.target[1].value,
-            lastName: event.target[2].value,
-            bio: event.target[3].value,
-        };
+
+        const formData = {
+            accountId: account.id,
+            firstName: event.target.firstName.value,
+            lastName: event.target.lastName.value,
+            bio: event.target.bio.value,
+            avatar: avatar,
+        }
+        console.log(formData);
         const response = await fetch('/api/account/create_profile', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ accountId: account.id, ProfileData }),
+            body: JSON.stringify(formData),
         });
         const result = await response.json();
         if (result) {
@@ -31,9 +37,8 @@ export default function ProfileForm({ account }) {
         <div className={Styles.ProfileForm}>
             <h2>Profile Creation</h2>
             <hr className={Styles.line} />
+            <UploadAvatar setAvatar={setAvatar}/>
             <form onSubmit={handleFormSubmit}>
-                <label className={Styles.label} htmlFor="avatar">Profile Picture</label>
-                <input className={Styles.inputField} type="file" id="avatar" name="avatar" />
 
                 <label className={Styles.label} htmlFor="firstName">First Name</label>
                 <input className={Styles.inputField} type="text" id="firstName" name="firstName" placeholder="Enter your first name" />

@@ -24,6 +24,7 @@ export default function SearchResultCard({ user, friendData, onSelectUser, curre
     return (
       <div className={Styles.searchResultCard} onClick={onSelectUser}>
         <div className={Styles.rowContainer}>
+          <img src={user.profile.avatar} alt="User" className={Styles.userImage} />
           <span className={Styles.userName}>
             {user.profile.firstName} {user.profile.lastName}
           </span>
@@ -37,6 +38,7 @@ export default function SearchResultCard({ user, friendData, onSelectUser, curre
     return (
       <div className={Styles.searchResultCard} onClick={onSelectUser}>
         <div className={Styles.rowContainer}>
+        <img src={user.profile.avatar} alt="User" className={Styles.userImage} />
           <span className={Styles.userName}>
             {user.profile.firstName} {user.profile.lastName}
           </span>

@@ -15,6 +15,7 @@ export default function ChatHeader({
     setCurrentOpenedChats,
     notifications,
     activeChatId,
+    setNotificationCount,
 }) {
     const [showNotifications, setShowNotifications] = useState(false);
     const notificationsRef = useRef();

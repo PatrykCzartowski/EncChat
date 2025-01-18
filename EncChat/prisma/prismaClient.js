@@ -11,6 +11,13 @@ import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 
+import {v2 as cloudinary} from "cloudinary";
+import multer from "multer";
+import streamifier from 'streamifier';
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 dotenv.config();
 neonConfig.webSocketConstructor = ws;
 const connectionString = `${process.env.DATABASE_URL}`;
@@ -20,7 +27,13 @@ const prisma = new PrismaClient({ adapter });
 const app = express();
 const port = process.env.PORT || 5000;
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+
+cloudinary.config({
+  cloud_name: 'dbkxyl7rl',
+  api_key: '369238514974488',
+  api_secret: '75xQbruIPCdgcv-3ZIIhs-qA6wc'
+});
 
 // TRANSFER PART BELOW TO SERVER.JS LATER
 // ↓↓↓↓↓ SERVER PART ↓↓↓↓↓
@@ -30,6 +43,7 @@ import { getFriends, getFriendProfile, createFriend, } from "./models/FriendMode
 import { getChatsList, getChatData, getChatMessages, getChatAccounts, getAggregatedChatData, createMessage, createChat, } from "./models/ChatModel.js";
 import { createFriendRequest, getFriendRequests, acceptFriendRequest, declineFriendRequest, } from "./models/FriendRequestModel.js";
 import { createWebSocketSession, getSessionIdByAccountId, deleteWebSocketSession } from "./models/WebSocketSessionModel.js";
+import { profile } from "console";
 
 const tokenForUser = (user) => {
   const timestamp = new Date().getTime();
@@ -317,13 +331,31 @@ app.post("/api/account/verify_email", async (req, res) => {
   }
 });
 
-app.post("/api/account/create_profile", async (req, res) => {
+app.post("/api/account/create_profile",async (req, res) => {
   try {
-    const { accountId, ProfileData } = req.body;
-    const profile = await updateProfile(accountId, ProfileData);
-    if (profile) return res.json(profile);
+    const { accountId, avatar, firstName, lastName, bio } = req.body;
+
+    let avatarUrl = null;
+    if(avatar) {
+      const uploadResult = await cloudinary.uploader.upload(avatar, {
+        folder: 'avatars',
+      });
+      avatarUrl = uploadResult.secure_url;
+    }
+
+    const profileData = {
+      avatar: avatarUrl,
+      firstName,
+      lastName,
+      bio,
+    }
+
+    const profile = await updateProfile(accountId, profileData);
+    console.log('profile created.');
+    res.json({ success: true, profile: profileData });
   } catch (error) {
     console.error("Error creating profile: ", error);
+    res.status(500).json({ success: false, error: 'internal server error' });
   }
 });
 

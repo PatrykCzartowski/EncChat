@@ -34,6 +34,7 @@ export default function Chat({ chatData, handleMessageSubmit, accountId, friends
             setCurrentOpenedChats={setCurrentOpenedChats}
             notifications={notifications}
             activeChatId={selectedChat?.id}
+            fData={fData}
         />
 
             {selectedChat ? (

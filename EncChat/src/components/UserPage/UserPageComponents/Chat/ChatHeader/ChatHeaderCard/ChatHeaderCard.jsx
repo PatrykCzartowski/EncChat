@@ -7,11 +7,6 @@ export default function ChatHeaderCard({ chatData, onCardClick, onRemoveCard, is
             className={`${styles.profileButton} ${isActive ? styles.activeChat : ''}`}
             onClick={() => onCardClick(chatData.id)}
         >
-            <img
-                src={chatData.image || placeHolderImage}
-                alt="friend icon"
-                className={styles.lastChatImage}
-            />
             <div className={styles.chatName}>{chatData.name}</div>
             <button
                 className={styles.closeButton}
