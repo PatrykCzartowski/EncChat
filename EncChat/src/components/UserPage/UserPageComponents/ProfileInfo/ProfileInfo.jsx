@@ -6,13 +6,15 @@ import Loading from '../../../Utils/Loading/Loading';
 export default function ProfileInfo({ account, profile }) {
     const auth = useAuth();
 
+    console.log(profile);
+
     return (
         <div className="profileInfo">
             <div className="personalInfoBox">
                 <div className="profileAvatarBox">
                     <img
                         className="profileAvatar"
-                        src={user_img}
+                        src={profile.avatar}
                         alt="Profile"
                         width="100px"
                         height="100px"

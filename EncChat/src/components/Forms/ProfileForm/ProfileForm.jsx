@@ -16,17 +16,21 @@ export default function ProfileForm({ account }) {
     console.log(account);
     const handleFormSubmit = async (event) => {
         event.preventDefault();
-        console.log(event.target);
-        const formData = new FormData();
-        formData.append('accountId', account.id);
-        formData.append('avatar', avatar);
-        formData.append('firstName', event.target.firstName.value);
-        formData.append('lastName', event.target.lastName.value);
-        formData.append('bio', event.target.bio.value);
+
+        const formData = {
+            accountId: account.id,
+            firstName: event.target.firstName.value,
+            lastName: event.target.lastName.value,
+            bio: event.target.bio.value,
+            avatar: avatar,
+        }
         console.log(formData);
         const response = await fetch('/api/account/create_profile', {
             method: 'POST',
-            body: formData,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
         });
         const result = await response.json();
         if (result) {

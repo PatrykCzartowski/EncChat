@@ -333,12 +333,7 @@ app.post("/api/account/verify_email", async (req, res) => {
 
 app.post("/api/account/create_profile",async (req, res) => {
   try {
-    console.log(req.body);
     const { accountId, avatar, firstName, lastName, bio } = req.body;
-    
-    console.log('accountId: ', accountId);
-    console.log('firstName: ', firstName);
-    console.log('lastName: ', lastName);
 
     let avatarUrl = null;
     if(avatar) {
@@ -355,8 +350,8 @@ app.post("/api/account/create_profile",async (req, res) => {
       bio,
     }
 
-    const profile = await updateProfile(parseInt(accountId), profileData);
-    console.log('profile created: ', profileData);
+    const profile = await updateProfile(accountId, profileData);
+    console.log('profile created.');
     res.json({ success: true, profile: profileData });
   } catch (error) {
     console.error("Error creating profile: ", error);
