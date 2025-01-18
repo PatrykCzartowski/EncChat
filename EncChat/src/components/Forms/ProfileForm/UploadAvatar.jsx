@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Avatar from 'react-avatar-edit';
 export default function UploadAvatar({setAvatar}) {
 

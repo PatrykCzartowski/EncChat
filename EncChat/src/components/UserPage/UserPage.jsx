@@ -251,6 +251,8 @@ export default function UserPage() {
     );
   }
 
+  console.log("accountFriendsData: ", accountFriendsData);
+
   return (
     <div className="userPage">
       <div className="leftSection">

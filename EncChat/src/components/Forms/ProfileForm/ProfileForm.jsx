@@ -2,12 +2,6 @@ import Styles from './ProfileForm.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import UploadAvatar from './UploadAvatar';
-import { CloudinaryImage } from '@cloudinary/url-gen';
-import { scale } from '@cloudinary/url-gen/actions/resize';
-import { quality } from '@cloudinary/url-gen/actions/delivery';
-import { format } from '@cloudinary/url-gen/actions/delivery';
-import { auto as autoQuality } from '@cloudinary/url-gen/qualifiers/quality';
-import { auto as autoFormat } from '@cloudinary/url-gen/qualifiers/format';
 
 export default function ProfileForm({ account }) {
     const navigate = useNavigate();

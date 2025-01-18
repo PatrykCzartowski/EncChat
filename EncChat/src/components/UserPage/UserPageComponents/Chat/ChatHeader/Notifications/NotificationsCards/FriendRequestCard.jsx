@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaUserCircle, FaCheck, FaTimes } from "react-icons/fa";
+import placeholderImage from "../../../../../../../assets/placeholder_user.png";
 import styles from "./FriendRequestCard.module.css";
 
 export default function FriendRequestCard({ requestId, senderId, onHandleAcceptFriendRequest, onHandleDeclineFriendRequest }) {
@@ -36,7 +37,7 @@ export default function FriendRequestCard({ requestId, senderId, onHandleAcceptF
       {senderProfile ? (
         <div className={styles.cardContent}>
           <div className={styles.profileSection}>
-            <FaUserCircle className={styles.profileIcon} />
+            <img src={senderProfile.avatar || placeholderImage} alt="Profile" className={styles.profileIcon} />
             <div className={styles.profileDetails}>
               <p className={styles.name}>
                 {senderProfile.firstName} {senderProfile.lastName}

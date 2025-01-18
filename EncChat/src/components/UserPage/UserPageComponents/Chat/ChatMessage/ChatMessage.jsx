@@ -11,7 +11,7 @@ export default function ChatMessage({ message, accountId, fData, position }) {
             } ${Styles[position]}`}
         >
             {!isUserMessage && (position === 'first' || position === 'single') && (
-                <img className={Styles.messageImg} src={placeHolderImage} alt="User" />
+                <img className={Styles.messageImg} src={fData.avatar || placeHolderImage} alt="User" />
             )}
             <p className={Styles.messageContent}>{message.content}</p>
         </div>

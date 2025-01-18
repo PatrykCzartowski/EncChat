@@ -7,7 +7,7 @@ export default function FriendListCard({ isGroup, friendData, lastMessage, chatD
         return (
             <li className={styles.friendCard}>
                 <img 
-                    src={friendData && friendData[0]?.profilePicture || placeHolderImage} 
+                    src={friendData && friendData[0]?.avatar || placeHolderImage} 
                     alt="Friend profile" 
                     className={styles.friendCardImage} 
                 />
