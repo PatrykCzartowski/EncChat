@@ -1,17 +1,20 @@
 import './ProfileInfo.css';
-import user_img from '../../../../assets/placeholder_user.png';
 import { useAuth } from '../../../../Auth/AuthProvider';
 import Loading from '../../../Utils/Loading/Loading';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProfileInfo({ account, profile }) {
     const auth = useAuth();
+    const navigate = useNavigate();
 
-    console.log(profile);
+    const handleProfileEdit = () => {
+        navigate('/profile-edit', { state: { account, profile } });
+    }
 
     return (
         <div className="profileInfo">
             <div className="personalInfoBox">
-                <div className="profileAvatarBox">
+                <div className="profileAvatarBox" onClick={handleProfileEdit}>
                     <img
                         className="profileAvatar"
                         src={profile.avatar}

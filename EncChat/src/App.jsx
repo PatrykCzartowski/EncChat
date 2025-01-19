@@ -13,6 +13,7 @@ import ProfileCreation from "./components/ProfileCreation/ProfileCreation";
 import AuthProvider from "./Auth/AuthProvider";
 import PrivateRoute from "./Auth/PrivateRoute";
 import PasswordResetForm from "./components/Forms/PasswordResetForm/PasswordResetForm";
+import ProfileEdit from "./components/ProfileEdit/ProfileEdit";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route element={<PrivateRoute />}>
               <Route path="profile-creation" element={<ProfileCreation />} />
               <Route path="user-page" element={<UserPage />} />
+              <Route path="profile-edit" element={<ProfileEdit />} />
             </Route>
           </Routes>
         </AuthProvider>
