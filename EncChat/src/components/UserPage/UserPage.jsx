@@ -240,7 +240,6 @@ export default function UserPage() {
   : [];
 
     setCurrentOpenedChats(openedChatAggregatedData)
-    console.log(currentOpenedChats)
   }
 
   if (loading) {
@@ -250,9 +249,7 @@ export default function UserPage() {
       </div>
     );
   }
-
-  console.log("accountFriendsData: ", accountFriendsData);
-
+  
   return (
     <div className="userPage">
       <div className="leftSection">
