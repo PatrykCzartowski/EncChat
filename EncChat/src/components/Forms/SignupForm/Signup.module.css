@@ -24,6 +24,47 @@
     margin-top: 10px;
     padding: 10px;
 }
+
+.signUpInput[type="text"],
+.signUpInput[type="password"],
+.signUpInput[type="email"] {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.signUpInput {
+  background-color: #f4f2f7;
+  color: #333;
+  padding: 10px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.signUpInput::placeholder {
+  color: #333;
+}
+
+.signUpInput:focus {
+  background-color: #ffffff;
+  border-color: #3700b3;
+}
+
+.buttonSignupForm {
+  width: 70%;
+  padding: 10px;
+  background-color: #4f008f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.buttonSignupForm:hover {
+background-color: #622396;
+}
   
 
   

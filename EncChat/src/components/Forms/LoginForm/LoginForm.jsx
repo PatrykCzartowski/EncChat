@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../../Auth/AuthProvider";
 import { Link } from "react-router-dom";
 
@@ -7,24 +7,35 @@ import Styles from "./LoginForm.module.css";
 import SHA256 from "crypto-js/sha256";
 import ReCAPTCHA from "react-google-recaptcha";
 
+
 export default function LoginForm({ handleSignUpButton }) {
   const [captchaToken, setCaptchaToken] = useState(null);
-  
+  const siteKey = '6LepW7gqAAAAAIjKGm1-98cvEsq4xqra3S-uU1ks';
+
   const [input, setInput] = useState({
     username: "",
     password: "",
+    usernameIsEmail: false,
   });
+
+  const isEmail = (username) => {
+    return /\S+@\S+\.\S+/.test(username);
+  }
 
   const auth = useAuth();
 
-  const handleSubmitEvent = (event) => {
+  const handleCaptchaChange = (token) => {
+    setCaptchaToken(token);
+  };
+
+  const handleSubmitEvent = async (event) => {
     event.preventDefault();
     if(input.username !== "" && input.password !== "") {
       input.password = SHA256(input.password).toString();
+      input.usernameIsEmail = isEmail(input.username);
       auth.loginAction(input);
       return;
     }
-    alert("Please fill in all fields");
   };
 
   const handleInput = (event) => {
@@ -45,6 +56,7 @@ export default function LoginForm({ handleSignUpButton }) {
           id="username"
           name="username"
           type="text"
+          className={Styles.loginInput}
           placeholder="Enter your username"
           onChange={handleInput}
         />
@@ -53,6 +65,7 @@ export default function LoginForm({ handleSignUpButton }) {
           id="password"
           name="password"
           type="password"
+          className={Styles.loginInput}
           placeholder="Enter your password"
           onChange={handleInput}
         />
@@ -61,13 +74,14 @@ export default function LoginForm({ handleSignUpButton }) {
         </Link>
         <div className={Styles.captcha_container}>
           <ReCAPTCHA
-            sitekey="6LdSa2UqAAAAAH_dvmyJH3p5koMR8l5LWL2eZHjD"
-            onChange={(token) => setCaptchaToken(token)}
+            sitekey={siteKey}
+            onChange={handleCaptchaChange}
+            onExpired={() => setCaptchaToken(null)} // Reset token if expired
           />
         </div>
-        <button type="submit">Login</button>
+        <button className={Styles.buttonLoginForm} type="submit">Login</button>
         <p>or</p>
-        <button type="button" onClick={() => handleSignUpButton(true)}>
+        <button className={Styles.buttonLoginForm} type="button" onClick={() => handleSignUpButton(true)}>
           Sign Up
         </button>
       </form>

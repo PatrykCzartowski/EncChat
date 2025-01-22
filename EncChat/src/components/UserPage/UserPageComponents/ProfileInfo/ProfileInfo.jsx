@@ -1,44 +1,44 @@
 import './ProfileInfo.css';
-import user_img from '../../../../assets/placeholder_user.png';
 import { useAuth } from '../../../../Auth/AuthProvider';
-import { useEffect, useState } from 'react';
-export default function ProfileInfo({ user }) {
-    const [profile, setProfile] = useState(null);
+import Loading from '../../../Utils/Loading/Loading';
+import { useNavigate } from 'react-router-dom';
 
-    useEffect(() => {
-        const getProfile = async (user) => {
-            try {
-                const response = await fetch('/api/user/profile', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ id_users: user.id }),
-                });
-                const res = await response.json();
-                if (res.profile) {
-                    setProfile(res.profile);
-                } else {
-                    throw new Error(res.message || 'Profile not found');
-                }
-            } catch (error) {
-                console.error('Error during profile fetch: ', error);
-            }
-        };
-
-        if (user) {
-            getProfile(user);
-        }
-    });
-
+export default function ProfileInfo({ account, profile }) {
     const auth = useAuth();
+    const navigate = useNavigate();
+
+    const handleProfileEdit = () => {
+        navigate('/profile-edit', { state: { account, profile } });
+    }
 
     return (
-        <div className="ProfileInfoContainer">
-            <img src={user_img} width="100px" height="100px"/>
-            <h1>{profile && profile.name_surname}</h1>
-            <p>{user.email}</p>
-            <button onClick={() => auth.logOut()}>logout</button>
+        <div className="profileInfo">
+            <div className="personalInfoBox">
+                <div className="profileAvatarBox" onClick={handleProfileEdit}>
+                    <img
+                        className="profileAvatar"
+                        src={profile.avatar}
+                        alt="Profile"
+                        width="100px"
+                        height="100px"
+                    />
+                </div>
+                <div className="nameAndEmailBox">
+                    {profile ? (
+                        <h1 className="profileName">
+                            {profile.firstName + ' ' + profile.lastName}
+                        </h1>
+                    ) : (
+                        <Loading />
+                    )}
+                    <p className="profileEmail">{account && account.email}</p>
+                </div>
+            </div>
+            <div className="logoutBox">
+                <button className="logoutButton" onClick={() => auth.logOut()}>
+                    Logout <span className="arrow">↩</span>
+                </button>
+            </div>
         </div>
     );
 }

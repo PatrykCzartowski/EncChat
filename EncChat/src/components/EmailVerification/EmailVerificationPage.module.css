@@ -33,9 +33,42 @@
 
 }
 
-button {
-    width: 200px;
+.buttonEmailVerificication {
+  width: 60%;
+  padding: 10px;
+  background-color: #4f008f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
+
+.buttonEmailVerificication:hover {
+  background-color: #622396;
+}
+
+.emailVerificationInput[type="text"],
+.emailVerificationInput[type="password"],
+.emailVerificationInput[type="email"] {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.emailVerificationInput {
+  background-color: #f4f2f7;
+  color: #333;
+  padding: 10px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.emailVerificationInput::placeholder {
+  color: #333;
+}
+
 
 @media (max-width: 1200px) {
   .banner {

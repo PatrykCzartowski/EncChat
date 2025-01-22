@@ -1,0 +1,54 @@
+.authorCard {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 350px;
+    height: 450px;
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+.authorPicture img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+}
+
+.authorName {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.authorRole {
+    font-size: 1rem;
+    color: #666;
+}
+
+.authorSocials {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.socialBar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #6a5acd;
+}
+
+.socialBar img {
+    width: 20px;
+    height: 20px;
+}

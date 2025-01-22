@@ -9,8 +9,11 @@ import EmailVerification from "./components/EmailVerification/EmailVerificationP
 import EmailVerified from "./components/EmailVerification/EmailVerified/EmailVerified";
 import AboutAuthors from "./components/AboutAuthors/AboutAuthors";
 import UserPage from "./components/UserPage/UserPage";
+import ProfileCreation from "./components/ProfileCreation/ProfileCreation";
 import AuthProvider from "./Auth/AuthProvider";
 import PrivateRoute from "./Auth/PrivateRoute";
+import PasswordResetForm from "./components/Forms/PasswordResetForm/PasswordResetForm";
+import ProfileEdit from "./components/ProfileEdit/ProfileEdit";
 
 function App() {
   return (
@@ -22,9 +25,12 @@ function App() {
             <Route path="forgot-password" element={<ForgotPassword />} />
             <Route path="email-verification" element={<EmailVerification />} />
             <Route path="email-verified" element={<EmailVerified />} />
+            <Route path="reset-password-form" element={<PasswordResetForm />} />
             <Route path="about-authors" element={<AboutAuthors />} />
             <Route element={<PrivateRoute />}>
+              <Route path="profile-creation" element={<ProfileCreation />} />
               <Route path="user-page" element={<UserPage />} />
+              <Route path="profile-edit" element={<ProfileEdit />} />
             </Route>
           </Routes>
         </AuthProvider>

@@ -8,6 +8,7 @@ import emailImg from "../../assets/emailVerifcation.svg";
 import KeyGenerator from "../Utils/KeyGenerator";
 import SendVerificationEmail from "../Utils/SendVerificationEmail";
 
+const key = KeyGenerator(6);
 
 export default function EmailVerificationPage() {
   
@@ -15,10 +16,9 @@ export default function EmailVerificationPage() {
   const [isKeyValid, setIsKeyValid] = useState(true);
   const [isButtonClicked, setIsButtonClicked] = useState(false);
 
-  const key = KeyGenerator(6);
-
   const navigate = useNavigate();
-  const email = location.state?.signUpData?.email;
+  const signUpData = location.state?.signUpData;
+  const email = signUpData?.email;
   
   useEffect(() => {
     if(!location.state?.signUpData) {
@@ -29,17 +29,22 @@ export default function EmailVerificationPage() {
   const verifyEmail = async (event) => {
     event.preventDefault();
     const providedKey = event.target[0].value;
-    if (providedKey == verificationKey) {
+    console.log(key);
+    console.log(providedKey);
+    if (providedKey == key) {
       try {
-        const { username, password, email } = location.state?.signUpData;
-        const response = await fetch(
-          `/api/accounts/account/${username}/${password}/${email}`,
-          {
-            method: "PUT",
-          }
-        );
-        navigate(`/email-verified/`, { state: { checkVal: true } });
-      } catch (error) {
+        const response = await fetch("/api/account/verify_email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ signUpData }),
+        })
+        if(response) {
+          console.log("Response ", response);
+          navigate("/email-verified");
+        }
+      } catch(error) {
         console.error("Error verifying email: ", error);
       }
     } else {
@@ -70,12 +75,12 @@ export default function EmailVerificationPage() {
         the 6 character code from the email.
       </p>
       {!isButtonClicked ? (
-        <button onClick={() => handleButtonClick()}>Send email</button>
+        <button className={Styles.buttonEmailVerificication} onClick={() => handleButtonClick()}>Send email</button>
       ) : (
         <form onSubmit={verifyEmail}>
-          <input type="text" />
+          <input className={Styles.emailVerificationInput} type="text" />
           {!isKeyValid && <p>Entered Key is not valid.</p>}
-          <button type="submit">Verify</button>
+          <button className={Styles.buttonEmailVerificication} type="submit">Verify</button>
         </form>
       )}
       </div>
