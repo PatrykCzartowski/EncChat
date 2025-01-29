@@ -1,4 +1,4 @@
-import prisma from "../prismaClient.js";
+import prisma from "../../backend/prismaClient.js";
 
 export async function findAccount(accountData) {
     const { username, password, usernameIsEmail } = accountData;

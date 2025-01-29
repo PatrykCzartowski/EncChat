@@ -1,41 +1,52 @@
-import "./App.css";
-
+import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import LandingPage from "./components/LandingPage/LandingPage";
-import ForgotPassword from "./components/ForgotPasswordPage/ForgotPassword";
-import EmailVerification from "./components/EmailVerification/EmailVerificationPage";
-import EmailVerified from "./components/EmailVerification/EmailVerified/EmailVerified";
-import AboutAuthors from "./components/AboutAuthors/AboutAuthors";
-import UserPage from "./components/UserPage/UserPage";
-import ProfileCreation from "./components/ProfileCreation/ProfileCreation";
+import { BrowserRouter, Routes, Route, useRoutes } from "react-router-dom";
 import AuthProvider from "./Auth/AuthProvider";
 import PrivateRoute from "./Auth/PrivateRoute";
-import PasswordResetForm from "./components/Forms/PasswordResetForm/PasswordResetForm";
-import ProfileEdit from "./components/ProfileEdit/ProfileEdit";
+
+const LandingPage = lazy(() => import("./components/LandingPage/LandingPage"));
+const ForgotPassword = lazy(() => import("./components/ForgotPasswordPage/ForgotPassword"));
+const EmailVerification = lazy(() => import("./components/EmailVerification/EmailVerificationPage"));
+const EmailVerified = lazy(() => import("./components/EmailVerification/EmailVerified/EmailVerified"));
+const AboutAuthors = lazy(() => import("./components/AboutAuthors/AboutAuthors"));
+const UserPage = lazy(() => import("./components/UserPage/UserPage"));
+const ProfileCreation = lazy(() => import("./components/ProfileCreation/ProfileCreation"));
+const PasswordResetForm = lazy(() => import("./components/Forms/PasswordResetForm/PasswordResetForm"));
+const ProfileEdit = lazy(() => import("./components/ProfileEdit/ProfileEdit"));
+
+const NotFound = () => <h1>404 - Page Not Found</h1>;
+
+const routes = [
+  { path: "/", element: <LandingPage /> },
+  { path: "forgot-password", element: <ForgotPassword /> },
+  { path: "email-verification", element: <EmailVerification /> },
+  { path: "email-verified", element: <EmailVerified /> },
+  { path: "reset-password-form", element: <PasswordResetForm /> },
+  { path: "about-authors", element: <AboutAuthors /> },
+  {
+    element: <PrivateRoute />,
+    children: [
+      { path: "profile-creation", element: <ProfileCreation /> },
+      { path: "user-page", element: <UserPage /> },
+      { path: "profile-edit", element: <ProfileEdit /> },
+    ],
+  },
+  { path: "*", element: <NotFound /> },
+];
+
+function AppRoutes() {
+  return useRoutes(routes);
+}
 
 function App() {
   return (
-    <>
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="forgot-password" element={<ForgotPassword />} />
-            <Route path="email-verification" element={<EmailVerification />} />
-            <Route path="email-verified" element={<EmailVerified />} />
-            <Route path="reset-password-form" element={<PasswordResetForm />} />
-            <Route path="about-authors" element={<AboutAuthors />} />
-            <Route element={<PrivateRoute />}>
-              <Route path="profile-creation" element={<ProfileCreation />} />
-              <Route path="user-page" element={<UserPage />} />
-              <Route path="profile-edit" element={<ProfileEdit />} />
-            </Route>
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </>
+    <BrowserRouter>
+      <AuthProvider>
+        <Suspense fallback={<div>Loading...</div>}>
+          <AppRoutes />
+        </Suspense>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
