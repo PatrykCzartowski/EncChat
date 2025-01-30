@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
 
 export default function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
+    const [userId, setUserId] = useState(null);
     const [token, setToken] = useState(localStorage.getItem("token") || "");
     const navigate = useNavigate();
 
@@ -19,9 +19,8 @@ export default function AuthProvider({ children }) {
             });
 
             const res = await response.json();
-
-            if (response.ok && res.account && res.token) {
-                setUser(res.account);
+            if (response.ok && res.accountId && res.token) {
+                setUserId(res.accountId);
                 setToken(res.token);
                 localStorage.setItem("token", res.token);
 
@@ -32,7 +31,7 @@ export default function AuthProvider({ children }) {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${res.token}`,
                     },
-                    body: JSON.stringify({ accountId: res.account.id }),
+                    body: JSON.stringify({ accountId: res.accountId }),
                 });
 
                 const profileData = await profileResponse.json();
@@ -43,11 +42,11 @@ export default function AuthProvider({ children }) {
                 }
 
                 if (!profileData.lastName || !profileData.firstName) {
-                    navigate("/profile-creation", { state: { account: res.account } });
+                    navigate("/profile-creation", { state: { accountId: res.accountId } });
                     return;
                 }
 
-                navigate("/user-page", { state: { account: res.account } });
+                navigate("/user-page", { state: { userId, userProfile: profileData } });
             } else {
                 navigate("/", { state: { message: res.message || "Login failed" } });
             }
@@ -58,14 +57,14 @@ export default function AuthProvider({ children }) {
     };
 
     const logOut = () => {
-        setUser(null);
+        setUserId(null);
         setToken("");
         localStorage.removeItem("token");
         navigate("/");
     };
 
     return (
-        <AuthContext.Provider value={{ token, user, loginAction, logOut }}>
+        <AuthContext.Provider value={{ token, userId, loginAction, logOut }}>
             {children}
         </AuthContext.Provider>
     );

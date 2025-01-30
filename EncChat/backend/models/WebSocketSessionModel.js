@@ -26,6 +26,7 @@ export async function getSessionIdByAccountId(accountId) {
         })
         return sessionsTokens
     }
+
     return null
 }
 

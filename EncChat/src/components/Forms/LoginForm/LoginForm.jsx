@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../Auth/AuthProvider";
 import { Link } from "react-router-dom";
-
 import Styles from "./LoginForm.module.css";
-
 import SHA256 from "crypto-js/sha256";
 import ReCAPTCHA from "react-google-recaptcha";
-
 
 export default function LoginForm({ handleSignUpButton }) {
   const [captchaToken, setCaptchaToken] = useState(null);
@@ -31,9 +28,9 @@ export default function LoginForm({ handleSignUpButton }) {
   const handleSubmitEvent = async (event) => {
     event.preventDefault();
     if(input.username !== "" && input.password !== "") {
-      input.password = SHA256(input.password).toString();
-      input.usernameIsEmail = isEmail(input.username);
-      auth.loginAction(input);
+      const hashedPassword = SHA256(input.password).toString();
+      const usernameIsEmail = isEmail(input.username);
+      auth.loginAction({ ...input, password: hashedPassword, usernameIsEmail });
       return;
     }
   };

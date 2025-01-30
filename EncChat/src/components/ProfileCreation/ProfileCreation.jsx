@@ -5,11 +5,11 @@ import ProfileForm from '../Forms/ProfileForm/ProfileForm';
 export default function ProfileCreation() {
     const location = useLocation();
 
-    const account = location.state?.account;
+    const accountId = location.state?.accountId;
 
     return (
         <div className={Styles.container}>
-            <ProfileForm account={account}/>
+            <ProfileForm accountId={accountId}/>
         </div>
     );
 }

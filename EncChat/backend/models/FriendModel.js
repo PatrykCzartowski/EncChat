@@ -5,6 +5,9 @@ export async function getFriends(userId) {
         where: {
             accountId: userId,
         },
+        select: {
+            friendId: true,
+        },
     });
     return friends;
 }
@@ -25,7 +28,7 @@ export async function createFriend(accountId, newFriendId) {
             friendId: newFriendId,
         },
     });
-    const newFriend = await prisma.friend.create({
+    await prisma.friend.create({
         data: {
             accountId: newFriendId,
             friendId: accountId,

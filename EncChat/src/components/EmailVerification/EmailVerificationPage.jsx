@@ -33,7 +33,7 @@ export default function EmailVerificationPage() {
     console.log(providedKey);
     if (providedKey == key) {
       try {
-        const response = await fetch("/api/account/verify_email", {
+        const response = await fetch("/api/account/verify-email", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

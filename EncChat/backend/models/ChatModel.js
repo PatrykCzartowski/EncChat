@@ -9,7 +9,7 @@ export async function getChatsList(accountId) {
             chatId: true,
         },
     });
-    return chats.map(chat => chat.chatId);
+    return chats.map(chat => chat.chatId) || null;
 }
 
 export async function getChatData(chatId) {

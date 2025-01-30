@@ -29,7 +29,7 @@ export default function SignUpForm({ handleGoBack }) {
     };
         
     try {
-      const response = await fetch("/api/account/create_account", {
+      const response = await fetch("/api/account/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
