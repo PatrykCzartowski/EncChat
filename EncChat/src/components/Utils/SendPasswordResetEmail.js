@@ -3,10 +3,10 @@ import emailjs from "emailjs-com";
 export default function SendPasswordResetEmail(templateParams) {
     emailjs
     .send(
-      "service_vwslm5v",
-      "template_s93rfsm",
+      process.env.EMAILJS_SERVICE_ID,
+      process.env.EMAILJS_RESET_PASSWORD_TEMPLATE,
       templateParams,
-      "bQuJxmYn_RpyEwRv8"
+      process.env.EMAILJS_PRIVATE_KEY
     )
     .then(
       (result) => {

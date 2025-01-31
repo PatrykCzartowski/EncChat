@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import Styles from "./EmailVerificationPage.module.css";
 import Logo from "../Logo/Logo";
 import emailImg from "../../assets/emailVerifcation.svg";
-
 import KeyGenerator from "../Utils/KeyGenerator";
 import SendVerificationEmail from "../Utils/SendVerificationEmail";
 
@@ -29,8 +28,6 @@ export default function EmailVerificationPage() {
   const verifyEmail = async (event) => {
     event.preventDefault();
     const providedKey = event.target[0].value;
-    console.log(key);
-    console.log(providedKey);
     if (providedKey == key) {
       try {
         const response = await fetch("/api/account/verify-email", {

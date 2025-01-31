@@ -21,6 +21,8 @@ export default function UserPage() {
   const [userFriends, setUserFriends] = useState([]);
   const [userChats, setUserChats] = useState([]);
   const [openedChat, setOpenedChat] = useState(null);
+  const [currentOpenedChats, setCurrentOpenedChats] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -150,6 +152,16 @@ export default function UserPage() {
     );
   };
 
+  const updateCurrentlyOpenedChats = () => {
+    const openedChats = JSON.parse(localStorage.getItem('openedChats')) || [];
+
+    const openedUserChats = Array.isArray(userChats)
+  ? userChats.filter(chat => openedChats.includes(chat.id))
+  : [];
+
+    setCurrentOpenedChats(openedUserChats)
+  }
+
   if (loading) {
     return (
       <div className="loadingPage">
@@ -177,18 +189,18 @@ export default function UserPage() {
         />
       </div>
       <div className="rightSection">
+        <Chat
+          chatData={userChats.filter((chat) => chat.id === openedChat)}
+          handleMessageSubmit={handleMessageSubmit}
+          userId={userId}
+          friendsData={userFriends}
+          sendMessage={sendMessage}
+          currentOpenedChats = {currentOpenedChats}
+          setCurrentOpenedChats={setCurrentOpenedChats}
+          notifications={notifications}
+        />
       </div>
     </div>
-    //<div className="userPage">
-    //  <div className="rightSection">
-    //    <Chat
-    //      chatData={chatData.filter((chat) => chat.id === openedChat)}
-    //      handleMessageSubmit={handleMessageSubmit}
-    //      accountId={user.id}
-    //      friendsData={friendsData}
-    //      sendMessage={sendMessage}
-    //    />
-    //  </div>
-    //</div>
+
   );
 }

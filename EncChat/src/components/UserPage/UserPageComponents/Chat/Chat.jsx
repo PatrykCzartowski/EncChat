@@ -4,11 +4,11 @@ import ChatMessage from './ChatMessage/ChatMessage';
 import ChatHeader from './ChatHeader/ChatHeader';
 import { useEffect } from 'react';
 
-export default function Chat({ chatData, handleMessageSubmit, accountId, friendsData, sendMessage, currentOpenedChats, onChangeOpenedChat, setCurrentOpenedChats, notifications }) {
+export default function Chat({ chatData, handleMessageSubmit, userId, friendsData, sendMessage, currentOpenedChats, onChangeOpenedChat, setCurrentOpenedChats, notifications }) {
     const fallbackHeaderName = "No Chat Selected";
     const selectedChat = chatData && chatData.length > 0 ? chatData[0] : null;
     const friendsInChat = selectedChat
-        ? selectedChat.accounts.filter(accountIdInChat => accountIdInChat !== accountId)
+        ? selectedChat.accounts.filter(accountIdInChat => accountIdInChat !== userId)
         : [];
     const fData = friendsInChat.length > 0
         ? friendsData.find(friend => friend.accountId === friendsInChat[0])
@@ -27,7 +27,7 @@ export default function Chat({ chatData, handleMessageSubmit, accountId, friends
         <ChatHeader
             name={chatHeaderName}
             showSettings={!!selectedChat}
-            accountId={accountId}
+            accountId={userId}
             sendMessage={sendMessage}
             currentOpenedChats={currentOpenedChats}
             onChangeOpenedChat={onChangeOpenedChat}
@@ -66,7 +66,7 @@ export default function Chat({ chatData, handleMessageSubmit, accountId, friends
                             <ChatMessage
                                 key={`${message.id}-${index}`}
                                 message={message}
-                                accountId={accountId}
+                                accountId={userId}
                                 fData={fData}
                                 position={position}
                             />
