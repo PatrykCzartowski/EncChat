@@ -1,9 +1,9 @@
-import { getChatsList, getChatData, createMessage } from '../models/ChatModel.js';
+import { getChatsList, getChatData, createMessage, getAggregatedChatData } from '../models/ChatModel.js';
 import logger from '../utils/logger.js';
 
 export const listChats = async (req, res) => {
   try {
-    const chats = await getChatsList(req.body.userId);
+    const chats = await getAggregatedChatData(req.body.userId);
     logger.info(`Fetched ${chats.length} chats for user ${req.body.userId}`);
     res.status(200).json(chats);
   } catch (error) {

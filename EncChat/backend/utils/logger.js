@@ -18,7 +18,8 @@ const logger = winston.createLogger({
     transports: [
         new winston.transports.Console({ level: "debug" }),
         new winston.transports.File({ filename: path.join(logDir, "server.log"), level: "info" }),
-        new winston.transports.File({ filename: path.join(logDir, "error.log"), level: "error" })
+        new winston.transports.File({ filename: path.join(logDir, "error.log"), level: "error" }),
+        new winston.transports.File({ filename: path.join(logDir, "debug.log"), level: "debug" })
     ]
 });
 

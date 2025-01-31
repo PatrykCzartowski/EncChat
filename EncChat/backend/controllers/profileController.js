@@ -1,4 +1,4 @@
-import { getProfile, updateProfile } from '../models/ProfileModel.js';
+import { getProfile, updateProfile, findProfileLike } from '../models/ProfileModel.js';
 import logger from '../utils/logger.js';
 
 export const fetchProfile = async (req, res) => {
@@ -27,7 +27,19 @@ export const editProfile = async (req, res) => {
   }
 };
 
+export const findProfiles = async (req, res) => {
+  try {
+    const profiles = await findProfileLike(req.body.providedString);
+    logger.info(`Found ${profiles.length} profiles like "${req.body.providedString}"`);
+    res.status(200).json(profiles);
+  } catch {
+    logger.error('Error finding profiles');
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 export default [
   fetchProfile,
   editProfile,
+  findProfiles,
 ];

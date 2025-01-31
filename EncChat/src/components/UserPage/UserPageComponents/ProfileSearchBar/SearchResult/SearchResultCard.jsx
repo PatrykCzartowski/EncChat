@@ -1,32 +1,33 @@
 import Styles from "./SearchResult.module.css";
 import { FaUserPlus, FaBan, FaUserTimes } from 'react-icons/fa';
 
-export default function SearchResultCard({ user, friendData, onSelectUser, currentUserId, onHandleSendFriendRequest, onHandleBlockAccount, onHandleRemoveFriend }) {
+export default function SearchResultCard({ foundUser, friendData, userId, onHandleSendFriendRequest, onHandleBlockAccount, onHandleRemoveFriend }) {
+
   const searchResultIsFriend = (searchResult) => {
-    return friendData.some((friend) => friend.accountId === searchResult.id);
+    return friendData.some((friend) => friend.friendId === searchResult.accountId);
   };
-  const userIsFriend = searchResultIsFriend(user);
+  const foundUserIsFriend = searchResultIsFriend(foundUser);
 
   const handleSendFriendRequest = () => {
-    onHandleSendFriendRequest(user.id);
+    onHandleSendFriendRequest(foundUser.id);
   };
 
   const handleBlockAccount = () => {
-    onHandleBlockAccount(user.id);
+    onHandleBlockAccount(foundUser.id);
   };
 
   const handleRemoveFriend = () => {
-    onHandleRemoveFriend(user.id);
+    onHandleRemoveFriend(foundUser.id);
   };
 
-  const foundUserIsCurrentUser = user.id === currentUserId;
+  const foundUserIsCurrentUser = foundUser.accountId === userId;
   if (foundUserIsCurrentUser) {
     return (
-      <div className={Styles.searchResultCard} onClick={onSelectUser}>
+      <div className={Styles.searchResultCard}>
         <div className={Styles.rowContainer}>
-          <img src={user.profile.avatar} alt="User" className={Styles.userImage} />
+          <img src={foundUser.avatar} alt="User" className={Styles.userImage} />
           <span className={Styles.userName}>
-            {user.profile.firstName} {user.profile.lastName}
+            {foundUser.firstName} {foundUser.lastName}
           </span>
           <div>
             <p>That's you!</p>
@@ -36,14 +37,14 @@ export default function SearchResultCard({ user, friendData, onSelectUser, curre
     );
   } else {
     return (
-      <div className={Styles.searchResultCard} onClick={onSelectUser}>
+      <div className={Styles.searchResultCard}>
         <div className={Styles.rowContainer}>
-        <img src={user.profile.avatar} alt="User" className={Styles.userImage} />
+        <img src={foundUser.avatar} alt="User" className={Styles.userImage} />
           <span className={Styles.userName}>
-            {user.profile.firstName} {user.profile.lastName}
+            {foundUser.firstName} {foundUser.lastName}
           </span>
           <div className={Styles.actionIcons}>
-            {userIsFriend ? (
+            {foundUserIsFriend ? (
               <FaUserTimes
                 className={Styles.icon}
                 title="Remove Friend"

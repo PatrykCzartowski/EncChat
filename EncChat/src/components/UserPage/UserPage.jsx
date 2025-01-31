@@ -45,7 +45,6 @@ export default function UserPage() {
   }, [token, userId]);
 
   const fetchData = async () => {
-    console.log("Fetching user data...");
     if (userId) {
       try {
         await Promise.all([fetchFriends(), fetchChats()]);
@@ -58,7 +57,6 @@ export default function UserPage() {
   };
 
   const fetchAPI = async (url, payload, setState) => {
-    console.log(`Invoke fetchAPI for ${url} with payload:`, payload);
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -73,9 +71,7 @@ export default function UserPage() {
         logOut(); // Token expired
         return;
       }
-      console.log(`Response status for ${url}:`, response.status);
       const data = await response.json();
-      console.log(`Response data for ${url}:`, data);
       if (data) setState(data);
     } catch (error) {
       console.error(`Error fetching ${url}:`, error);
@@ -83,11 +79,9 @@ export default function UserPage() {
   };
 
   const fetchFriends = () => {
-    console.log("Calling fetchFriends...");
     fetchAPI("/api/friend/list", { userId: userId }, setUserFriends);
   }
   const fetchChats = () => {
-    console.log("Calling fetchChats...");
     fetchAPI("/api/chat/list", { userId: userId }, setUserChats);
   }
 
@@ -114,7 +108,7 @@ export default function UserPage() {
   };
 
   const handleNewMessage = (message) => {
-    setChatData((prevData) =>
+    setUserChats((prevData) =>
       prevData.map((chat) =>
         chat.id === message.chatId
           ? {
@@ -151,20 +145,10 @@ export default function UserPage() {
 
   const handleChangeOpenedChat = (chatID) => {
     setOpenedChat(chatID);
-    setChatData((prevData) =>
+    setUserChats((prevData) =>
       prevData.map((chat) => (chat.id === chatID ? { ...chat, unreadCount: 0 } : chat))
     );
   };
-
-  //VALUES CHECKING
-//  console.log("--------------------------------------------");
-//  console.log("userProfile", userProfile);
-//  console.log("userFriends", userFriends);
-//  console.log("userChats", userChats);
-//  console.log("openedChat", openedChat);
-//  console.log("--------------------------------------------");
-  //VALUES CHECKING
-
 
   if (loading) {
     return (
@@ -176,26 +160,26 @@ export default function UserPage() {
 
   return (
     <div className="userPage">
-      <div className="leftSection"></div>
-      <div className="rightSection"></div>
+      <div className="leftSection">
+        <ProfileInfo userId={userId} profile={userProfile} />
+        <ProfileSearchBar
+          userId={userId}
+          friendData={userFriends}
+          currentUserId={userId}
+          socketUrl={WS_URL}
+          sendMessage={sendMessage}
+        />
+        <ProfileFriendsList
+          userId={userId}
+          userFriends={userFriends}
+          userChats={userChats}
+          onChangeOpenedChat={handleChangeOpenedChat}
+        />
+      </div>
+      <div className="rightSection">
+      </div>
     </div>
     //<div className="userPage">
-    //  <div className="leftSection">
-    //    <ProfileInfo account={user} profile={profileData} />
-    //    <ProfileSearchBar
-    //      accountId={user.id}
-    //      friendData={friendsData}
-    //      currentUserId={user.id}
-    //      socketUrl={WS_URL}
-    //      sendMessage={sendMessage}
-    //    />
-    //    <ProfileFriendsList
-    //      accountID={user.id}
-    //      chatData={chatData}
-    //      friendData={friendsData}
-    //      onChangeOpenedChat={handleChangeOpenedChat}
-    //    />
-    //  </div>
     //  <div className="rightSection">
     //    <Chat
     //      chatData={chatData.filter((chat) => chat.id === openedChat)}

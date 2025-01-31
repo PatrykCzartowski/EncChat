@@ -127,3 +127,9 @@ export const setupWebSocket = (server) => {
 
   return wsServer;
 };
+
+process.on("SIGINT", () => {
+  logger.warn("============== SERVER SHUTDOWN ==============");
+  logger.info("   ");
+  process.exit(0);
+});

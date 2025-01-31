@@ -3,12 +3,12 @@ import { useAuth } from '../../../../Auth/AuthProvider';
 import Loading from '../../../Utils/Loading/Loading';
 import { useNavigate } from 'react-router-dom';
 
-export default function ProfileInfo({ account, profile }) {
+export default function ProfileInfo({ userId, profile }) {
     const auth = useAuth();
     const navigate = useNavigate();
 
     const handleProfileEdit = () => {
-        navigate('/profile-edit', { state: { account, profile } });
+        navigate('/profile-edit', { state: { userId, profile } });
     }
 
     return (
@@ -31,7 +31,6 @@ export default function ProfileInfo({ account, profile }) {
                     ) : (
                         <Loading />
                     )}
-                    <p className="profileEmail">{account && account.email}</p>
                 </div>
             </div>
             <div className="logoutBox">

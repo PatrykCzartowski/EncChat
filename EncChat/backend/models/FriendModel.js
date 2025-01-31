@@ -5,9 +5,6 @@ export async function getFriends(userId) {
         where: {
             accountId: userId,
         },
-        select: {
-            friendId: true,
-        },
     });
     return friends;
 }

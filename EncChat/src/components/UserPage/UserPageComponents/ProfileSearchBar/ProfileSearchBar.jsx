@@ -4,15 +4,16 @@ import { useState, useRef, useEffect } from 'react';
 import SearchResult from './SearchResult/SearchResult';
 import { useWebSocket } from 'react-use-websocket';
 
-export default function ProfileSearchBar({friendData, currentUserId, sendMessage}) {
+export default function ProfileSearchBar({friendData, userId, sendMessage}) {
     const [input, setInput] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
+    const [debouncedInput, setDebouncedInput] = useState("");
     const searchBarRef = useRef();
 
     const findUsers = async (input) => {
         try {
-            const response = await fetch('/api/account/find_profile_like', {
+            const response = await fetch('/api/profile/find', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -26,20 +27,32 @@ export default function ProfileSearchBar({friendData, currentUserId, sendMessage
         }
     }
 
-    const handleInputChange = async (event) => {
-        const value = event.target.value;
-        setInput(value);
+    useEffect(() => {
+        const delay = setTimeout(() => {
+            setDebouncedInput(input);
+        }, 500); // Wait for 500ms after the user stops typing
     
-        if (value === '') {
-            setSearchResults([]);
-            setShowResults(false);
-        } else {
-            const res = await findUsers(value);
-            if (res) {
-                setSearchResults(res);
-                setShowResults(true);
+        return () => clearTimeout(delay);
+    }, [input]);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            if (debouncedInput === "") {
+                setSearchResults([]);
+                setShowResults(false);
+            } else {
+                const res = await findUsers(debouncedInput);
+                if (res) {
+                    setSearchResults(res);
+                    setShowResults(true);
+                }
             }
-        }
+        };
+        fetchUsers();
+    }, [debouncedInput]);
+
+    const handleInputChange = async (event) => {
+        setInput(event.target.value);
     };
     
         const handleSendFriendRequest = async (userId) => {
@@ -47,7 +60,7 @@ export default function ProfileSearchBar({friendData, currentUserId, sendMessage
             const payload = {
                 type: 'SEND_FRIEND_REQUEST',
                 payload: {
-                    senderId: currentUserId,
+                    senderId: userId,
                     receiverId: userId,
                     senderWsClientId: wsClientId,
                 },
@@ -79,7 +92,6 @@ export default function ProfileSearchBar({friendData, currentUserId, sendMessage
             };
         }, []);
 
-
     return (
         <div className="searchBar" ref={searchBarRef}>
                 <div className="searchInputWrapper">
@@ -98,7 +110,7 @@ export default function ProfileSearchBar({friendData, currentUserId, sendMessage
                 <SearchResult 
                     searchResults={searchResults} 
                     friendData={friendData} 
-                    currentUserId={currentUserId} 
+                    userId={userId} 
                     onHandleSendFriendRequest={handleSendFriendRequest}
                     onHandleBlockAccount={handleBlockAccount}
                     onHandleRemoveFriend={handleRemoveFriend}
