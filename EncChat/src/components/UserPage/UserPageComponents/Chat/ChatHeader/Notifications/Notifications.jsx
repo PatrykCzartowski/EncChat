@@ -3,45 +3,28 @@ import styles from './Notifications.module.css';
 import FriendRequestCard from './NotificationsCards/FriendRequestCard';
 
 
-export default function Notifications({ show, accountId, sendMessage, notifications, setNotificationCount }) {
+export default function Notifications({ show, accountId, sendMessage, notifications }) {
     const [activeTab, setActiveTab] = useState('others');
     const [notificationsCount, setNotificationsCount] = useState(0);
     const [friendRequests, setFriendRequests] = useState([]);
     const [otherNotifications, setOtherNotifications] = useState([]);
 
     const getFriendRequests = async () => {
-        const response = await fetch('/api/account/get_friend_requests', {
+        const response = await fetch('/api/friendRequest/get', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id: accountId }),
+            body: JSON.stringify({ userId: accountId }),
         })
         if(response.ok) {
             const requests = await response.json();
             setFriendRequests(requests);
-            setNotificationCount(requests.length);
-        }
-    }
-
-    const createFriend = async (friendId) => {
-        const response = await fetch('/api/account/create_friend', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ accountId, friendId }),
-        });
-        if(response.ok) {
-            const result = await response.json();
-            if(result) {
-                getFriendRequests();
-            }
+            setNotificationsCount(requests.length);
         }
     }
 
     const HandleAcceptFriendRequest = async (requestId, senderId) => {
-        // Notify the server about the accepted friend request
         const payload = {
             type: 'FRIEND_REQUEST_ACCEPTED',
             payload: {
@@ -59,7 +42,6 @@ export default function Notifications({ show, accountId, sendMessage, notificati
         }
         sendMessage(JSON.stringify(payload));
         getFriendRequests();
-//      createFriend(senderId);
     }
 
     const HandleDeclineFriendRequest = async (requestId) => {
@@ -69,12 +51,12 @@ export default function Notifications({ show, accountId, sendMessage, notificati
             localStorage.setItem('notificationCount', JSON.stringify(updatedNotificationCount));
             setNotificationsCount(updatedNotificationCount);
         }
-        const response = await fetch('/api/account/decline_friend_request', {
+        const response = await fetch('/api/friendRequest/decline', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id: requestId }),
+            body: JSON.stringify({ requestId: requestId }),
         });
         if(response.ok) {
             const result = await response.json();
@@ -94,6 +76,8 @@ export default function Notifications({ show, accountId, sendMessage, notificati
             ...prev,
             ...notifications.filter((notification) => notification.type === 'OTHER_NOTIFICATION')
         ])
+        console.log(notifications);
+        console.log(notificationsCount);
     }, [notificationsCount]);
 
     if (!show) return null;

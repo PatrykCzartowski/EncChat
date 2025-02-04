@@ -2,9 +2,20 @@ import { renderMatches } from 'react-router-dom';
 import Styles from './Chat.module.css';
 import ChatMessage from './ChatMessage/ChatMessage';
 import ChatHeader from './ChatHeader/ChatHeader';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-export default function Chat({ chatData, handleMessageSubmit, userId, friendsData, sendMessage, currentOpenedChats, onChangeOpenedChat, setCurrentOpenedChats, notifications }) {
+export default function Chat({ 
+    chatData, 
+    handleMessageSubmit, 
+    userId, 
+    friendsData, 
+    sendMessage, 
+    currentOpenedChats, 
+    onChangeOpenedChat, 
+    setCurrentOpenedChats, 
+    notifications,
+}) {
+
     const fallbackHeaderName = "No Chat Selected";
     const selectedChat = chatData && chatData.length > 0 ? chatData[0] : null;
     const friendsInChat = selectedChat
@@ -21,6 +32,14 @@ export default function Chat({ chatData, handleMessageSubmit, userId, friendsDat
                 ? `${fData?.firstName || 'Unknown'} ${fData?.lastName || 'Friend'}`
                 : 'Unknown Friend'
         : fallbackHeaderName;
+
+    const messagesEndRef = useRef(null);
+
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [selectedChat?.messages]);
 
     return (
         <div className={Styles.chatContainer}>
@@ -75,6 +94,7 @@ export default function Chat({ chatData, handleMessageSubmit, userId, friendsDat
                 ) : (
                     <div className={Styles.noMessages}>No messages yet</div>
                 )}
+                <div ref={messagesEndRef} />
             </div>
             ) : (
                 <div className={Styles.noChatSelected}>No chat selected</div>

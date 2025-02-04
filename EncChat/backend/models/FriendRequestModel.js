@@ -14,6 +14,7 @@ export async function getFriendRequests(accountId) {
     const friendRequests = await prisma.friendRequest.findMany({
         where: {
             receiverId: accountId,
+            status: "SEND"
         },
     });
     return friendRequests;

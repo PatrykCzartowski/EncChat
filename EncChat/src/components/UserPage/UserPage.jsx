@@ -44,6 +44,7 @@ export default function UserPage() {
       return;
     }
     fetchData();
+    updateCurrentlyOpenedChats();
   }, [token, userId]);
 
   const fetchData = async () => {
@@ -91,7 +92,7 @@ export default function UserPage() {
     const message = JSON.parse(event.data);
     switch (message.type) {
       case "NEW_MESSAGE":
-        handleNewMessage(message.payload);
+        handleNewMessage(message.payload.payload);
         break;
       case "FRIEND_REQUEST":
       case "OTHER_NOTIFICATION":
@@ -109,14 +110,14 @@ export default function UserPage() {
     }
   };
 
-  const handleNewMessage = (message) => {
+  const handleNewMessage = (msg) => {
     setUserChats((prevData) =>
       prevData.map((chat) =>
-        chat.id === message.chatId
+        chat.id === msg.chatId
           ? {
               ...chat,
-              messages: [...chat.messages, message],
-              unreadCount: openedChat === message.chatId ? 0 : (chat.unreadCount || 0) + 1,
+              messages: [...chat.messages, msg],
+              unreadCount: openedChat === msg.chatId ? 0 : (chat.unreadCount || 0) + 1,
             }
           : chat
       )
@@ -131,7 +132,7 @@ export default function UserPage() {
       payload: {
         chatId: openedChat,
         content: messageContent,
-        authorId: user.id,
+        authorId: userId,
         createdAt: new Date().toISOString(),
       },
     };
@@ -150,6 +151,7 @@ export default function UserPage() {
     setUserChats((prevData) =>
       prevData.map((chat) => (chat.id === chatID ? { ...chat, unreadCount: 0 } : chat))
     );
+    updateCurrentlyOpenedChats();
   };
 
   const updateCurrentlyOpenedChats = () => {
@@ -198,6 +200,7 @@ export default function UserPage() {
           currentOpenedChats = {currentOpenedChats}
           setCurrentOpenedChats={setCurrentOpenedChats}
           notifications={notifications}
+          onChangeOpenedChat={handleChangeOpenedChat}
         />
       </div>
     </div>

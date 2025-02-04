@@ -1,5 +1,8 @@
 import { WebSocketServer } from "ws";
-import { createWebSocketSession, deleteWebSocketSession } from "../backend/models/WebSocketSessionModel.js";
+import { createSession, getSessionId, deleteSession } from "./controllers/webSocketSessionController.js";
+import { sendMessage } from "./controllers/chatController.js";
+import { addFriend } from "./controllers/friendController.js";
+import { sendFriendRequest, handleAcceptFriendRequest } from "./controllers/friendRequestController.js";
 import { v4 as uuidv4 } from "uuid";
 import logger from "./utils/logger.js";
 
@@ -14,9 +17,9 @@ const sendToClient = (clientId, message) => {
 
 const handleFriendRequest = async (data, connection) => {
   const { senderId, receiverId } = data.payload;
-  const receiverWsSessionTokens = await getSessionIdByAccountId(receiverId);
+  const receiverWsSessionTokens = await getSessionId(receiverId);
 
-  await createFriendRequest(senderId, receiverId);
+  await sendFriendRequest(senderId, receiverId);
 
   receiverWsSessionTokens.forEach((sessionToken) => {
     if (clients[sessionToken]) {
@@ -27,36 +30,36 @@ const handleFriendRequest = async (data, connection) => {
     }
   });
 
-  console.log(`Friend request sent from ${senderId} to ${receiverId}`);
+  logger.info(`Friend request sent from ${senderId} to ${receiverId}`);
 };
 
 const handleFriendRequestAcceptance = async (data, connection) => {
   const { requestId, accountId, friendId, senderId } = data.payload;
 
   try {
-    await acceptFriendRequest(requestId);
-    await createFriend(accountId, friendId);
+    await handleAcceptFriendRequest(requestId);
+    await addFriend(accountId, friendId);
 
     sendToClient(accountId, {
       type: "FRIEND_REQUEST_ACCEPTED",
       payload: { accountId },
     });
-    console.log(`Friend request accepted by ${accountId} from ${senderId}`);
+    logger.info(`Friend request accepted by ${accountId} from ${senderId}`);
 
     sendToClient(friendId, {
       type: "FRIEND_CREATED",
       payload: { accountId, friendId },
     });
-    console.log(`Friend created between ${accountId} and ${friendId}`);
+    logger.info(`Friend created between ${accountId} and ${friendId}`);
   } catch (error) {
-    console.error("Error handling friend request acceptance: ", error);
+    logger.error("Error handling friend request acceptance: ", error);
     connection.send(JSON.stringify({ success: false, error: "Internal server error" }));
   }
 };
 
 const handleNewMessage = async (data) => {
   const { payload } = data;
-  await createMessage(payload);
+  await sendMessage(payload);
 
   Object.values(clients).forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
@@ -69,8 +72,10 @@ const handleNewMessage = async (data) => {
 };
 
 const handleConnect = async (data, userId) => {
-  const accountId = data.payload.accountId;
-  await createWebSocketSession(accountId, userId);
+  const accId = data.payload.accountId;
+  console.log(accId)
+  console.log(data)
+  await createSession(accId, userId);
 };
 
 export const setupWebSocket = (server) => {
@@ -99,16 +104,16 @@ export const setupWebSocket = (server) => {
 
           case "NEW_MESSAGE":
             await handleNewMessage(data);
-            logger.info(`New message received from: ${data.payload.senderId}`);
+            logger.info(`New message received from: ${data.payload.authorId}`);
             break;
 
           case "CONNECT":
+            console.log(data)
             await handleConnect(data, userId);
             logger.info(`User connected: ${data.payload.accountId}`);
             break;
 
           default:
-            console.warn(`Unknown message type: ${data.type}`);
             logger.warn(`Unknown message type: ${data.type}`);
             break;
         }
@@ -120,7 +125,7 @@ export const setupWebSocket = (server) => {
 
     connection.on("close", async () => {
       logger.info(`Connection closed: ${userId}`);
-      await deleteWebSocketSession(userId);
+      await deleteSession(userId);
       delete clients[userId];
     });
   });
@@ -130,6 +135,5 @@ export const setupWebSocket = (server) => {
 
 process.on("SIGINT", () => {
   logger.warn("============== SERVER SHUTDOWN ==============");
-  logger.info("   ");
   process.exit(0);
 });

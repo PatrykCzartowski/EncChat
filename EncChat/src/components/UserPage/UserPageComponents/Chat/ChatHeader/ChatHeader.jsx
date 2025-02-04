@@ -5,18 +5,18 @@ import Notifications from './Notifications/Notifications';
 
 import ChatHeaderCard from './ChatHeaderCard/ChatHeaderCard';
 
-export default function ChatHeader({
-    name,
-    showSettings,
-    accountId,
-    sendMessage,
-    currentOpenedChats,
+export default function ChatHeader({ 
+    showSettings, 
+    accountId, 
+    sendMessage, 
+    currentOpenedChats, 
     onChangeOpenedChat,
     setCurrentOpenedChats,
     notifications,
     activeChatId,
     setNotificationCount,
 }) {
+
     const [showNotifications, setShowNotifications] = useState(false);
     const notificationsRef = useRef();
 
@@ -82,7 +82,6 @@ export default function ChatHeader({
                         accountId={accountId}
                         sendMessage={sendMessage}
                         notifications={notifications}
-                        setNotificationCount={setNotificationCount}
                     />
                 </div>
             )}
