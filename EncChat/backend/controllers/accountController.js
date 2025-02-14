@@ -4,7 +4,8 @@ import logger from '../utils/logger.js';
 
 export const login = async (req, res) => {
   try {
-    const accountId = await findAccount(req.body);
+    const account = await findAccount(req.body);
+    const accountId = account.id;
     if (accountId) {
       logger.info(`User ${accountId} logged in`);
       return res.json({accountId, token: tokenForUser(accountId)});
@@ -16,6 +17,22 @@ export const login = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const handleFindAccount = async (req, res) => {
+  try {
+    const account = await findAccount(req.body.accountData);
+    if (account) {
+      logger.info(`Account found: ${account.id}`);
+      return res.json(account);
+    }
+    logger.warn(`Account not found for ${req.body}`);
+    res.status(404).json({ message: 'Account not found' });
+  }
+  catch (error) {
+    logger.error(`Error finding account: ${error}`);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 export const createNewAccount = async (req, res) => {
   try {
@@ -61,6 +78,7 @@ export const resetPassword = async (req, res) => {
 
 export default [
   login,
+  handleFindAccount,
   createNewAccount,
   verifyEmail,
   resetPassword,

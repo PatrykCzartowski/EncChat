@@ -1,104 +1,138 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Logo from "../Logo/Logo";
-import KeyGenerator from "../Utils/KeyGenerator.js";
 import Styles from "./ForgotPassword.module.css";
-import SendPasswordResetEmail from "../Utils/SendPasswordResetEmail.js";
-
-const key = KeyGenerator(6);
 
 export default function ForgotPassword() {
-  const [isButtonClicked, setIsButtonClicked] = useState(false);
-  const [emailIsValid, setEmailIsValid] = useState(true); // for conditional rendering
-  const [codeIsValid, setCodeIsValid] = useState(true); // for conditional rendering
-  const [foundAccount, setFoundAccount] = useState();
 
+  const [step, setStep] = useState('email'); // 'email' or 'code' only
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleEmailSubmit = async (event) => {
     event.preventDefault();
-    if(event.target[0].value === "") {
-      setEmailIsValid(false);
-      return;
-    };
-    setIsButtonClicked(true);
-    const email = event.target[0].value;
-    const accountData = { //this is so i can use the same model function that i used in login
-      username: email,
-      password: '',
-      usernameIsEmail: true,
-    }
-    const response = await fetch('/api/forgot_password/find_account', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ accountData }),
-    })
-    const account = await response.json();
-    if(account) {
-      setFoundAccount(account);
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const accountData = {
+        username: email,
+        password: '',
+        usernameIsEmail: true,
+      };
+
+      const accountResponse = await fetch('/api/account/find', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', },
+        body: JSON.stringify({ accountData }),
+      });
+      const account = await accountResponse.json();
+
+      if(!account) throw new Error('No account found with this email');
+
       const templateParams = {
         email: email,
-        message: key,
-      }
-      SendPasswordResetEmail(
-        process.env.EMAILJS_SERVICE_ID,
-        process.env.EMAILJS_RESET_PASSWORD_TEMPLATE,
-        process.env.EMAILJS_PRIVATE_KEY,
-        templateParams
-      );
-      return;
+        message: generateResetCode(6),
+      };
+
+      await fetch('/api/email/send-password-reset-email', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateParams }),
+      });
+
+      setStep('code');
+
+    } catch (error) {
+      setError(err.message || 'An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    setEmailIsValid(false);
   }
 
-  const handleResetPassword = async (event) => {
-    event.preventDefault();
-    const code = event.target[0].value;
-    if(code === key) {
-      navigate('/reset-password-form', {state: {email: foundAccount.email, accountId: foundAccount.id}});
-      return;
+  const handleCodeSubmit = async (event) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const code = e.target.code.value;
+
+      if (code.length !== 6) throw new Error('Invalid code format');
+
+      navigate('/reset-password-form', { state: { email } });
+    
+    } catch (error) {
+      setError(err.message || 'Invalid code. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    setCodeIsValid(false);
   }
 
   return (
+// TODO: alert component to display error message
+//  {error && (
+//    <Alert variant="destructive">  
+//      <AlertCircle />
+//      <AlertDescription>{error}</AlertDescription>
+//    </Alert>
+//  )}
+
     <div className={Styles.forgotPasswordPage}>
-      <div className={Styles.banner}>
-      <Logo/>
-      </div>
+      <div className={Styles.banner}><Logo/></div>
       <div className={Styles.container}>
-      <h2>Forgot password</h2>
-      <hr className={Styles.line} />
-      {!isButtonClicked ? (
-        <div>
-        <p>
-        Forgot password? Don’t worry, 
-        we will send you an email to reset your password.
-        </p>
-        <div>
-          <form onSubmit={handleEmailSubmit}>
-            <input className={Styles.passwordInput} type="email" placeholder="Email" />
-            {emailIsValid? null : <p>Provided email is Invalid</p>}
-            <button className={Styles.buttonForgotPassword}>Send</button>
-          </form>
-        </div>
-        </div>
-      ) : (
-        <div>
-        <p>
-        An email has been sent to your email address. 
-        please enter the code in the email to reset your password below.
-        </p>
-        <form onSubmit={handleResetPassword}>
-          <input className={Styles.passwordInput} type="text" placeholder="Enter your code here" />
-          <button className={Styles.buttonForgotPassword} type="submit">Reset password</button>
-        </form>
-        </div>
-      )}
-      <Link to="/">Go back</Link>
+        <h2>Forgot password</h2>
+        <hr className={Styles.line} />
+
+        {step === 'email' ? (
+          <div>
+            <p> Forgot password? Don’t worry, we will send you an email to reset your password.</p>
+            <div>
+              <form onSubmit={handleEmailSubmit}>
+                <input 
+                  className={Styles.passwordInput}
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <button type="submit" disabled={isLoading} className={Styles.buttonForgotPassword}>
+                  {isLoading ? 'Sending...' : 'Send Reset Code'}
+                </button>
+              </form>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <p>We've sent a 6-digit code to your email. Enter it below to continue.</p>
+            <form onSubmit={handleCodeSubmit}>
+              <input 
+                className={Styles.passwordInput}
+                name="code"
+                type="text"
+                placeholder="Enter your code here"
+                maxLength={6}
+                pattern="\d{6}"
+                required
+              />
+              <button type="submit" disabled={isLoading} className={Styles.buttonForgotPassword}>
+                {isLoading ? 'Verifying...' : 'Verify Code'}
+              </button>
+            </form>
+          </div>
+        )}
+        
+        <Link to="/">Go back</Link>
+
       </div>
     </div>
   );
 }
+
+const generateResetCode = (length) => {
+  return Array.from(
+    { length }, 
+    () => Math.floor(Math.random() * 10)
+  ).join('');
+};

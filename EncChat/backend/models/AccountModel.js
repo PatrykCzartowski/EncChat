@@ -7,7 +7,7 @@ export async function findAccount(accountData) {
             ...(usernameIsEmail ? { email: username } : { username: username }),
         },
     })
-    return account.id;
+    return account;
 }
 
 export async function createAccount(accountData) {
