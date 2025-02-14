@@ -26,7 +26,7 @@ app.listen(port, () => {
   logger.info(`Node.js server running on port ${port}`);
 });
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use("/api/account", accountRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/chat", chatRoutes);

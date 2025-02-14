@@ -1,19 +1,18 @@
 import {getFriendRequests, createFriendRequest, acceptFriendRequest, declineFriendRequest} from '../models/FriendRequestModel.js';
 import logger from '../utils/logger.js';
 
-export const sendFriendRequest = async (req, res) => {
+export const sendFriendRequest = async (senderId, receiverId) => {
     try {
-        const { senderId, receiverId } = req.body;
         const friendRequest = await createFriendRequest(senderId, receiverId);
         if(friendRequest) { 
             logger.info(`Friend request sent from ${senderId} to ${receiverId}`);
-            return res.status(201).json(friendRequest);
+            return friendRequest;
         }
         logger.warn(`Friend request not sent from ${senderId} to ${receiverId}`);
-        res.status(400).json({ message: 'Friend request not sent' });
+        throw new Error('Friend request not sent');
     } catch (error) {
         logger.error(`Error sending friend request: ${error}`);
-        res.status(500).json({ error: 'Internal server error' });
+        throw new Error('Internal server error');
     }
 }
 

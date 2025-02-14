@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, useRoutes } from "react-router-dom";
 import AuthProvider from "./Auth/AuthProvider";
 import PrivateRoute from "./Auth/PrivateRoute";
+import Loading from "./components/Utils/Loading/Loading";
 
 const LandingPage = lazy(() => import("./components/LandingPage/LandingPage"));
 const ForgotPassword = lazy(() => import("./components/ForgotPasswordPage/ForgotPassword"));
@@ -42,7 +43,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<Loading />}>
           <AppRoutes />
         </Suspense>
       </AuthProvider>

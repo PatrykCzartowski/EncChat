@@ -21,6 +21,9 @@ export default function ProfileSearchBar({friendData, userId, sendMessage}) {
                 body: JSON.stringify({ providedString: input }),
             });
             const users = await response.json();
+            
+            console.log('Users found:', users);
+            
             return users;
         } catch(error) {
             console.error('Error finding users:', error);
@@ -55,14 +58,12 @@ export default function ProfileSearchBar({friendData, userId, sendMessage}) {
         setInput(event.target.value);
     };
     
-        const handleSendFriendRequest = async (userId) => {
-            const wsClientId = sessionStorage.getItem('wsClientId');
+        const handleSendFriendRequest = async (foundUserId) => {
             const payload = {
                 type: 'SEND_FRIEND_REQUEST',
                 payload: {
                     senderId: userId,
-                    receiverId: userId,
-                    senderWsClientId: wsClientId,
+                    receiverId: foundUserId,
                 },
             };
     

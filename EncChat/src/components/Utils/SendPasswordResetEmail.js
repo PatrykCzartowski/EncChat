@@ -1,12 +1,12 @@
 import emailjs from "emailjs-com";
 
-export default function SendPasswordResetEmail(templateParams) {
+export default function SendPasswordResetEmail(service_id, template, privateKey, templateParams) {
     emailjs
     .send(
-      process.env.EMAILJS_SERVICE_ID,
-      process.env.EMAILJS_RESET_PASSWORD_TEMPLATE,
+      service_id,
+      template,
       templateParams,
-      process.env.EMAILJS_PRIVATE_KEY
+      privateKey
     )
     .then(
       (result) => {

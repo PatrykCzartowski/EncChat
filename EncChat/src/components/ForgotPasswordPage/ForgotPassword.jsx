@@ -42,7 +42,12 @@ export default function ForgotPassword() {
         email: email,
         message: key,
       }
-      SendPasswordResetEmail(templateParams);
+      SendPasswordResetEmail(
+        process.env.EMAILJS_SERVICE_ID,
+        process.env.EMAILJS_RESET_PASSWORD_TEMPLATE,
+        process.env.EMAILJS_PRIVATE_KEY,
+        templateParams
+      );
       return;
     }
     setEmailIsValid(false);

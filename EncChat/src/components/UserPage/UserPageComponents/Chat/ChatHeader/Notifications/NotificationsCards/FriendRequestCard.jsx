@@ -7,7 +7,7 @@ export default function FriendRequestCard({ requestId, senderId, onHandleAcceptF
   const [senderProfile, setSenderProfile] = useState(null);
 
   const getSenderProfile = async () => {
-    const response = await fetch("/api/account/get_profile", {
+    const response = await fetch("/api/profile/get", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

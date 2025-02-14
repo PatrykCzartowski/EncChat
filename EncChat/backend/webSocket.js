@@ -1,5 +1,5 @@
 import { WebSocketServer } from "ws";
-import { createSession, getSessionId, deleteSession } from "./controllers/webSocketSessionController.js";
+import { createWebSocketSession, getSessionIdByAccountId, deleteWebSocketSession } from "./models/WebSocketSessionModel.js";
 import { sendMessage } from "./controllers/chatController.js";
 import { addFriend } from "./controllers/friendController.js";
 import { sendFriendRequest, handleAcceptFriendRequest } from "./controllers/friendRequestController.js";
@@ -17,7 +17,7 @@ const sendToClient = (clientId, message) => {
 
 const handleFriendRequest = async (data, connection) => {
   const { senderId, receiverId } = data.payload;
-  const receiverWsSessionTokens = await getSessionId(receiverId);
+  const receiverWsSessionTokens = await getSessionIdByAccountId(receiverId);
 
   await sendFriendRequest(senderId, receiverId);
 
@@ -72,10 +72,8 @@ const handleNewMessage = async (data) => {
 };
 
 const handleConnect = async (data, userId) => {
-  const accId = data.payload.accountId;
-  console.log(accId)
-  console.log(data)
-  await createSession(accId, userId);
+  const accountId = data.payload.accountId;
+  await createWebSocketSession(accountId, userId);
 };
 
 export const setupWebSocket = (server) => {
@@ -93,6 +91,7 @@ export const setupWebSocket = (server) => {
 
         switch (data.type) {
           case "SEND_FRIEND_REQUEST":
+            console.log(data);
             await handleFriendRequest(data, connection);
             logger.info(`Friend request sent from ${data.payload.senderId} to ${data.payload.receiverId}`);
             break;
@@ -108,7 +107,6 @@ export const setupWebSocket = (server) => {
             break;
 
           case "CONNECT":
-            console.log(data)
             await handleConnect(data, userId);
             logger.info(`User connected: ${data.payload.accountId}`);
             break;
@@ -125,7 +123,7 @@ export const setupWebSocket = (server) => {
 
     connection.on("close", async () => {
       logger.info(`Connection closed: ${userId}`);
-      await deleteSession(userId);
+      await deleteWebSocketSession(userId);
       delete clients[userId];
     });
   });

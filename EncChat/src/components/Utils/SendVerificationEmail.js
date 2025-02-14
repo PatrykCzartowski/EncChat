@@ -1,11 +1,11 @@
 import emailjs from "emailjs-com";
 
-export default function SendEmailVerif(templateParams) {
+export default function SendEmailVerif(serviceId, template, privateKey, templateParams) {
     emailjs
     .send(
       process.env.EMAILJS_SERVICE_ID,
       process.env.EMAILJS_VERIFY_EMAIL_TEMPLATE,
-      templateParams,
+      templateParams, 
       process.env.EMAILJS_PRIVATE_KEY
     )
     .then(

@@ -4,20 +4,20 @@ import { FaUserPlus, FaBan, FaUserTimes } from 'react-icons/fa';
 export default function SearchResultCard({ foundUser, friendData, userId, onHandleSendFriendRequest, onHandleBlockAccount, onHandleRemoveFriend }) {
 
   const searchResultIsFriend = (searchResult) => {
-    return friendData.some((friend) => friend.friendId === searchResult.accountId);
+    return friendData.some((friend) => friend.accountId === searchResult.accountId);
   };
   const foundUserIsFriend = searchResultIsFriend(foundUser);
 
   const handleSendFriendRequest = () => {
-    onHandleSendFriendRequest(foundUser.id);
+    onHandleSendFriendRequest(foundUser.accountId);
   };
 
   const handleBlockAccount = () => {
-    onHandleBlockAccount(foundUser.id);
+    onHandleBlockAccount(foundUser.accountId);
   };
 
   const handleRemoveFriend = () => {
-    onHandleRemoveFriend(foundUser.id);
+    onHandleRemoveFriend(foundUser.accountId);
   };
 
   const foundUserIsCurrentUser = foundUser.accountId === userId;

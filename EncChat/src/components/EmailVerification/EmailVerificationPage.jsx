@@ -5,7 +5,7 @@ import Styles from "./EmailVerificationPage.module.css";
 import Logo from "../Logo/Logo";
 import emailImg from "../../assets/emailVerifcation.svg";
 import KeyGenerator from "../Utils/KeyGenerator";
-import SendVerificationEmail from "../Utils/SendVerificationEmail";
+import SendVerificationEmail from "../Utils/SendVerificationEmail.js";
 
 const key = KeyGenerator(6);
 
@@ -54,7 +54,12 @@ export default function EmailVerificationPage() {
       email: email,
       message: key,
     };
-    SendVerificationEmail(templateParams);
+    SendVerificationEmail(
+      process.env.EMAILJS_SERVICE_ID,
+      process.env.EMAILJS_VERIFY_EMAIL_TEMPLATE,
+      process.env.EMAILJS_PRIVATE_KEY,
+      templateParams
+    );
     setIsButtonClicked(true);
   };
 

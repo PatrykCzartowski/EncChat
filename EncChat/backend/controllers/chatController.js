@@ -23,11 +23,11 @@ export const fetchChatData = async (req, res) => {
   }
 };
 
-export const sendMessage = async (req, res) => {
+export const sendMessage = async (messageData) => {
   try {
-    const message = await createMessage(req.body);
-    logger.info(`Sent message to chat ${req.body.chatId}`);
-    res.status(201).json(message);
+    const message = await createMessage(messageData);
+    logger.info(`Sent message to chat ${messageData.chatId}`);
+    return { status: 201, data: message };
   } catch (error) {
     logger.error('Error sending message:', error);
     res.status(500).json({ error: 'Internal server error' });

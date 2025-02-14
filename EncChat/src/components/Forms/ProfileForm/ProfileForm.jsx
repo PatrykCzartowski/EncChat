@@ -19,12 +19,12 @@ export default function ProfileForm({ accountId }) {
         };
         console.log(formData);
 
-        const response = await fetch('/api/account/create_profile', {
+        const response = await fetch('/api/profile/edit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify({accountId, profileData: formData}),
         });
 
         const result = await response.json();

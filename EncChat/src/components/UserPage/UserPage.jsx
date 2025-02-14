@@ -30,7 +30,10 @@ export default function UserPage() {
       setUserProfile(location.state.userProfile);
       setUserId(location.state.userProfile.accountId);
     }
-  }, [location.state?.userProfile]);
+    if(location.state?.accountId) {
+      setUserId(location.state.accountId)
+    }
+  }, [location.state?.userProfile, location.state?.accountId]);
 
   const { sendMessage, readyState } = useWebSocket(WS_URL, {
     queryParams: { token }, // Send token for authentication

@@ -1,5 +1,13 @@
 import { getProfile, updateProfile, findProfileLike } from '../models/ProfileModel.js';
+import dotenv from 'dotenv';
+import { v2 as cloudinary } from 'cloudinary';
 import logger from '../utils/logger.js';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 export const fetchProfile = async (req, res) => {
   try {
@@ -18,8 +26,17 @@ export const fetchProfile = async (req, res) => {
 
 export const editProfile = async (req, res) => {
   try {
-    const updatedProfile = await updateProfile(req.body.accountId, req.body.profileData);
-    logger.info(`Updated profile for account ${req.body.accountId}`);
+    const {accountId, profileData} = req.body;
+    let avatarUrl = null;
+    if(profileData.avatar) {
+      const uploadResult = await cloudinary.uploader.upload(profileData.avatar, {
+        folder: 'avatars',
+      });
+      avatarUrl = uploadResult.secure_url;
+    }
+    profileData.avatar = avatarUrl;
+    const updatedProfile = await updateProfile(accountId, profileData);
+    logger.info(`Updated profile for account ${accountId}`);
     res.status(200).json(updatedProfile);
   } catch (error) {
     logger.error('Error updating profile:', error);
