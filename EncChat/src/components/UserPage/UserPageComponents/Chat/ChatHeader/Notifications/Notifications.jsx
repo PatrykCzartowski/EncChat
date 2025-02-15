@@ -76,8 +76,6 @@ export default function Notifications({ show, accountId, sendMessage, notificati
             ...prev,
             ...notifications.filter((notification) => notification.type === 'OTHER_NOTIFICATION')
         ])
-        console.log(notifications);
-        console.log(notificationsCount);
     }, [notificationsCount]);
 
     if (!show) return null;
@@ -112,10 +110,9 @@ export default function Notifications({ show, accountId, sendMessage, notificati
                                 <div key={request.id} className={styles.notificationItem}>
                                     <FriendRequestCard 
                                         key={request.id} 
-                                        senderId={request.senderId}
+                                        request={request}
                                         onHandleAcceptFriendRequest={HandleAcceptFriendRequest}
                                         onHandleDeclineFriendRequest={HandleDeclineFriendRequest}
-                                        requestId={request.id}
                                     />
                                 </div>
                             ))

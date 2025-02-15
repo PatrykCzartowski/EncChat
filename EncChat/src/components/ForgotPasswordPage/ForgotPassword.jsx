@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Logo from "../Logo/Logo";
 import Styles from "./ForgotPassword.module.css";
+import sendEmail from "../Utils/sendEmail.js";
 
 export default function ForgotPassword() {
 
@@ -36,11 +37,13 @@ export default function ForgotPassword() {
         message: generateResetCode(6),
       };
 
-      await fetch('/api/email/send-password-reset-email', {
+      const emailResponse = await fetch('/api/email/get', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ templateParams }),
+        body: JSON.stringify({ type: 'reset' }),
       });
+      const emailServiceData = await emailResponse.json();
 
+      sendEmail(emailServiceData.serviceId, emailServiceData.template, templateParams, emailServiceData.privateKey);
       setStep('code');
 
     } catch (error) {

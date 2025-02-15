@@ -13,8 +13,7 @@ export default function ChatHeader({
     onChangeOpenedChat,
     setCurrentOpenedChats,
     notifications,
-    activeChatId,
-    setNotificationCount,
+    activeChatId
 }) {
 
     const [showNotifications, setShowNotifications] = useState(false);
@@ -69,9 +68,10 @@ export default function ChatHeader({
                 ))}
             </div>
 
+            {notifications.length > 0 && <span>{notifications.length}</span>}
+
             <div className={styles.rightSection}>
                 <FaBell className={styles.icon} onClick={toggleNotifications} />
-                {notifications.length > 0 && <span>{notifications.length}</span>}
                 {showSettings && <FaCog className={styles.icon} />}
             </div>
 

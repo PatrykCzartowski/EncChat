@@ -1,8 +1,9 @@
 import { WebSocketServer } from "ws";
 import { createWebSocketSession, getSessionIdByAccountId, deleteWebSocketSession } from "./models/WebSocketSessionModel.js";
 import { sendMessage } from "./controllers/chatController.js";
-import { addFriend } from "./controllers/friendController.js";
 import { sendFriendRequest, handleAcceptFriendRequest } from "./controllers/friendRequestController.js";
+import { acceptFriendRequest } from "./models/FriendRequestModel.js";
+import { createFriend } from "./models/FriendModel.js";
 import { v4 as uuidv4 } from "uuid";
 import logger from "./utils/logger.js";
 
@@ -34,11 +35,11 @@ const handleFriendRequest = async (data, connection) => {
 };
 
 const handleFriendRequestAcceptance = async (data, connection) => {
-  const { requestId, accountId, friendId, senderId } = data.payload;
+  const { requestId, friendId, accountId, senderId } = data.payload;
 
   try {
-    await handleAcceptFriendRequest(requestId);
-    await addFriend(accountId, friendId);
+    await acceptFriendRequest(requestId);
+    await createFriend(accountId, friendId);
 
     sendToClient(accountId, {
       type: "FRIEND_REQUEST_ACCEPTED",
@@ -98,6 +99,7 @@ export const setupWebSocket = (server) => {
 
           case "FRIEND_REQUEST_ACCEPTED":
             await handleFriendRequestAcceptance(data, connection);
+            console.log(data.payload);
             logger.info(`Friend request accepted by ${data.payload.accountId} from ${data.payload.senderId}`);
             break;
 

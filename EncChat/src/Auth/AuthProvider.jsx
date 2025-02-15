@@ -11,10 +11,7 @@ export default function AuthProvider({ children }) {
     const loginAction = async (data) => {
         try {
             const response = await fetch("/api/account/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                method: "POST", headers: { "Content-Type": "application/json", },
                 body: JSON.stringify(data),
             });
 
