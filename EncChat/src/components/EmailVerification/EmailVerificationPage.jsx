@@ -4,9 +4,8 @@ import { useEffect } from "react";
 import Styles from "./EmailVerificationPage.module.css";
 import Logo from "../Logo/Logo";
 import emailImg from "../../assets/emailVerifcation.svg";
-
 import KeyGenerator from "../Utils/KeyGenerator";
-import SendVerificationEmail from "../Utils/SendVerificationEmail";
+import sendEmail from "../Utils/sendEmail";
 
 const key = KeyGenerator(6);
 
@@ -29,19 +28,13 @@ export default function EmailVerificationPage() {
   const verifyEmail = async (event) => {
     event.preventDefault();
     const providedKey = event.target[0].value;
-    console.log(key);
-    console.log(providedKey);
     if (providedKey == key) {
       try {
-        const response = await fetch("/api/account/verify_email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+        const response = await fetch("/api/account/login", {
+          method: "POST", headers: { "Content-Type": "application/json", },
           body: JSON.stringify({ signUpData }),
         })
         if(response) {
-          console.log("Response ", response);
           navigate("/email-verified");
         }
       } catch(error) {
@@ -52,12 +45,19 @@ export default function EmailVerificationPage() {
     }
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
     const templateParams = {
       email: email,
       message: key,
     };
-    SendVerificationEmail(templateParams);
+    
+    const emailResponse = await fetch('/api/email/get', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'verify' }),
+    });
+    const emailServiceData = await emailResponse.json();
+
+    sendEmail(emailServiceData.serviceId, emailServiceData.template, templateParams, emailServiceData.privateKey);
     setIsButtonClicked(true);
   };
 

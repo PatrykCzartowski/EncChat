@@ -1,6 +1,6 @@
-import prisma from "../prismaClient.js";
+import prisma from "../../backend/prismaClient.js";
 
-export async function findAccount(accountData) {
+export async function findAccount(accountData) {     
     const { username, password, usernameIsEmail } = accountData;
     const account = await prisma.account.findFirst({
         where: {
@@ -48,26 +48,21 @@ export async function getAccounts() {
 }
 
 export async function verifyEmailAddress(accountData) {
-    console.log("--- Verifying email address ---");
-    console.log("Received accountData: ", accountData);
-
     const foundAccount = await prisma.account.findFirst({
         where: {
             email: accountData.email,
         },
     })
     if (foundAccount) {
-        console.log("Found account: ", foundAccount);
         const account = await prisma.account.update({
             where: { id: foundAccount.id },
             data: { emailVerified: true },
         });
         if (account) {
-            console.log("Email verified: ", account);
             return account;
         }
     } else {
-        throw new Error("Account not found");
+        throw new Error("Account not found.");
     }
 }
 

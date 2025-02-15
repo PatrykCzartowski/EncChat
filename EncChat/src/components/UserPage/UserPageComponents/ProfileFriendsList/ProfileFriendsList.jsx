@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import Styles from './ProfileFriendsList.module.css';
 import FriendListCard from './FriendListCard/FriendListCard';
 
-export default function ProfileFriendsList({ accountID, friendData, chatData, onChangeOpenedChat, onUpdateCurrentlyOpenedChats }) {
+export default function ProfileFriendsList({ userId, userFriends, userChats, onChangeOpenedChat }) {
+
     const [showGroupChats, setShowGroupChats] = useState(false);
 
     const getLastMessage = (chatID) => {
         let chatMessages;
-        chatData.forEach(chat => {
+        userChats.forEach(chat => {
             if (chat.id === chatID) {
                 chatMessages = chat.messages;
             }
@@ -26,7 +27,6 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
         }
 
         onChangeOpenedChat(chatID);
-        onUpdateCurrentlyOpenedChats();
     };
 
     return (
@@ -47,18 +47,18 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
             </div>
 
             <ul className={Styles.ulFriendList}>
-                {Array.isArray(chatData)
-                    ? chatData.map((chat) => {
+                {Array.isArray(userChats)
+                    ? userChats.map((chat) => {
                           if (!showGroupChats && !chat.group) {
                               const friendID = chat.accounts.filter(
-                                  (account) => account !== accountID
+                                  (account) => account !== userId
                               );
                               return (
                                   <div key={chat.id + 10} onClick={() => handleClick(chat.id)}>
                                       <FriendListCard
                                           key={chat.id}
                                           isGroup={false}
-                                          friendData={friendData.filter(
+                                          userFriend={userFriends.filter(
                                               (data) => data.accountId === friendID[0]
                                           )}
                                           lastMessage={getLastMessage(chat.id)}
@@ -68,7 +68,7 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
                               );
                           } else if (showGroupChats && chat.group) {
                               const friendsID = chat.accounts.filter(
-                                  (account) => account !== accountID
+                                  (account) => account !== userId
                               );
                               return (
                                   <div key={chat.id + 10} onClick={() => handleClick(chat.id)}>
@@ -77,10 +77,10 @@ export default function ProfileFriendsList({ accountID, friendData, chatData, on
                                           chatID={chat.id}
                                           friendID={friendsID}
                                           isGroup={true}
-                                          friendData={friendData}
+                                          friendData={userFriends}
                                           lastMessage={getLastMessage(chat.id)}
-                                          chatData={chatData.filter(
-                                              (chatData) => chatData.id === chat.id
+                                          chatData={userChats.filter(
+                                              (userChats) => userChats.id === chat.id
                                           )}
                                       />
                                   </div>

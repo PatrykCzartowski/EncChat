@@ -1,4 +1,4 @@
-import prisma from "../prismaClient.js";
+import prisma from "../../backend/prismaClient.js";
 
 export async function createFriendRequest(senderId, receiverId) {
     const friendRequest = await prisma.friendRequest.create({
@@ -14,6 +14,7 @@ export async function getFriendRequests(accountId) {
     const friendRequests = await prisma.friendRequest.findMany({
         where: {
             receiverId: accountId,
+            status: "SEND"
         },
     });
     return friendRequests;

@@ -1,4 +1,4 @@
-import prisma from "../prismaClient.js";
+import prisma from "../../backend/prismaClient.js";
 
 export async function createWebSocketSession(accountId, sessionId) {
     const session = await prisma.webSocketSession.create({
@@ -26,6 +26,7 @@ export async function getSessionIdByAccountId(accountId) {
         })
         return sessionsTokens
     }
+
     return null
 }
 

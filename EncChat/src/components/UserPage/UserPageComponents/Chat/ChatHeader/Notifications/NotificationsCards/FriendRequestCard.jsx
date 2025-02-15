@@ -3,21 +3,18 @@ import { FaUserCircle, FaCheck, FaTimes } from "react-icons/fa";
 import placeholderImage from "../../../../../../../assets/placeholder_user.png";
 import styles from "./FriendRequestCard.module.css";
 
-export default function FriendRequestCard({ requestId, senderId, onHandleAcceptFriendRequest, onHandleDeclineFriendRequest }) {
+export default function FriendRequestCard({ request, onHandleAcceptFriendRequest, onHandleDeclineFriendRequest }) {
   const [senderProfile, setSenderProfile] = useState(null);
 
+  console.log(request);
+
   const getSenderProfile = async () => {
-    const response = await fetch("/api/account/get_profile", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: senderId }),
+    const response = await fetch("/api/profile/get", {
+      method: "POST", headers: { "Content-Type": "application/json",},
+      body: JSON.stringify({ accountId: request.senderId }),
     });
-    if (response.ok) {
-      const profile = await response.json();
-      setSenderProfile(profile);
-    }
+    const profile = await response.json();
+    setSenderProfile(profile);
   };
 
   useEffect(() => {
@@ -25,11 +22,11 @@ export default function FriendRequestCard({ requestId, senderId, onHandleAcceptF
   }, []);
 
   const handleAcceptFriendRequest = () => {
-    onHandleAcceptFriendRequest(requestId, senderId);
+    onHandleAcceptFriendRequest(request.id, request.senderId);
   };
 
   const handleDeclineFriendRequest = () => {
-    onHandleDeclineFriendRequest(requestId);
+    onHandleDeclineFriendRequest(request.id);
   };
 
   return (

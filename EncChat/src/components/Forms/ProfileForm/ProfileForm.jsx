@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import UploadAvatar from './UploadAvatar';
 
-export default function ProfileForm({ account }) {
+export default function ProfileForm({ accountId }) {
     const navigate = useNavigate();
     const [avatar, setAvatar] = useState(null);
 
@@ -11,7 +11,7 @@ export default function ProfileForm({ account }) {
         event.preventDefault();
 
         const formData = {
-            accountId: account.id,
+            accountId,
             firstName: event.target.firstName.value,
             lastName: event.target.lastName.value,
             bio: event.target.bio.value,
@@ -19,17 +19,17 @@ export default function ProfileForm({ account }) {
         };
         console.log(formData);
 
-        const response = await fetch('/api/account/create_profile', {
+        const response = await fetch('/api/profile/edit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify({accountId, profileData: formData}),
         });
 
         const result = await response.json();
         if (result) {
-            navigate('/user-page', { state: { account } });
+            navigate('/user-page', { state: { accountId } });
             return;
         }
     };

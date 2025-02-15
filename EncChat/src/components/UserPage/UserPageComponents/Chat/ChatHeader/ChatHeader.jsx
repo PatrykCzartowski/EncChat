@@ -5,18 +5,17 @@ import Notifications from './Notifications/Notifications';
 
 import ChatHeaderCard from './ChatHeaderCard/ChatHeaderCard';
 
-export default function ChatHeader({
-    name,
-    showSettings,
-    accountId,
-    sendMessage,
-    currentOpenedChats,
+export default function ChatHeader({ 
+    showSettings, 
+    accountId, 
+    sendMessage, 
+    currentOpenedChats, 
     onChangeOpenedChat,
     setCurrentOpenedChats,
     notifications,
-    activeChatId,
-    setNotificationCount,
+    activeChatId
 }) {
+
     const [showNotifications, setShowNotifications] = useState(false);
     const notificationsRef = useRef();
 
@@ -69,9 +68,10 @@ export default function ChatHeader({
                 ))}
             </div>
 
+            {notifications.length > 0 && <span>{notifications.length}</span>}
+
             <div className={styles.rightSection}>
                 <FaBell className={styles.icon} onClick={toggleNotifications} />
-                {notifications.length > 0 && <span>{notifications.length}</span>}
                 {showSettings && <FaCog className={styles.icon} />}
             </div>
 
@@ -82,7 +82,6 @@ export default function ChatHeader({
                         accountId={accountId}
                         sendMessage={sendMessage}
                         notifications={notifications}
-                        setNotificationCount={setNotificationCount}
                     />
                 </div>
             )}

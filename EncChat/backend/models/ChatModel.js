@@ -1,4 +1,4 @@
-import prisma from "../prismaClient.js";
+import prisma from "../../backend/prismaClient.js";
 
 export async function getChatsList(accountId) {
     const chats = await prisma.accountToChat.findMany({
@@ -9,7 +9,7 @@ export async function getChatsList(accountId) {
             chatId: true,
         },
     });
-    return chats.map(chat => chat.chatId);
+    return chats.map(chat => chat.chatId) || null;
 }
 
 export async function getChatData(chatId) {

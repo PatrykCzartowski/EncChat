@@ -1,281 +1,212 @@
-import './UserPage.css';
-import useWebSocket from 'react-use-websocket';
-import ProfileInfo from './UserPageComponents/ProfileInfo/ProfileInfo';
-import ProfileSearchBar from './UserPageComponents/ProfileSearchBar/ProfileSearchBar';
-import ProfileFriendsList from './UserPageComponents/ProfileFriendsList/ProfileFriendsList';
-import Chat from './UserPageComponents/Chat/Chat';
-import Loading from '../Utils/Loading/Loading';
-import Logo from '../Logo/Logo';
+import "./UserPage.css";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../Auth/AuthProvider";
+import { useNavigate, useLocation } from "react-router-dom";
+import useWebSocket from "react-use-websocket";
+import ProfileInfo from "./UserPageComponents/ProfileInfo/ProfileInfo";
+import ProfileSearchBar from "./UserPageComponents/ProfileSearchBar/ProfileSearchBar";
+import ProfileFriendsList from "./UserPageComponents/ProfileFriendsList/ProfileFriendsList";
+import Chat from "./UserPageComponents/Chat/Chat";
+import Loading from "../Utils/Loading/Loading";
 
-import { useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-
-const WS_URL = 'ws://127.0.0.1:8080';
+const WS_URL = "ws://127.0.0.1:8080";
 
 export default function UserPage() {
   const location = useLocation();
-  const account = location.state?.account;
+  const { token, logOut } = useAuth();
+  const navigate = useNavigate();
 
-  const [accountProfileData, setAccountProfileData] = useState({});
-  const [accountFriendsList, setAccountFriendsList] = useState([]);
-  const [accountFriendsData, setAccountFriendsData] = useState([]);
-  const [chatAggregatedData, setChatAggregatedData] = useState({});
-  const [notifications, setNotifications] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [userFriends, setUserFriends] = useState([]);
+  const [userChats, setUserChats] = useState([]);
   const [openedChat, setOpenedChat] = useState(null);
   const [currentOpenedChats, setCurrentOpenedChats] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const {sendMessage, lastMessage, readyState} = useWebSocket(WS_URL, {
-    onOpen: () => {
-      sendMessage(JSON.stringify({ type: 'CONNECT', payload: { accountId: account.id } }));
-    },
-    onMessage: (event) => {
-      const message = JSON.parse(event.data);
-      if(message.type === 'NEW_MESSAGE') {
-        setChatAggregatedData((prevData) => {
-          const updatedData = prevData.map(chat => {
-            if(chat.id === message.payload.payload.chatId) {
-              const isCurrentChatOpen = openedChat === message.payload.payload.chatId;
-              const updatedChat = {
-                ...chat,
-                messages: [...chat.messages, message.payload.payload],
-                unreadCount: isCurrentChatOpen ? 0 : (chat.unreadCount || 0) +1,                
-              }
-              saveUnreadCountsToLocalStorage(updatedChat.id, updatedChat.unreadCount+1);
-
-              return updatedChat;
-            }
-            return chat;
-          });
-          return updatedData;
-        });
-      } else if(message.type === 'FRIEND_REQUEST') {
-        setNotifications((prev) => [...prev, { type: 'FRIEND_REQUEST', data: message.payload }]);
-        
-      } else if(message.type === 'OTHER_NOTIFICATION') {
-        setNotifications((prev) => [...prev, { type: 'OTHER_NOTIFICATION', data: message.payload }]);
-      } else if (message.type === 'FRIEND_CREATED') {
-        getAccountFriends(account.id);
-        getAggregatedChatData(account.id);
-      } else if (message.type === 'CONNECTED') {
-        sessionStorage.setItem('wsClientId', message.payload.userId);
-      }
+  useEffect(() => {
+    if (location.state?.userProfile) {
+      setUserProfile(location.state.userProfile);
+      setUserId(location.state.userProfile.accountId);
     }
+    if(location.state?.accountId) {
+      setUserId(location.state.accountId)
+    }
+  }, [location.state?.userProfile, location.state?.accountId]);
+
+  const { sendMessage, readyState } = useWebSocket(WS_URL, {
+    queryParams: { token }, // Send token for authentication
+    onOpen: () => sendMessage(JSON.stringify({ type: "CONNECT", payload: { accountId: userId } })),
+    onMessage: (event) => handleWebSocketMessage(event),
   });
 
-  const saveUnreadCountsToLocalStorage = (chatId, unreadCount) => {
-    const unreadCounts = JSON.parse(localStorage.getItem('unreadCounts')) || {};
-    unreadCounts[chatId] = unreadCount;
-    localStorage.setItem('unreadCounts', JSON.stringify(unreadCounts));
-  };
-  
-  const loadUnreadCountsFromLocalStorage = () => {
-    return JSON.parse(localStorage.getItem('unreadCounts')) || {};
-  };
-
-  const getAccountProfile = async (accountID) => {
-    try {
-      const response = await fetch('/api/account/get_profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: accountID }),
-      });
-      const profile = await response.json();
-      if(profile) setAccountProfileData(profile);
-    } catch (error) {
-      console.error('Error getting profile:', error);
-    }
-  };
-
-  const getAccountFriends = async (accountID) => {
-    try {
-      const response = await fetch('/api/account/get_friends', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: accountID }),
-      });
-      const friends = await response.json();
-      if(friends) setAccountFriendsList(friends);
-    } catch (error) {
-      console.error('Error getting friends:', error);
-    }
-  };
-
-  const getFriendProfile = async (friendID) => {
-    try {
-      const response = await fetch('/api/account/get_friend_profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: friendID }),
-      });
-      const profile = await response.json();
-      if(profile) {
-        const webSocketSessionToken = await fetch('/api/session/get_session_id_by_account_id', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: profile.accountId })
-        })
-        if(webSocketSessionToken) {
-          setAccountFriendsData((prevData) => {
-            if (!prevData.some(friend => friend.id === profile.id)) {
-              return [
-                ...prevData, 
-                profile,
-                webSocketSessionToken,
-              ];
-            }
-            return prevData;
-          })
-        } else {
-          setAccountFriendsData((prevData) => {
-            if (!prevData.some(friend => friend.id === profile.id)) {
-              return [...prevData, profile];
-            }
-            return prevData;
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error getting friend profile:', error);
-    }
-  };
-
   useEffect(() => {
-    if(account) {
-      getAccountProfile(account.id);
-      getAccountFriends(account.id);
+    if (!token) {
+      navigate("/");
+      return;
     }
-  }, [account]);
+    fetchData();
+    updateCurrentlyOpenedChats();
+  }, [token, userId]);
 
-  useEffect(() => {
-    if(accountFriendsList.length > 0) {
-      accountFriendsList.forEach((friend) => {
-        getFriendProfile(friend.friendId);
-      });
-    }
-  }, [accountFriendsList]);
-
-  const getAggregatedChatData = async (accountID) => {
-    const response = await fetch('/api/account/get_aggregated_chat_data', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id: accountID }),
-    });
-    const res = await response.json();
-    if(res) {
-        const unreadCounts = loadUnreadCountsFromLocalStorage();
-        const updatedChatData = res.map(chat => ({
-          ...chat,
-          unreadCount: unreadCounts[chat.id] || 0,
-        }));
-        setChatAggregatedData(updatedChatData);
-    }
-  }
-
-  useEffect(() => {
-    if(account) {
-      const fetchData = async () => {
-        await getAccountProfile(account.id);
-        await getAccountFriends(account.id);
-        await getAggregatedChatData(account.id);
-
-        await Promise.all(
-          accountFriendsList.map((friend) => getFriendProfile(friend.friendId))
-        );
-
+  const fetchData = async () => {
+    if (userId) {
+      try {
+        await Promise.all([fetchFriends(), fetchChats()]);
         setLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        logOut(); // Log out if token is invalid
       }
-      fetchData();
     }
+  };
 
-  }, [account]);
+  const fetchAPI = async (url, payload, setState) => {
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // Send token for authentication
+        },
+        body: JSON.stringify(payload),
+      });
 
-  const handleChangeOpenedChat = (chatID) => {
-    setOpenedChat(chatID);
-    setChatAggregatedData((prevData) => 
-      prevData.map(chat => {
-        if(chat.id === chatID) {
-          saveUnreadCountsToLocalStorage(chatID, 0);
-          return { ...chat, unreadCount: 0 };
-        }
-        return chat;
-      })
-    );
+      if (response.status === 401) {
+        logOut(); // Token expired
+        return;
+      }
+      const data = await response.json();
+      if (data) setState(data);
+    } catch (error) {
+      console.error(`Error fetching ${url}:`, error);
+    }
+  };
+
+  const fetchFriends = () => {
+    fetchAPI("/api/friend/list", { userId: userId }, setUserFriends);
   }
+  const fetchChats = () => {
+    fetchAPI("/api/chat/list", { userId: userId }, setUserChats);
+  }
+
+  const handleWebSocketMessage = (event) => {
+    const message = JSON.parse(event.data);
+    switch (message.type) {
+      case "NEW_MESSAGE":
+        handleNewMessage(message.payload.payload);
+        break;
+      case "FRIEND_REQUEST":
+      case "OTHER_NOTIFICATION":
+        setNotifications((prev) => [...prev, { type: message.type, data: message.payload }]);
+        break;
+      case "FRIEND_CREATED":
+        fetchFriends();
+        fetchChats();
+        break;
+      case "CONNECTED":
+        sessionStorage.setItem("wsClientId", message.payload.userId);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleNewMessage = (msg) => {
+    setUserChats((prevData) =>
+      prevData.map((chat) =>
+        chat.id === msg.chatId
+          ? {
+              ...chat,
+              messages: [...chat.messages, msg],
+              unreadCount: openedChat === msg.chatId ? 0 : (chat.unreadCount || 0) + 1,
+            }
+          : chat
+      )
+    );
+  };
 
   const handleMessageSubmit = (event) => {
     event.preventDefault();
     const messageContent = event.target[0].value;
-    const chatID = openedChat;
     const payload = {
-      type: 'NEW_MESSAGE',
+      type: "NEW_MESSAGE",
       payload: {
-        chatId: chatID,
+        chatId: openedChat,
         content: messageContent,
-        authorId: account.id,
+        authorId: userId,
         createdAt: new Date().toISOString(),
-      }
-    }
-    if(readyState === WebSocket.OPEN) {
+      },
+    };
+
+    if (readyState === WebSocket.OPEN) {
       sendMessage(JSON.stringify(payload));
-      console.log('Message sent');
     } else {
-      console.log("WebSocket is not open. ReadyState: ", readyState);
+      console.error("WebSocket is not open. ReadyState:", readyState);
     }
 
     event.target.reset();
   };
 
+  const handleChangeOpenedChat = (chatID) => {
+    setOpenedChat(chatID);
+    setUserChats((prevData) =>
+      prevData.map((chat) => (chat.id === chatID ? { ...chat, unreadCount: 0 } : chat))
+    );
+    updateCurrentlyOpenedChats();
+  };
+
   const updateCurrentlyOpenedChats = () => {
     const openedChats = JSON.parse(localStorage.getItem('openedChats')) || [];
 
-    const openedChatAggregatedData = Array.isArray(chatAggregatedData)
-  ? chatAggregatedData.filter(chat => openedChats.includes(chat.id))
+    const openedUserChats = Array.isArray(userChats)
+  ? userChats.filter(chat => openedChats.includes(chat.id))
   : [];
 
-    setCurrentOpenedChats(openedChatAggregatedData)
+    setCurrentOpenedChats(openedUserChats)
   }
 
   if (loading) {
     return (
-      <div className='loadingPage'>
+      <div className="loadingPage">
         <Loading />
       </div>
     );
   }
-  
+
   return (
     <div className="userPage">
       <div className="leftSection">
-      <ProfileInfo account={account} profile={accountProfileData}/>
-      <ProfileSearchBar 
-        accountId={account.id} 
-        friendData={accountFriendsData} 
-        currentUserId={account.id} 
-        socketUrl={WS_URL}
-        sendMessage={sendMessage}
-      />
-      <ProfileFriendsList accountID={account.id} chatData={chatAggregatedData} friendData={accountFriendsData} onChangeOpenedChat={handleChangeOpenedChat} onUpdateCurrentlyOpenedChats={updateCurrentlyOpenedChats}/>
+        <ProfileInfo userId={userId} profile={userProfile} />
+        <ProfileSearchBar
+          userId={userId}
+          friendData={userFriends}
+          currentUserId={userId}
+          socketUrl={WS_URL}
+          sendMessage={sendMessage}
+        />
+        <ProfileFriendsList
+          userId={userId}
+          userFriends={userFriends}
+          userChats={userChats}
+          onChangeOpenedChat={handleChangeOpenedChat}
+        />
       </div>
       <div className="rightSection">
-      <Chat 
-        chatData={Array.isArray(chatAggregatedData) ? chatAggregatedData.filter(chatData => chatData.id === openedChat) : []}
-        handleMessageSubmit={handleMessageSubmit}
-        accountId={account.id}
-        friendsData = {accountFriendsData}
-        sendMessage={sendMessage}
-        currentOpenedChats = {currentOpenedChats}
-        onChangeOpenedChat={handleChangeOpenedChat}
-        setCurrentOpenedChats={setCurrentOpenedChats}
-        notifications={notifications}
+        <Chat
+          chatData={userChats.filter((chat) => chat.id === openedChat)}
+          handleMessageSubmit={handleMessageSubmit}
+          userId={userId}
+          friendsData={userFriends}
+          sendMessage={sendMessage}
+          currentOpenedChats = {currentOpenedChats}
+          setCurrentOpenedChats={setCurrentOpenedChats}
+          notifications={notifications}
+          onChangeOpenedChat={handleChangeOpenedChat}
         />
       </div>
     </div>
+
   );
 }

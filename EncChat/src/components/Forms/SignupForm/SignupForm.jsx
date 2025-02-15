@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import SHA256 from "crypto-js/sha256";
 import Styles from "./SignUp.module.css";
-import ReCAPTCHA from "react-google-recaptcha";
 
 export default function SignUpForm({ handleGoBack }) {
   const [captchaToken, setCaptchaToken] = useState(null);
@@ -29,7 +27,7 @@ export default function SignUpForm({ handleGoBack }) {
     };
         
     try {
-      const response = await fetch("/api/account/create_account", {
+      const response = await fetch("/api/account/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -182,12 +180,6 @@ export default function SignUpForm({ handleGoBack }) {
           type="date"
         />
         {!isDateValid && <p className="invalid">To create account you need to be at least 13 years old</p>}
-        <div className={Styles.captcha_container}>
-          <ReCAPTCHA
-            sitekey="6LdSa2UqAAAAAH_dvmyJH3p5koMR8l5LWL2eZHjD"
-            onChange={(token) => setCaptchaToken(token)}
-          />
-        </div>
         <button className={Styles.buttonSignupForm} type="submit">Sign up</button>
         <p>or</p>
         <button className={Styles.buttonSignupForm} onClick={() => handleGoBack(false)}>Login</button>

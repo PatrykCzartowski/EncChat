@@ -2,17 +2,16 @@ import Styles from './SearchResult.module.css';
 import SearchResultCard from './SearchResultCard';
 
 
-export default function SearchResult({ searchResults, onSelectUser, friendData, currentUserId, onHandleSendFriendRequest, onHandleBlockAccount, onHandleRemoveFriend}) {
-    
+export default function SearchResult({ searchResults, friendData, userId, onHandleSendFriendRequest, onHandleBlockAccount, onHandleRemoveFriend}) {
+
     return (
         <div className={Styles.searchResultContainer}>
-            {searchResults.map((user) => (
+            {searchResults.map((searchResult) => (
                 <SearchResultCard
-                    key={user.id}
-                    user={user}
+                    key={searchResult.id}
+                    foundUser={searchResult}
                     friendData={friendData}
-//                  onSelectUser={() => onSelectUser(user)}
-                    currentUserId={currentUserId}
+                    userId={userId}
                     onHandleSendFriendRequest={onHandleSendFriendRequest}
                     onHandleBlockAccount={onHandleBlockAccount}
                     onHandleRemoveFriend={onHandleRemoveFriend}

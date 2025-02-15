@@ -1,4 +1,4 @@
-import prisma from "../prismaClient.js";
+import prisma from "../../backend/prismaClient.js";
 
 export async function getFriends(userId) {
     const friends = await prisma.friend.findMany({
@@ -25,7 +25,7 @@ export async function createFriend(accountId, newFriendId) {
             friendId: newFriendId,
         },
     });
-    const newFriend = await prisma.friend.create({
+    await prisma.friend.create({
         data: {
             accountId: newFriendId,
             friendId: accountId,
