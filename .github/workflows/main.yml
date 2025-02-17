@@ -23,21 +23,21 @@ jobs:
 
       - name: Install Dependencies (Backend)
         run: |
-          cd backend
+          cd EncChat/backend
           npm install
         env:
           NODE_ENV: test
 
       - name: Run Prisma Migrations
         run: |
-          cd backend
+          cd EncChat/backend
           npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run Backend Tests
         run: |
-          cd backend
+          cd EncChat/backend
           npm test
         env:
           NODE_ENV: test
@@ -46,10 +46,12 @@ jobs:
 
       - name: Install Dependencies (Frontend)
         run: |
+          cd EncChat
           npm install
 
       - name: Build Frontend
         run: |
+          cd EncChat
           npm run build
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
