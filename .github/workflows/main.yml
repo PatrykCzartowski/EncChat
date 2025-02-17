@@ -23,28 +23,33 @@ jobs:
 
       - name: Install Dependencies (Backend)
         run: |
-          cd encchat/backend
+          cd backend
           npm install
         env:
           NODE_ENV: test
 
-      - name: Install Dependencies (Frontend)
+      - name: Run Prisma Migrations
         run: |
-          cd encchat
-          npm install
+          cd backend
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run Backend Tests
         run: |
-          cd encchat/backend
+          cd backend
           npm test
         env:
           NODE_ENV: test
           API_KEY: ${{ secrets.API_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Install Dependencies (Frontend)
+        run: |
+          npm install
+
       - name: Build Frontend
         run: |
-          cd encchat
           npm run build
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
