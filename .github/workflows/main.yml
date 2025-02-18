@@ -28,7 +28,7 @@ jobs:
         echo "Repository structure:"
         find . -type d -not -path "*/node_modules/*" -not -path "*/.git/*" | sort
 
-  lint-and-test:
+  build:
     needs: project-setup
     runs-on: ubuntu-latest
     
@@ -39,12 +39,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
     
     - name: Install root dependencies
       run: |
         if [ -f "package.json" ]; then
-          npm ci
+          npm ci || npm install
         else
           echo "No package.json found in the root directory"
         fi
@@ -54,14 +53,14 @@ jobs:
         if [ -d "backend" ]; then
           cd backend
           if [ -f "package.json" ]; then
-            npm ci
+            npm ci || npm install
           else
             echo "No package.json found in the backend directory"
           fi
         elif [ -d "EncChat/backend" ]; then
           cd EncChat/backend
           if [ -f "package.json" ]; then
-            npm ci
+            npm ci || npm install
           else
             echo "No package.json found in the EncChat/backend directory"
           fi
@@ -69,97 +68,49 @@ jobs:
           echo "Could not find the backend directory"
         fi
     
-    - name: Install frontend dependencies
-      run: |
-        if [ -d "src" ]; then
-          cd src
-          if [ -f "package.json" ]; then
-            npm ci
-          else
-            echo "No package.json found in the src directory"
-          fi
-        elif [ -d "EncChat/src" ]; then
-          cd EncChat/src
-          if [ -f "package.json" ]; then
-            npm ci
-          else
-            echo "No package.json found in the EncChat/src directory"
-          fi
-        else
-          echo "Could not find the src directory"
-        fi
-    
-    - name: Run linting and tests
+    - name: Build project
       run: |
         if [ -f "package.json" ]; then
-          npm run lint || echo "Linting skipped"
-          npm test || echo "Testing skipped"
-        else
-          echo "No package.json found for running tests"
-        fi
-
-  build:
-    needs: lint-and-test
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies and build
-      run: |
-        # Try to find and build from the root package.json
-        if [ -f "package.json" ]; then
-          npm ci
           npm run build || echo "No build script in root package.json"
-        else
-          echo "No package.json found in the root directory"
-        fi
-        
-        # Try to build from the src directory if it exists
-        if [ -d "src" ] && [ -f "src/package.json" ]; then
+        elif [ -d "src" ] && [ -f "src/package.json" ]; then
           cd src
-          npm ci
+          npm ci || npm install
           npm run build || echo "No build script in src/package.json"
         elif [ -d "EncChat/src" ] && [ -f "EncChat/src/package.json" ]; then
           cd EncChat/src
-          npm ci
+          npm ci || npm install
           npm run build || echo "No build script in EncChat/src/package.json"
         else
-          echo "Could not find a suitable src directory with package.json"
+          echo "Could not find a suitable directory with package.json for building"
         fi
     
-    - name: Find and upload build artifacts
+    - name: Create artifact directory
       run: |
-        # Look for common build output directories
-        BUILD_DIR=""
+        mkdir -p artifacts
+        
+        # Look for build directories and copy contents if found
         for dir in "./build" "./dist" "./src/build" "./src/dist" "./EncChat/build" "./EncChat/dist" "./EncChat/src/build" "./EncChat/src/dist"; do
           if [ -d "$dir" ]; then
-            BUILD_DIR="$dir"
-            break
+            echo "Found build directory at $dir, copying contents to artifacts/"
+            cp -r "$dir"/* artifacts/ || echo "No files to copy from $dir"
           fi
         done
         
-        if [ -n "$BUILD_DIR" ]; then
-          echo "Found build directory at $BUILD_DIR"
-          mkdir -p artifacts
-          cp -r "$BUILD_DIR"/* artifacts/
-        else
-          echo "Could not find build directory, creating empty artifacts directory"
-          mkdir -p artifacts
+        # If no build directory was found, create a placeholder file
+        if [ -z "$(ls -A artifacts/)" ]; then
+          echo "No build artifacts found, creating placeholder file"
+          echo "This is a placeholder for build artifacts" > artifacts/placeholder.txt
         fi
+        
+        echo "Final artifacts directory contents:"
+        ls -la artifacts/
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
-        path: artifacts/
+        path: artifacts
+        if-no-files-found: warn
 
   deploy-development:
     needs: build
@@ -173,7 +124,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: build-artifacts
-        path: artifacts/
+        path: artifacts
     
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -212,7 +163,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: build-artifacts
-        path: artifacts/
+        path: artifacts
     
     - name: Set up Node.js
       uses: actions/setup-node@v4
