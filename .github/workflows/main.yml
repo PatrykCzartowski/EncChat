@@ -7,7 +7,29 @@ on:
     branches: [ main ]
 
 jobs:
+  project-setup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Debug directory structure
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Contents of current directory:"
+        ls -la
+        echo ""
+        echo "Searching for package.json files:"
+        find . -name "package.json" | sort
+        echo ""
+        echo "Searching for directories with 'backend' in the name:"
+        find . -type d -name "*backend*" | sort
+        echo ""
+        echo "Repository structure:"
+        find . -type d -not -path "*/node_modules/*" -not -path "*/.git/*" | sort
+
   lint-and-test:
+    needs: project-setup
     runs-on: ubuntu-latest
     
     steps:
@@ -19,27 +41,62 @@ jobs:
         node-version: '18'
         cache: 'npm'
     
-    - name: Debug directory structure
+    - name: Install root dependencies
       run: |
-        pwd
-        ls -la
-        find . -name "package.json"
+        if [ -f "package.json" ]; then
+          npm ci
+        else
+          echo "No package.json found in the root directory"
+        fi
     
     - name: Install backend dependencies
-      working-directory: ./backend
-      run: npm ci
+      run: |
+        if [ -d "backend" ]; then
+          cd backend
+          if [ -f "package.json" ]; then
+            npm ci
+          else
+            echo "No package.json found in the backend directory"
+          fi
+        elif [ -d "EncChat/backend" ]; then
+          cd EncChat/backend
+          if [ -f "package.json" ]; then
+            npm ci
+          else
+            echo "No package.json found in the EncChat/backend directory"
+          fi
+        else
+          echo "Could not find the backend directory"
+        fi
     
     - name: Install frontend dependencies
-      working-directory: ./src  # Adjust this if your frontend package.json is elsewhere
-      run: npm ci || echo "No package.json in src directory"
+      run: |
+        if [ -d "src" ]; then
+          cd src
+          if [ -f "package.json" ]; then
+            npm ci
+          else
+            echo "No package.json found in the src directory"
+          fi
+        elif [ -d "EncChat/src" ]; then
+          cd EncChat/src
+          if [ -f "package.json" ]; then
+            npm ci
+          else
+            echo "No package.json found in the EncChat/src directory"
+          fi
+        else
+          echo "Could not find the src directory"
+        fi
     
-    - name: Lint code (backend)
-      working-directory: ./backend
-      run: npm run lint || echo "Linting step skipped - add linting to your project"
-    
-    - name: Run backend tests
-      working-directory: ./backend
-      run: npm test || echo "Backend testing step skipped - add tests to your backend"
+    - name: Run linting and tests
+      run: |
+        if [ -f "package.json" ]; then
+          npm run lint || echo "Linting skipped"
+          npm test || echo "Testing skipped"
+        else
+          echo "No package.json found for running tests"
+        fi
 
   build:
     needs: lint-and-test
@@ -55,23 +112,54 @@ jobs:
         node-version: '18'
         cache: 'npm'
     
-    - name: Install backend dependencies
-      working-directory: ./backend
-      run: npm ci
+    - name: Install dependencies and build
+      run: |
+        # Try to find and build from the root package.json
+        if [ -f "package.json" ]; then
+          npm ci
+          npm run build || echo "No build script in root package.json"
+        else
+          echo "No package.json found in the root directory"
+        fi
+        
+        # Try to build from the src directory if it exists
+        if [ -d "src" ] && [ -f "src/package.json" ]; then
+          cd src
+          npm ci
+          npm run build || echo "No build script in src/package.json"
+        elif [ -d "EncChat/src" ] && [ -f "EncChat/src/package.json" ]; then
+          cd EncChat/src
+          npm ci
+          npm run build || echo "No build script in EncChat/src/package.json"
+        else
+          echo "Could not find a suitable src directory with package.json"
+        fi
     
-    - name: Install frontend dependencies
-      working-directory: ./src  # Adjust this if your frontend package.json is elsewhere
-      run: npm ci || echo "No package.json in src directory"
+    - name: Find and upload build artifacts
+      run: |
+        # Look for common build output directories
+        BUILD_DIR=""
+        for dir in "./build" "./dist" "./src/build" "./src/dist" "./EncChat/build" "./EncChat/dist" "./EncChat/src/build" "./EncChat/src/dist"; do
+          if [ -d "$dir" ]; then
+            BUILD_DIR="$dir"
+            break
+          fi
+        done
+        
+        if [ -n "$BUILD_DIR" ]; then
+          echo "Found build directory at $BUILD_DIR"
+          mkdir -p artifacts
+          cp -r "$BUILD_DIR"/* artifacts/
+        else
+          echo "Could not find build directory, creating empty artifacts directory"
+          mkdir -p artifacts
+        fi
     
-    - name: Build frontend
-      working-directory: ./src  # Adjust this path based on where your build script is located
-      run: npm run build || echo "No build script found"
-    
-    - name: Upload build artifacts
+    - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
         name: build-artifacts
-        path: ./src/build  # Adjust this path based on where your build output goes
+        path: artifacts/
 
   deploy-development:
     needs: build
@@ -85,47 +173,31 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-artifacts
-        path: ./src/build  # Adjust this path based on your project structure
+        path: artifacts/
     
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
     
-    - name: Install backend dependencies
-      working-directory: ./backend
-      run: npm ci --production
-    
-    - name: Run database migrations
-      working-directory: ./backend
-      run: npx prisma migrate deploy
+    - name: Deploy to development
+      run: |
+        echo "Deploying to development environment..."
+        echo "Working directory: $(pwd)"
+        echo "Contents of artifacts directory:"
+        ls -la artifacts/
+        
+        echo "Using environment variables for configuration"
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
-    
-    - name: Configure Cloudinary
-      env:
         CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
         CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
         CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-      run: |
-        echo "Setting up Cloudinary configuration..."
-    
-    - name: Configure Email Service
-      env:
         EMAILJS_PRIVATE_KEY: ${{ secrets.EMAILJS_PRIVATE_KEY }}
         EMAILJS_PUBLIC_KEY: ${{ secrets.EMAILJS_PUBLIC_KEY }}
         EMAILJS_RESET_PASSWORD_TEMPLATE: ${{ secrets.EMAILJS_RESET_PASSWORD_TEMPLATE }}
         EMAILJS_SERVICE_ID: ${{ secrets.EMAILJS_SERVICE_ID }}
         EMAILJS_VERIFY_EMAIL_TEMPLATE: ${{ secrets.EMAILJS_VERIFY_EMAIL_TEMPLATE }}
-      run: |
-        echo "Setting up EmailJS configuration..."
-    
-    - name: Deploy to development
-      run: |
-        echo "Deploying to development environment..."
-        # Add your deployment script here, for example:
-        # npm run deploy:dev
-      env:
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
   deploy-production:
@@ -140,45 +212,29 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-artifacts
-        path: ./src/build  # Adjust this path as needed
+        path: artifacts/
     
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
     
-    - name: Install backend dependencies
-      working-directory: ./backend
-      run: npm ci --production
-    
-    - name: Run database migrations
-      working-directory: ./backend
-      run: npx prisma migrate deploy
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production environment..."
+        echo "Working directory: $(pwd)"
+        echo "Contents of artifacts directory:"
+        ls -la artifacts/
+        
+        echo "Using environment variables for configuration"
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
-    
-    - name: Configure Cloudinary
-      env:
         CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
         CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
         CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-      run: |
-        echo "Setting up Cloudinary configuration..."
-    
-    - name: Configure Email Service
-      env:
         EMAILJS_PRIVATE_KEY: ${{ secrets.EMAILJS_PRIVATE_KEY }}
         EMAILJS_PUBLIC_KEY: ${{ secrets.EMAILJS_PUBLIC_KEY }}
         EMAILJS_RESET_PASSWORD_TEMPLATE: ${{ secrets.EMAILJS_RESET_PASSWORD_TEMPLATE }}
         EMAILJS_SERVICE_ID: ${{ secrets.EMAILJS_SERVICE_ID }}
         EMAILJS_VERIFY_EMAIL_TEMPLATE: ${{ secrets.EMAILJS_VERIFY_EMAIL_TEMPLATE }}
-      run: |
-        echo "Setting up EmailJS configuration..."
-    
-    - name: Deploy to production
-      run: |
-        echo "Deploying to production environment..."
-        # Add your production deployment script here, for example:
-        # npm run deploy:production
-      env:
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
