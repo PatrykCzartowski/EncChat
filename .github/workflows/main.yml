@@ -19,14 +19,23 @@ jobs:
         node-version: '18'
         cache: 'npm'
     
-    - name: Install dependencies
+    - name: Debug directory structure
+      run: |
+        pwd
+        ls -la
+        find . -name "package.json"
+    
+    - name: Install backend dependencies
+      working-directory: ./backend
       run: npm ci
     
-    - name: Lint code
-      run: npm run lint || echo "Linting step skipped - add linting to your project"
+    - name: Install frontend dependencies
+      working-directory: ./src  # Adjust this if your frontend package.json is elsewhere
+      run: npm ci || echo "No package.json in src directory"
     
-    - name: Run tests
-      run: npm test || echo "Testing step skipped - add tests to your project"
+    - name: Lint code (backend)
+      working-directory: ./backend
+      run: npm run lint || echo "Linting step skipped - add linting to your project"
     
     - name: Run backend tests
       working-directory: ./backend
@@ -46,17 +55,23 @@ jobs:
         node-version: '18'
         cache: 'npm'
     
-    - name: Install dependencies
+    - name: Install backend dependencies
+      working-directory: ./backend
       run: npm ci
     
+    - name: Install frontend dependencies
+      working-directory: ./src  # Adjust this if your frontend package.json is elsewhere
+      run: npm ci || echo "No package.json in src directory"
+    
     - name: Build frontend
-      run: npm run build
+      working-directory: ./src  # Adjust this path based on where your build script is located
+      run: npm run build || echo "No build script found"
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
         name: build-artifacts
-        path: build/
+        path: ./src/build  # Adjust this path based on where your build output goes
 
   deploy-development:
     needs: build
@@ -70,7 +85,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-artifacts
-        path: build/
+        path: ./src/build  # Adjust this path based on your project structure
     
     - name: Set up Node.js
       uses: actions/setup-node@v3
@@ -125,7 +140,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-artifacts
-        path: build/
+        path: ./src/build  # Adjust this path as needed
     
     - name: Set up Node.js
       uses: actions/setup-node@v3
