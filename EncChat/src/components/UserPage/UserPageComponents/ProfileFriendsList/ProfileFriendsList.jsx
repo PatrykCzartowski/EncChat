@@ -45,7 +45,6 @@ export default function ProfileFriendsList({ userId, userFriends, userChats, onC
                     Group Chats
                 </button>
             </div>
-
             <ul className={Styles.ulFriendList}>
                 {Array.isArray(userChats)
                     ? userChats.map((chat) => {
