@@ -1,4 +1,5 @@
 import prisma from "../../backend/prismaClient.js";
+import { encryptMessage, decryptMessage } from "../utils/encryption.js";
 
 export async function getChatsList(accountId) {
     const chats = await prisma.accountToChat.findMany({
@@ -27,7 +28,11 @@ export async function getChatMessages(chatId) {
             chatId,
         },
     });
-    return messages;
+
+    return messages.map(message => ({
+        ...message,
+        content: decryptMessage(message.content),
+    }));
 }
 
 export async function getChatAccounts(chatId) {
@@ -44,11 +49,15 @@ export async function createMessage(data) {
         data: {
             chatId: data.chatId,
             authorId: data.authorId,
-            content: data.content,
+            content: encryptMessage(data.content),
             createdAt: new Date(data.createdAt),
         },
     });
-    return message;
+    
+    return {
+        ...message,
+        content: decryptMessage(message.content),
+    };
 }
 
 export async function createChat(chatData) {
