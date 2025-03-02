@@ -144,6 +144,11 @@ export const setupWebSocket = (server) => {
             logger.info(`User connected: ${data.payload.accountId}`);
             break;
 
+          case "KEY_EXCHANGE":
+            await handleKeyExchange(data, userId, connection);
+            logger.info(`Key exchange initiated between ${clientsKeys[userId].accountId} and ${data.payload.targetUserId}`);
+            break;
+
           default:
             logger.warn(`Unknown message type: ${data.type}`);
             break;
