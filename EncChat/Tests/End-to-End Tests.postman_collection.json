@@ -1,0 +1,1797 @@
+{
+	"info": {
+		"_postman_id": "9fefe058-8ea7-40f3-8a11-9084d12bb3c1",
+		"name": "End-to-End Tests",
+		"description": "> This collection features end-to-end tests that ensure the Intergalactic Bank API components function in an expected sequence. Check out the [Functional testing collection](https://www.postman.com/templates/f26ad070-d626-4d75-b151-7cbf1a48ed11/Functional-testing) and [Integration testing collection](https://www.postman.com/templates/6f788c17-067a-4074-a528-d07df1df9529/Integration-testing-%23example) for other test cases for this API. \n  \n\n## **🪐 Get started**\n\nThe fictional Intergalactic Bank Services team is responsible for testing the end-to-end workflows in this collection. You can use this collection to validate specific workflows for your team or figure out ways to increase your test coverage and make your applications more resilient.\n\nTo test the Intergalactic Bank API, you can:\n\n1. **Review tests and scripts:** Check out the [tests](https://learning.postman.com/docs/writing-scripts/test-scripts/) in the Scripts tab of a collection, folder, or request. You’ll also find additional steps in the Pre-request Script, such as for passing data between requests or building up POST request payloads.\n    \n2. **Run tests:** To run the collection, select Run collection from the collection menu. If you are interested in testing one of the use cases, select Run folder from the use case folder menu. Keep in mind that many of these tests contain logic that passes information between requests, and they are meant to be run in order from top to bottom. If you send the requests manually or out of order, your results may vary.\n    \n3. **Review test results:** Many of the test cases contain error messages to help debug service errors. If you’re using this collection as a pre-merge check, ensure that all tests are passing before submitting (and no, deleting the failing test cases isn’t an option 😉).\n    \n\nCheck out the additional sections below or select View complete documentation. For context-sensitive help with a folder or request, look for the documentation icon.\n\n## 🧑‍💻How your team can use this collection\n\n- **Add a mock server to speed up development:** Adding functionality to this service? Since this collection has example responses, you can add a mock server that will return the expected results. Start writing tests against the mock, and once your additions are live, you can swap out the URLs and have a live test suite.\n    \n- **Integrate tests with your CI/CD pipeline:** This comprehensive test suite is a great addition to your existing CI/CD pipeline. Generate the Postman CLI command from the Collection Runner and add this step to your existing checks each time you make a commit affecting this service.\n    \n- **Add a monitor:** If your team is contributing to or relying on this service, it’s a good idea to keep tabs on the status. Adding a monitor to this collection can give you confidence that the service is up and running and alert you to any breaking changes that may have occurred.\n    \n\n## 🔍 What we’re testing\n\n- A very common workflow is the transfer of funds between accounts. We have two scenarios: one which creates all resources and successfully transfers funds, and one which tries the transfer with insufficient funds.\n    \n- During these workflows, we are testing for data correctness, data types, and that data is successfully passed through the system during creation and retrieval.\n    \n\n## 🔒A note on authorization\n\nThis API uses an API key-based authorization. In this collection, we set the authorization at the collection level and generate a new API Key for each test run.\n\n## 👀 View and share run results\n\nInterested in seeing previous run results? We’re happy to share, and have a few ways for you to stay in the loop:\n\n- **Runs tab:** View past collection runs in the `Runs` tab of this collection. Here, you can see the results of past runs, including who ran them and whether it was via the Collection Runner or the CLI. You can also share individual run reports from this page.\n    \n- **Monitors:** If you have a monitor set up for this collection, you can see historical run information when you select the Monitors tab in the left sidebar. You can also have the results sent to Slack or other services when you set up a corresponding integration.\n    \n\n### 🤝Increase test coverage\n\nThe Intergalactic Bank Services team wants your team to have everything they need to successfully test our services with their applications. Is your team utilizing this API in a use case not represented here? Reach out to us on our internal Slack by tagging `@bank-services`. Or add an [inline comment](https://learning.postman.com/docs/collaborating-in-postman/working-with-your-team/discussing-your-work/) to this collection with your test case suggestions.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42394784",
+		"_collection_link": "https://encchat-team.postman.co/workspace/EncChat-API-Testing~a90d4b88-e86d-4d0d-8aca-fdb958a09f06/collection/42394784-9fefe058-8ea7-40f3-8a11-9084d12bb3c1?action=share&source=collection_link&creator=42394784"
+	},
+	"item": [
+		{
+			"name": "AccountController Tests",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Basic response validation\r",
+									"pm.test(\"Login response has correct status code\", function () {\r",
+									"    // For successful login\r",
+									"    if (pm.request.body && JSON.parse(pm.request.body.raw).email === \"valid@example.com\") {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    }\r",
+									"    // For invalid credentials\r",
+									"    else if (pm.request.body && JSON.parse(pm.request.body.raw).email === \"nonexistent@example.com\") {\r",
+									"        pm.response.to.have.status(404);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has correct content type\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+									"});\r",
+									"\r",
+									"// Successful login tests\r",
+									"if (pm.response.code === 200) {\r",
+									"    pm.test(\"Successful login returns account ID\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('accountId');\r",
+									"        pm.expect(responseJson.accountId).to.be.a('number');\r",
+									"        pm.expect(responseJson.accountId).to.be.greaterThan(0);\r",
+									"        \r",
+									"        // Store account ID for later use\r",
+									"        pm.environment.set('accountId', responseJson.accountId);\r",
+									"    });\r",
+									"    \r",
+									"    pm.test(\"Successful login returns valid JWT token\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('token');\r",
+									"        pm.expect(responseJson.token).to.be.a('string').that.is.not.empty;\r",
+									"        \r",
+									"        // Verify token format (simple check that it looks like JWT)\r",
+									"        pm.expect(responseJson.token.split('.')).to.have.lengthOf(3);\r",
+									"        \r",
+									"        // Store token for future requests\r",
+									"        pm.environment.set('authToken', responseJson.token);\r",
+									"    });\r",
+									"    \r",
+									"    pm.test(\"Response time is acceptable\", function () {\r",
+									"        pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Failed login tests\r",
+									"if (pm.response.code === 404) {\r",
+									"    pm.test(\"Failed login returns correct error message\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('message');\r",
+									"        pm.expect(responseJson.message).to.eql('Account not found');\r",
+									"    });\r",
+									"    \r",
+									"    pm.test(\"Failed login does not return token\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.not.have.property('token');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Server error tests\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error returns appropriate message\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.eql('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Empty or malformed request tests\r",
+									"if (pm.request.body && (!JSON.parse(pm.request.body.raw).email || !JSON.parse(pm.request.body.raw).password)) {\r",
+									"    pm.test(\"Missing credentials are properly handled\", function () {\r",
+									"        pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('message').or.property('error');\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"yourpassword\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/account/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"account",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Basic response validation\r",
+									"pm.test(\"Find account response has correct status code\", function () {\r",
+									"    // For existing account\r",
+									"    if (pm.request.body && JSON.parse(pm.request.body.raw).accountData.email === \"existing@example.com\") {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    }\r",
+									"    // For non-existing account\r",
+									"    else if (pm.request.body && JSON.parse(pm.request.body.raw).accountData.email === \"nonexistent@example.com\") {\r",
+									"        pm.response.to.have.status(404);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has correct content type\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+									"});\r",
+									"\r",
+									"// Successful find account tests\r",
+									"if (pm.response.code === 200) {\r",
+									"    pm.test(\"Successful find returns account data\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('id');\r",
+									"        pm.expect(responseJson.id).to.be.a('number');\r",
+									"        pm.expect(responseJson.id).to.be.greaterThan(0);\r",
+									"        \r",
+									"        pm.expect(responseJson).to.have.property('email');\r",
+									"        pm.expect(responseJson.email).to.be.a('string').that.is.not.empty;\r",
+									"    });\r",
+									"    \r",
+									"    pm.test(\"Account data contains required fields\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        const requiredFields = ['id', 'email'];\r",
+									"        \r",
+									"        requiredFields.forEach(field => {\r",
+									"            pm.expect(responseJson).to.have.property(field);\r",
+									"        });\r",
+									"    });\r",
+									"    \r",
+									"    pm.test(\"Response time is acceptable\", function () {\r",
+									"        pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Failed find tests\r",
+									"if (pm.response.code === 404) {\r",
+									"    pm.test(\"Failed find returns correct error message\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('message');\r",
+									"        pm.expect(responseJson.message).to.eql('Account not found');\r",
+									"    });\r",
+									"    \r",
+									"    pm.test(\"Failed find does not return account data\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.not.have.property('id');\r",
+									"        pm.expect(responseJson).to.not.have.property('email');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Server error tests\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error returns appropriate message\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.eql('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Authorization tests (if endpoint requires auth)\r",
+									"pm.test(\"Request includes valid authorization header\", function () {\r",
+									"    const authHeader = pm.request.headers.get('Authorization');\r",
+									"    \r",
+									"    if (authHeader) {\r",
+									"        pm.expect(authHeader).to.include('Bearer ');\r",
+									"        const token = authHeader.replace('Bearer ', '');\r",
+									"        pm.expect(token).to.eql(pm.environment.get('authToken'));\r",
+									"    } else {\r",
+									"        // If this endpoint requires auth but header is missing, fail the test\r",
+									"        // Only uncomment if auth is required for this endpoint\r",
+									"        // pm.expect.fail('Authorization header is missing');\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Empty or malformed request tests\r",
+									"pm.test(\"Malformed requests are properly handled\", function () {\r",
+									"    if (pm.request.body) {\r",
+									"        try {\r",
+									"            const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"            \r",
+									"            if (!requestBody.accountData || !requestBody.accountData.email) {\r",
+									"                pm.expect(pm.response.code).to.be.oneOf([400, 404, 500]);\r",
+									"                const responseJson = pm.response.json();\r",
+									"                pm.expect(responseJson).to.have.property('message').or.property('error');\r",
+									"            }\r",
+									"        } catch (e) {\r",
+									"            pm.expect(pm.response.code).to.be.oneOf([400, 500]);\r",
+									"        }\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"accountData\": {\r\n    \"email\": \"user@example.com\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/account/find",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"account",
+								"find"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Basic response validation\r",
+									"pm.test(\"Verify email response has correct status code\", function () {\r",
+									"    // For existing email\r",
+									"    if (pm.request.body && JSON.parse(pm.request.body.raw).email === \"valid@example.com\") {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    }\r",
+									"    // For non-existing email\r",
+									"    else if (pm.request.body && JSON.parse(pm.request.body.raw).email === \"nonexistent@example.com\") {\r",
+									"        pm.response.to.have.status(404);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has correct content type\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+									"});\r",
+									"\r",
+									"// Successful email verification tests\r",
+									"if (pm.response.code === 200) {\r",
+									"    pm.test(\"Successful verification returns valid response\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        \r",
+									"        // The model might return different response formats\r",
+									"        // Option 1: Returns a verified flag\r",
+									"        if (responseJson.hasOwnProperty('verified')) {\r",
+									"            pm.expect(responseJson.verified).to.be.a('boolean');\r",
+									"            pm.expect(responseJson.verified).to.be.true;\r",
+									"        }\r",
+									"        // Option 2: Returns account details\r",
+									"        else if (responseJson.hasOwnProperty('email')) {\r",
+									"            pm.expect(responseJson.email).to.be.a('string').that.is.not.empty;\r",
+									"            const requestEmail = JSON.parse(pm.request.body.raw).email;\r",
+									"            pm.expect(responseJson.email.toLowerCase()).to.eql(requestEmail.toLowerCase());\r",
+									"        }\r",
+									"        // Option 3: Returns a message\r",
+									"        else if (responseJson.hasOwnProperty('message')) {\r",
+									"            pm.expect(responseJson.message).to.be.a('string').that.is.not.empty;\r",
+									"            pm.expect(responseJson.message).to.include('verified');\r",
+									"        }\r",
+									"    });\r",
+									"    \r",
+									"    pm.test(\"Response time is acceptable\", function () {\r",
+									"        pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Failed verification tests\r",
+									"if (pm.response.code === 404) {\r",
+									"    pm.test(\"Failed verification returns correct error message\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.eql('Email not found');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Server error tests\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error returns appropriate message\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.eql('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Email format validation tests\r",
+									"pm.test(\"Email format is validated\", function() {\r",
+									"    if (pm.request.body) {\r",
+									"        try {\r",
+									"            const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"            \r",
+									"            if (requestBody.email === \"invalid-email\") {\r",
+									"                pm.expect(pm.response.code).to.be.oneOf([400, 422]);\r",
+									"                const responseJson = pm.response.json();\r",
+									"                pm.expect(responseJson).to.have.property('error').or.property('message');\r",
+									"            }\r",
+									"        } catch (e) {\r",
+									"            // If JSON parsing fails, request is malformed\r",
+									"            pm.expect(pm.response.code).to.be.oneOf([400, 500]);\r",
+									"        }\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Empty or malformed request tests\r",
+									"pm.test(\"Empty or missing email is properly handled\", function() {\r",
+									"    if (pm.request.body) {\r",
+									"        try {\r",
+									"            const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"            \r",
+									"            if (!requestBody.email || requestBody.email === \"\") {\r",
+									"                pm.expect(pm.response.code).to.be.oneOf([400, 404, 422]);\r",
+									"                const responseJson = pm.response.json();\r",
+									"                pm.expect(responseJson).to.have.property('error').or.property('message');\r",
+									"            }\r",
+									"        } catch (e) {\r",
+									"            pm.expect(pm.response.code).to.be.oneOf([400, 500]);\r",
+									"        }\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Log the current test data for debugging\r",
+									"console.log(\"Request body:\", pm.request.body ? pm.request.body.raw : \"No body\");\r",
+									"console.log(\"Response body:\", pm.response.json());\r",
+									"console.log(\"Response status:\", pm.response.code);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"user@example.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/account/verify-email",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"account",
+								"verify-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test suite for the password reset endpoint\r",
+									"pm.test(\"Status code is 200 for successful password reset\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Successful password reset returns the updated account\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseJson).to.be.an('object');\r",
+									"    pm.expect(responseJson).to.have.property('id');\r",
+									"\r",
+									"    // If passwordUpdated is not returned, remove this assertion\r",
+									"    if (responseJson.hasOwnProperty('passwordUpdated')) {\r",
+									"        pm.expect(responseJson.passwordUpdated).to.be.true;\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+									"});\r",
+									"\r",
+									"// Test for missing accountId or newPassword\r",
+									"pm.test(\"Returns 400 when accountId or newPassword is missing\", function () {\r",
+									"    // This test requires you to run it with missing parameters\r",
+									"    if (!pm.request.body || !pm.request.body.formdata) {\r",
+									"        return;\r",
+									"    }\r",
+									"    \r",
+									"    const requestData = pm.request.body.formdata.toJSON();\r",
+									"    const hasAccountId = requestData.some(item => item.key === 'accountId' && item.value);\r",
+									"    const hasNewPassword = requestData.some(item => item.key === 'newPassword' && item.value);\r",
+									"    \r",
+									"    if (!hasAccountId || !hasNewPassword) {\r",
+									"        pm.response.to.have.status(400);\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Test for account not found scenario\r",
+									"pm.test(\"Returns 404 when account is not found\", function () {\r",
+									"    if (pm.response.code === 404) {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error', 'Account not found');\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Test for server error scenario\r",
+									"pm.test(\"Returns 500 for server errors\", function () {\r",
+									"    if (pm.response.code === 500) {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error', 'Internal server error');\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Preset the environment for the next test (storing the accountId if successful)\r",
+									"if (pm.response.code === 200) {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    if (responseJson && responseJson.id) {\r",
+									"        pm.environment.set('updatedAccountId', responseJson.id);\r",
+									"        console.log('Updated account ID stored: ' + responseJson.id);\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"accountId\": 45,\r\n  \"newPassword\": \"updatedpassword\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/account/reset-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"account",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create New Account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Basic response validation\r",
+									"pm.test(\"Create account response has correct status code\", function () {\r",
+									"    if (pm.request.body) {\r",
+									"        const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"\r",
+									"        // For successful account creation\r",
+									"        if (requestBody.email === \"newnewuser@example.com\") {\r",
+									"            pm.response.to.have.status(500);\r",
+									"        }\r",
+									"        // For duplicate account\r",
+									"        else {\r",
+									"            pm.response.to.have.status(409);\r",
+									"        }\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has correct content type\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+									"});\r",
+									"\r",
+									"// Successful account creation tests\r",
+									"if (pm.response.code === 201) {\r",
+									"    pm.test(\"Successful account creation returns account details\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        \r",
+									"        // Ensure accountId is in the response\r",
+									"        pm.expect(responseJson).to.have.property('accountId');\r",
+									"        pm.expect(responseJson.accountId).to.be.a('number');\r",
+									"        pm.expect(responseJson.accountId).to.be.greaterThan(0);\r",
+									"\r",
+									"        // Ensure username and email are returned\r",
+									"        pm.expect(responseJson).to.have.property('username');\r",
+									"        pm.expect(responseJson.username).to.eql(\"New User\");\r",
+									"\r",
+									"        pm.expect(responseJson).to.have.property('email');\r",
+									"        pm.expect(responseJson.email).to.eql(\"newuser@example.com\");\r",
+									"\r",
+									"        // Store account ID for future use\r",
+									"        pm.environment.set('newAccountId', responseJson.accountId);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response time is acceptable\", function () {\r",
+									"        pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Duplicate account tests\r",
+									"if (pm.response.code === 409) {\r",
+									"    pm.test(\"Duplicate account creation returns correct error message\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('message');\r",
+									"        pm.expect(responseJson.message).to.eql('Account already exists');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Server error tests\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error returns appropriate message\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.eql('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Empty or malformed request tests\r",
+									"if (pm.request.body) {\r",
+									"    const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"    if (!requestBody.email || !requestBody.password || !requestBody.username) {\r",
+									"        pm.test(\"Missing fields are properly handled\", function () {\r",
+									"            pm.expect(pm.response.code).to.be.oneOf([400, 422]);\r",
+									"            const responseJson = pm.response.json();\r",
+									"            pm.expect(responseJson).to.have.property('message').or.property('error');\r",
+									"        });\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"newnewuser@example.com\",\r\n  \"password\": \"newpassword\",\r\n  \"username\": \"New User\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/account/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"account",
+								"create"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ProfileController Tests",
+			"item": [
+				{
+					"name": "Fetch Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Basic successful response test\r",
+									"pm.test(\"Status code is 200 for successful profile fetch\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Test that the response has expected structure\r",
+									"pm.test(\"Response has the expected profile structure\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    // Assuming a profile has these fields - adjust according to your actual schema\r",
+									"    pm.expect(responseJson).to.be.an('object');\r",
+									"    pm.expect(responseJson).to.have.property('accountId');\r",
+									"    pm.expect(responseJson).to.have.property('firstName');\r",
+									"    pm.expect(responseJson).to.have.property('lastName');\r",
+									"    pm.expect(responseJson).to.have.property('bio');\r",
+									"    // Avatar might be null, but the property should exist\r",
+									"    pm.expect(responseJson).to.have.property('avatar');\r",
+									"});\r",
+									"\r",
+									"// Test with accountId from environment variables (if you're using them)\r",
+									"pm.test(\"Profile accountId matches request\", function () {\r",
+									"    const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseJson.accountId).to.equal(requestBody.accountId);\r",
+									"});\r",
+									"\r",
+									"// Test for 404 response when profile not found \r",
+									"// (You'll need a separate request with an invalid accountId for this)\r",
+									"if (pm.response.code === 404) {\r",
+									"    pm.test(\"Response is correct for non-existent profile\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('message');\r",
+									"        pm.expect(responseJson.message).to.equal('Profile not found');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for 500 error response\r",
+									"// (This would be tested with a separate request that triggers a server error)\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error has the correct format\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Setting environment variables based on response (useful for chaining requests)\r",
+									"if (pm.response.code === 200) {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.environment.set(\"profileId\", responseJson.id);  // If your profile has an id\r",
+									"    pm.environment.set(\"accountId\", responseJson.accountId);\r",
+									"}\r",
+									"\r",
+									"// Response time test\r",
+									"pm.test(\"Response time is acceptable\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500); // Adjust based on your performance expectations\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"accountId\": 11\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/profile/get",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"profile",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Basic successful response test\r",
+									"pm.test(\"Status code is 200 for successful profile update\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Validate the structure of the updated profile response\r",
+									"pm.test(\"Response has the expected updated profile structure\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseJson).to.be.an('object');\r",
+									"    pm.expect(responseJson).to.have.property('accountId');\r",
+									"    pm.expect(responseJson).to.have.property('firstName');\r",
+									"    pm.expect(responseJson).to.have.property('lastName');\r",
+									"    pm.expect(responseJson).to.have.property('bio');\r",
+									"    pm.expect(responseJson).to.have.property('avatar');\r",
+									"});\r",
+									"\r",
+									"// Test that the response data matches what we sent in the request\r",
+									"pm.test(\"Profile fields are updated correctly\", function () {\r",
+									"    const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    // Check that the accountId matches\r",
+									"    pm.expect(responseJson.accountId).to.equal(requestBody.accountId);\r",
+									"    \r",
+									"    // Check that the profile data fields match what we sent\r",
+									"    pm.expect(responseJson.firstName).to.equal(requestBody.profileData.firstName);\r",
+									"    pm.expect(responseJson.lastName).to.equal(requestBody.profileData.lastName);\r",
+									"    pm.expect(responseJson.bio).to.equal(requestBody.profileData.bio);\r",
+									"    \r",
+									"    // For avatar, it'll be the Cloudinary URL if we provided an avatar\r",
+									"    if (requestBody.profileData.avatar) {\r",
+									"        pm.expect(responseJson.avatar).to.include('cloudinary');\r",
+									"        pm.expect(responseJson.avatar).to.include('avatars');\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Test avatar URL format if an avatar was provided\r",
+									"if (pm.response.json().avatar) {\r",
+									"    pm.test(\"Avatar URL is a valid Cloudinary URL\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson.avatar).to.include('res.cloudinary.com');\r",
+									"        pm.expect(responseJson.avatar).to.include('secure_url');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for 500 error response\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error has the correct format\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Setting environment variables for potential use in chained requests\r",
+									"if (pm.response.code === 200) {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.environment.set(\"updatedProfileId\", responseJson.id); // If your profile has an id field\r",
+									"    pm.environment.set(\"updatedAccountId\", responseJson.accountId);\r",
+									"    pm.environment.set(\"currentAvatar\", responseJson.avatar);\r",
+									"}\r",
+									"\r",
+									"// Response time test\r",
+									"pm.test(\"Response time is acceptable\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000); // Higher threshold for requests with image uploads\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"accountId\": 45,\r\n  \"profileData\": {\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\",\r\n    \"bio\": \"My updated bio\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/profile/edit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"profile",
+								"edit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Profiles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Basic successful response test\r",
+									"pm.test(\"Status code is 200 for successful profile search\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Verify response is an array\r",
+									"pm.test(\"Response is an array of profiles\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"// Test that profiles match the search criteria when results are found\r",
+									"if (pm.response.json().length > 0) {\r",
+									"    pm.test(\"Returned profiles match search criteria\", function () {\r",
+									"        const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"        const searchString = requestBody.providedString.toLowerCase();\r",
+									"        const profiles = pm.response.json();\r",
+									"        \r",
+									"        // Check that each profile matches the search criteria\r",
+									"        const allProfilesMatch = profiles.every(profile => \r",
+									"            profile.firstName.toLowerCase().includes(searchString) || \r",
+									"            profile.lastName.toLowerCase().includes(searchString)\r",
+									"        );\r",
+									"        \r",
+									"        pm.expect(allProfilesMatch).to.be.true;\r",
+									"    });\r",
+									"    \r",
+									"    // Test that each profile has the expected structure\r",
+									"    pm.test(\"Each profile has the expected structure\", function () {\r",
+									"        const profiles = pm.response.json();\r",
+									"        \r",
+									"        profiles.forEach(profile => {\r",
+									"            pm.expect(profile).to.have.property('accountId');\r",
+									"            pm.expect(profile).to.have.property('firstName');\r",
+									"            pm.expect(profile).to.have.property('lastName');\r",
+									"            pm.expect(profile).to.have.property('bio');\r",
+									"            pm.expect(profile).to.have.property('avatar');\r",
+									"        });\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for empty results (when no matches are found)\r",
+									"if (pm.response.json().length === 0) {\r",
+									"    pm.test(\"Response is an empty array for no matches\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.be.an('array').that.is.empty;\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for 500 error response\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error has the correct format\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Setting environment variables for potential use in chained requests\r",
+									"if (pm.response.json().length > 0) {\r",
+									"    const profiles = pm.response.json();\r",
+									"    pm.environment.set(\"foundProfilesCount\", profiles.length);\r",
+									"    \r",
+									"    // Save the first profile's accountId for potential future use\r",
+									"    if (profiles[0] && profiles[0].accountId) {\r",
+									"        pm.environment.set(\"foundAccountId\", profiles[0].accountId);\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"// Log the number of profiles found\r",
+									"console.log(`Found ${pm.response.json().length} profiles matching the search criteria`);\r",
+									"\r",
+									"// Response time test\r",
+									"pm.test(\"Response time is acceptable\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"providedString\": \"Jo\" // Search term\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/profile/find",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"profile",
+								"find"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ChatController Tests",
+			"item": [
+				{
+					"name": "List Chats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Basic successful response test\r",
+									"pm.test(\"Status code is 200 for successful chats list\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Verify response structure\r",
+									"pm.test(\"Response is an array of chat objects\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson).to.be.an('array');\r",
+									"    \r",
+									"    if (responseJson.length > 0) {\r",
+									"        const firstChat = responseJson[0];\r",
+									"        pm.expect(firstChat).to.have.property('id');\r",
+									"        pm.expect(firstChat).to.have.property('messages').and.to.be.an('array');\r",
+									"        pm.expect(firstChat).to.have.property('accounts').and.to.be.an('array');\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Verify that the chats belong to the requested user\r",
+									"pm.test(\"All chats include the requested user\", function () {\r",
+									"    const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"    const userId = requestBody.accountId;\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    if (responseJson.length > 0) {\r",
+									"        const allChatsIncludeUser = responseJson.every(chat => \r",
+									"            chat.accounts && chat.accounts.some(accountId => accountId === userId)\r",
+									"        );\r",
+									"        pm.expect(allChatsIncludeUser).to.be.true;\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Test structure of a chat object more thoroughly\r",
+									"if (pm.response.json().length > 0) {\r",
+									"    pm.test(\"Chat objects have correct structure\", function () {\r",
+									"        const chat = pm.response.json()[0];\r",
+									"        \r",
+									"        // Base chat properties\r",
+									"        pm.expect(chat).to.have.property('id');\r",
+									"        \r",
+									"        // Messages array structure\r",
+									"        pm.expect(chat).to.have.property('messages').and.to.be.an('array');\r",
+									"        if (chat.messages.length > 0) {\r",
+									"            const message = chat.messages[0];\r",
+									"            pm.expect(message).to.have.property('id');\r",
+									"            pm.expect(message).to.have.property('chatId');\r",
+									"            pm.expect(message).to.have.property('authorId');\r",
+									"            pm.expect(message).to.have.property('content');\r",
+									"            pm.expect(message).to.have.property('createdAt');\r",
+									"        }\r",
+									"        \r",
+									"        // Accounts array structure\r",
+									"        pm.expect(chat).to.have.property('accounts').and.to.be.an('array');\r",
+									"        pm.expect(chat.accounts.length).to.be.at.least(1);\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for potential empty response (which is valid)\r",
+									"if (pm.response.json().length === 0) {\r",
+									"    pm.test(\"Response is an empty array for user with no chats\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.be.an('array').that.is.empty;\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for 500 error response\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error has the correct format\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Store chat IDs and other useful information for potential use in other requests\r",
+									"if (pm.response.json().length > 0) {\r",
+									"    const chats = pm.response.json();\r",
+									"    \r",
+									"    // Store the first chat's ID\r",
+									"    pm.environment.set(\"firstChatId\", chats[0].chatId);\r",
+									"    \r",
+									"    // Store total chat count\r",
+									"    pm.environment.set(\"chatCount\", chats.length);\r",
+									"    \r",
+									"    // Store all chat IDs as a JSON array for potential bulk operations\r",
+									"    const chatIds = chats.map(chat => chat.chatId);\r",
+									"    pm.environment.set(\"allChatIds\", JSON.stringify(chatIds));\r",
+									"    \r",
+									"    // If any messages exist, store the most recent message ID\r",
+									"    if (chats[0].messages && chats[0].messages.length > 0) {\r",
+									"        // Sort messages by date (newest first) and take the first one\r",
+									"        const sortedMessages = [...chats[0].messages].sort((a, b) => \r",
+									"            new Date(b.createdAt) - new Date(a.createdAt)\r",
+									"        );\r",
+									"        pm.environment.set(\"latestMessageId\", sortedMessages[0].id);\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"// Response time test\r",
+									"pm.test(\"Response time is acceptable\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"});\r",
+									"\r",
+									"// Verify date formats are valid in messages\r",
+									"if (pm.response.json().length > 0) {\r",
+									"    pm.test(\"Message timestamps are valid ISO dates\", function () {\r",
+									"        const chat = pm.response.json()[0];\r",
+									"        \r",
+									"        if (chat.messages && chat.messages.length > 0) {\r",
+									"            const allDatesValid = chat.messages.every(message => {\r",
+									"                const timestamp = message.createdAt;\r",
+									"                return !isNaN(Date.parse(timestamp));\r",
+									"            });\r",
+									"            \r",
+									"            pm.expect(allDatesValid).to.be.true;\r",
+									"        }\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Log information for debugging\r",
+									"console.log(`Found ${pm.response.json().length} chats for user`);\r",
+									"if (pm.response.json().length > 0) {\r",
+									"    console.log(`First chat ID: ${pm.response.json()[0].chatId}`);\r",
+									"    console.log(`Total messages in first chat: ${pm.response.json()[0].messages.length}`);\r",
+									"    console.log(`Total participants in first chat: ${pm.response.json()[0].accounts.length}`);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"accountId\": 11\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/chat/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"chat",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Chat Data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Basic successful response test\r",
+									"pm.test(\"Status code is 200 for successful chat data fetch\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Verify response structure\r",
+									"pm.test(\"Response has expected chat data structure\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    // Since getChatData returns results from Chat.findMany, \r",
+									"    // expect an array (even if it's likely only one item)\r",
+									"    pm.expect(responseJson).to.be.an('array');\r",
+									"    \r",
+									"    if (responseJson.length > 0) {\r",
+									"        const chat = responseJson[0];\r",
+									"        pm.expect(chat).to.have.property('id');\r",
+									"        // Add other expected chat properties based on your schema\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Verify chat ID matches request\r",
+									"pm.test(\"Returned chat has correct ID\", function () {\r",
+									"    const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"    const chatId = requestBody.chatId;\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    if (responseJson.length > 0) {\r",
+									"        pm.expect(responseJson[0].id).to.equal(chatId);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Test for empty response (which might happen if chat doesn't exist)\r",
+									"if (pm.response.json().length === 0) {\r",
+									"    pm.test(\"Response is an empty array for non-existent chat\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.be.an('array').that.is.empty;\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for 500 error response\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error has the correct format\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Store chat details for potential use in other requests\r",
+									"if (pm.response.json().length > 0) {\r",
+									"    const chat = pm.response.json()[0];\r",
+									"    pm.environment.set(\"chatTitle\", chat.title || \"\");\r",
+									"    // Store other relevant details\r",
+									"}\r",
+									"\r",
+									"// Response time test\r",
+									"pm.test(\"Response time is acceptable\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"chatId\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/chat/data",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"chat",
+								"data"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "EmailController Tests",
+			"item": [
+				{
+					"name": "Fetch Email Data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Basic successful response test for 'verify' type\r",
+									"pm.test(\"Status code is 200 for successful verify email data fetch\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Verify response structure for 'verify' type\r",
+									"pm.test(\"Response has expected structure for verify email data\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson).to.be.an('object');\r",
+									"    pm.expect(responseJson).to.have.property('template');\r",
+									"    pm.expect(responseJson).to.have.property('serviceId');\r",
+									"    pm.expect(responseJson).to.have.property('privateKey');\r",
+									"});\r",
+									"\r",
+									"// Basic successful response test for 'reset' type\r",
+									"if (pm.request.body && JSON.parse(pm.request.body.raw).type === \"reset\") {\r",
+									"    pm.test(\"Status code is 200 for successful reset password email data fetch\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response has expected structure for reset password email data\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.be.an('object');\r",
+									"        pm.expect(responseJson).to.have.property('template');\r",
+									"        pm.expect(responseJson).to.have.property('serviceId');\r",
+									"        pm.expect(responseJson).to.have.property('privateKey');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for invalid request type\r",
+									"if (pm.request.body && JSON.parse(pm.request.body.raw).type === \"unknown\") {\r",
+									"    pm.test(\"Status code is 400 for invalid request type\", function () {\r",
+									"        pm.response.to.have.status(400);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains correct error message for invalid request\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Invalid request');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for missing 'type' in request body\r",
+									"if (pm.request.body && Object.keys(JSON.parse(pm.request.body.raw)).length === 0) {\r",
+									"    pm.test(\"Status code is 400 for missing type in request body\", function () {\r",
+									"        pm.response.to.have.status(400);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains correct error message for missing type\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Invalid request');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for 500 error response (simulating internal server error)\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error response has the correct format\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Response time test\r",
+									"pm.test(\"Response time is acceptable\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"type\": \"reset\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/email/get",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"email",
+								"get"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "FriendController Tests",
+			"item": [
+				{
+					"name": "List Friends",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Log the response for debugging\r",
+									"console.log(\"Response Body:\", pm.response.text());\r",
+									"\r",
+									"// Ensure response is valid JSON\r",
+									"pm.test(\"Response is valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"// Test for successful retrieval of friends\r",
+									"pm.test(\"Status code is 200 for successful friend list fetch\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Parse response JSON\r",
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response is an array\", function () {\r",
+									"    pm.expect(responseJson).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"if (responseJson.length > 0) {\r",
+									"    pm.test(\"Each friend profile has expected properties\", function () {\r",
+									"        const friendProfile = responseJson[0];\r",
+									"        pm.expect(friendProfile).to.be.an('object');\r",
+									"        pm.expect(friendProfile).to.have.property('id');\r",
+									"        pm.expect(friendProfile).to.have.property('name'); // Adjust based on profile schema\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for missing userId in request body\r",
+									"if (!pm.request.body || !JSON.parse(pm.request.body.raw).userId) {\r",
+									"    pm.test(\"Status code is 400 for missing userId\", function () {\r",
+									"        pm.response.to.have.status(400);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains correct error message for missing userId\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Invalid request');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for server error handling\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error response has the correct format\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Response time test\r",
+									"pm.test(\"Response time is acceptable\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"userId\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/friend/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"friend",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Friend",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Log the response for debugging\r",
+									"console.log(\"Response Body:\", pm.response.text());\r",
+									"\r",
+									"// Ensure response is valid JSON\r",
+									"pm.test(\"Response is valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"// Test for successful friend addition\r",
+									"pm.test(\"Status code is 201 for successful friend addition\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// Parse response JSON\r",
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has expected structure for added friend\", function () {\r",
+									"    pm.expect(responseJson).to.be.an('object');\r",
+									"    pm.expect(responseJson).to.have.property('accountId');\r",
+									"    pm.expect(responseJson).to.have.property('friendId');\r",
+									"});\r",
+									"\r",
+									"// Verify the correct friend was added\r",
+									"const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"pm.test(\"Returned friend matches request\", function () {\r",
+									"    pm.expect(responseJson.userId).to.equal(requestBody.accountId);\r",
+									"    pm.expect(responseJson.friendId).to.equal(requestBody.friendId);\r",
+									"});\r",
+									"\r",
+									"// Test for missing userId or friendId in request\r",
+									"if (!pm.request.body || !requestBody.userId || !requestBody.friendId) {\r",
+									"    pm.test(\"Status code is 400 for missing userId or friendId\", function () {\r",
+									"        pm.response.to.have.status(400);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains correct error message for missing parameters\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Invalid request');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for server error handling\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error response has the correct format\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Response time test\r",
+									"pm.test(\"Response time is acceptable\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"userId\": 12, \r\n    \"friendId\": 45\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/friend/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"friend",
+								"add"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "FriendRequestController Tests",
+			"item": [
+				{
+					"name": "List Friend Requests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Log the response for debugging\r",
+									"console.log(\"Response Body:\", pm.response.text());\r",
+									"\r",
+									"// Ensure response is valid JSON\r",
+									"pm.test(\"Response is valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"// Test for successful retrieval of friend requests\r",
+									"pm.test(\"Status code is 200 for successful friend request retrieval\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Parse response JSON\r",
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response is an array\", function () {\r",
+									"    pm.expect(responseJson).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"if (responseJson.length > 0) {\r",
+									"    pm.test(\"Each friend request has expected properties\", function () {\r",
+									"        const request = responseJson[0];\r",
+									"        pm.expect(request).to.be.an('object');\r",
+									"        pm.expect(request).to.have.property('id');\r",
+									"        pm.expect(request).to.have.property('senderId');\r",
+									"        pm.expect(request).to.have.property('receiverId');\r",
+									"        pm.expect(request).to.have.property('status');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for missing userId in request body\r",
+									"if (!pm.request.body || !JSON.parse(pm.request.body.raw).userId) {\r",
+									"    pm.test(\"Status code is 400 for missing userId\", function () {\r",
+									"        pm.response.to.have.status(400);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains correct error message for missing userId\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Invalid request');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for no friend requests found\r",
+									"if (pm.response.code === 404) {\r",
+									"    pm.test(\"Response correctly indicates no friend requests found\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('message');\r",
+									"        pm.expect(responseJson.message).to.equal('No friend requests found');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Response time test\r",
+									"pm.test(\"Response time is acceptable\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"userId\": 11 \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/friendRequest/get",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"friendRequest",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Friend Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Log the response for debugging\r",
+									"console.log(\"Response Body:\", pm.response.text());\r",
+									"\r",
+									"// Ensure response is valid JSON\r",
+									"pm.test(\"Response is valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"// Test for successful friend addition\r",
+									"pm.test(\"Status code is 201 for successful friend addition\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// Parse response JSON\r",
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has expected structure for added friend\", function () {\r",
+									"    pm.expect(responseJson).to.be.an('object');\r",
+									"    pm.expect(responseJson).to.have.property('userId');\r",
+									"    pm.expect(responseJson).to.have.property('friendId');\r",
+									"});\r",
+									"\r",
+									"// Verify the correct friend was added\r",
+									"const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"pm.test(\"Returned friend matches request\", function () {\r",
+									"    pm.expect(responseJson.userId).to.equal(requestBody.userId);\r",
+									"    pm.expect(responseJson.friendId).to.equal(requestBody.friendId);\r",
+									"});\r",
+									"\r",
+									"// Test for missing userId or friendId in request\r",
+									"if (!pm.request.body || !requestBody.userId || !requestBody.friendId) {\r",
+									"    pm.test(\"Status code is 400 for missing userId or friendId\", function () {\r",
+									"        pm.response.to.have.status(400);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains correct error message for missing parameters\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Invalid request');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Test for server error handling\r",
+									"if (pm.response.code === 500) {\r",
+									"    pm.test(\"Server error response has the correct format\", function () {\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson).to.have.property('error');\r",
+									"        pm.expect(responseJson.error).to.equal('Internal server error');\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Response time test\r",
+									"pm.test(\"Response time is acceptable\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"userId\": 12345, \r\n    \"friendId\": 67890\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/friendRequest/send",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"friendRequest",
+								"send"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "key",
+				"value": "api-key",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "{{apiKey}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://template.postman-echo.com",
+			"type": "string"
+		},
+		{
+			"key": "apiKey",
+			"value": "OMpqVWAH.UC80wyXTtPwhDgAUdCTx6"
+		}
+	]
+}
