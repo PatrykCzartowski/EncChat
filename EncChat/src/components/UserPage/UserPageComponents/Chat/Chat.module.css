@@ -3,6 +3,7 @@
     flex-direction: column;
     height: 100%;
     border-radius: 10px;
+    min-height: 0;
     border: 1px solid #ddd;
     overflow: hidden;
 }
