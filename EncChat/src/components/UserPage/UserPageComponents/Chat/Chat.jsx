@@ -33,13 +33,17 @@ export default function Chat({
                 : 'Unknown Friend'
         : fallbackHeaderName;
 
-    const messagesEndRef = useRef(null);
+    const chatContainerRef = useRef(null);
 
     useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTo({
+            top: chatContainerRef.current.scrollHeight,
+            behavior: 'auto'
+        });
         }
     }, [selectedChat?.messages]);
+      
 
     return (
         <div className={Styles.chatContainer}>
@@ -57,7 +61,7 @@ export default function Chat({
         />
 
             {selectedChat ? (
-                <div className={Styles.chatMessages}>
+                <div className={Styles.chatMessages} ref={chatContainerRef}>
                 {selectedChat.messages && selectedChat.messages.length > 0 ? (
                     selectedChat.messages.map((message, index) => {
                         const previousMessage =
@@ -94,8 +98,7 @@ export default function Chat({
                 ) : (
                     <div className={Styles.noMessages}>No messages yet</div>
                 )}
-                <div ref={messagesEndRef} />
-            </div>
+                </div>
             ) : (
                 <div className={Styles.noChatSelected}>No chat selected</div>
             )}
