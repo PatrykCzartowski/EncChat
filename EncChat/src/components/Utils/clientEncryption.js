@@ -7,14 +7,14 @@ class ChatEncryption {
   
     async init() {
       try {
-        const savedKeyPair = localStorage.getItem('userKeyPair');
+        const savedKeyPair = sessionStorage.getItem('userKeyPair');
         if (savedKeyPair) {
           await this.importKeyPair(savedKeyPair);
         } else {
           await this.generateKeyPair();
           
           const exportedKeys = await this.exportKeyPair();
-          localStorage.setItem('userKeyPair', exportedKeys);
+          sessionStorage.setItem('userKeyPair', exportedKeys);
         }
         
         const savedChatKeys = localStorage.getItem('chatKeys');
@@ -118,6 +118,11 @@ class ChatEncryption {
     async generateChatKey(chatId) {
       if (!this.initialized) await this.init();
       
+      if(this.chatKeys[chatId]) {
+        await this.saveChatKeys();
+        return this.chatKeys[chatId];
+      }
+
       const key = await window.crypto.subtle.generateKey(
         {
           name: "AES-GCM",

@@ -24,13 +24,18 @@ export const fetchChatData = async (req, res) => {
 };
 
 export const sendMessage = async (messageData) => {
+
+  if (!messageData.chatId || !messageData.content || !messageData.authorId) {
+    logger.error('Missing required message data');
+    throw new Error('Missing required message data');
+  }
+
   try {
     const message = await createMessage(messageData);
     logger.info(`Sent message to chat ${messageData.chatId}`);
-    return { status: 201, data: message };
+    return {data: message };
   } catch (error) {
     logger.error('Error sending message:', error);
-    res.status(500).json({ error: 'Internal server error' });
   }
 };
 

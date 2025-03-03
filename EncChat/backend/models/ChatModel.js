@@ -45,12 +45,34 @@ export async function getChatAccounts(chatId) {
 }
 
 export async function createMessage(data) {
+
+    const createdAt = data.createdAt ? new Date(data.createdAt) : new Date();
+
+    console.log('Creating message with data:', JSON.stringify(data));
+
+    let content = data.content;
+
+    console.log('Message content:', content);
+
+    if(typeof content === "string") {
+        try {
+            content = JSON.parse(content);
+        } catch(error) {
+            console.error("Invalid content format:", content);
+            throw new Error("Invalid message content format");
+        }
+    }
+
+    const encryptedContent = encryptMessage(JSON.stringify(content));
+
+    console.log('Encrypted content:', encryptedContent);
+
     const message = await prisma.message.create({
         data: {
             chatId: data.chatId,
             authorId: data.authorId,
-            content: encryptMessage(data.content),
-            createdAt: new Date(data.createdAt),
+            content: encryptedContent,
+            createdAt: createdAt,
         },
     });
     

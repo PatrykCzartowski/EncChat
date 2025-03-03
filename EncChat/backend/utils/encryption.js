@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { promisify } from 'util';
-import logger from 'logger.js';
+import logger from '../utils/logger.js';
 
 // For server-side encryption
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;

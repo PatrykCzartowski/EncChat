@@ -209,7 +209,7 @@ export default function UserPage() {
     const otherId = isInitiator ? payload.friendId : payload.accountId;
 
     try {
-      const response = await fetch ("/api/user/publicKey", {
+      const response = await fetch ("/api/userKeys/public-key", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -272,7 +272,7 @@ export default function UserPage() {
         chat.id === msg.chatId
           ? {
               ...chat,
-              messages: [...chat.messages, msg],
+              messages: [...chat.messages, processedMsg],
               unreadCount: openedChat === msg.chatId ? 0 : (chat.unreadCount || 0) + 1,
             }
           : chat
@@ -286,6 +286,12 @@ export default function UserPage() {
     
     try {
       const encryptedContent = await chatEncryption.encryptMessage(openedChat, messageContent);
+      console.log("Encrypted content:", encryptedContent);
+
+      if (!encryptedContent || typeof encryptedContent !== "string") {
+        console.error("Encryption failed: Invalid encrypted content", encryptedContent);
+        return;
+      }
 
       const payload = {
         type: "NEW_MESSAGE",
@@ -300,24 +306,24 @@ export default function UserPage() {
       if (readyState === WebSocket.OPEN) {
         sendMessage(JSON.stringify(payload));
 
-        setUserChats((prevData) =>
-          prevData.map((chat) =>
-            chat.id === openedChat 
-              ? {
-                ...chat,
-                messages: [
-                  ...chat.messages,
-                  {
-                    chatId: openedChat,
-                    content: messageContent,
-                    authorId: userId,
-                    createdAt: new Date().toISOString(),
-                  }
-                ],
-              }
-            : chat
-          )
-        );
+        //setUserChats((prevData) =>
+        //  prevData.map((chat) =>
+        //    chat.id === openedChat 
+        //      ? {
+        //        ...chat,
+        //        messages: [
+        //          ...chat.messages,
+        //          {
+        //            chatId: openedChat,
+        //            content: messageContent,
+        //            authorId: userId,
+        //            createdAt: new Date().toISOString(),
+        //          }
+        //        ],
+        //      }
+        //    : chat
+        //  )
+        //);
       } else {
         console.error("WebSocket is not open. ReadyState:", readyState);
       }

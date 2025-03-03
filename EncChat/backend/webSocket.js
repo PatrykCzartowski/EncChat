@@ -62,17 +62,24 @@ const handleFriendRequestAcceptance = async (data, connection) => {
 
 const handleNewMessage = async (data) => {
   const { payload } = data;
-  await sendMessage(payload);
+  logger.debug(`handleNewMessage -> New message received from user: ${payload.authorId} for chat: ${payload.chatId}`);
+  
+  try {
+    await sendMessage(payload);
 
-// To be changed to encrypt E2E for each recipient separately
-  Object.values(clients).forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({
-        type: "NEW_MESSAGE",
-        payload: data,
-      }));
-    }
-  });
+    Object.values(clients).forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+              type: "NEW_MESSAGE",
+              payload: {
+                  payload
+              }
+          }));
+      }
+    });
+  } catch(error) {
+    logger.error(`Error in handleNewMessage: ${error.message}`);
+  }
 };
 
 const handleConnect = async (data, userId) => {
