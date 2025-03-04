@@ -6,8 +6,10 @@ import { acceptFriendRequest } from "./models/FriendRequestModel.js";
 import { createFriend } from "./models/FriendModel.js";
 import { v4 as uuidv4 } from "uuid";
 import logger from "./utils/logger.js";
+import { encryptMessage, decryptMessage } from "./utils/encryption.js";
 
 const clients = {};
+const clientsKeys = {};
 
 const sendToClient = (clientId, message) => {
   const client = clients[clientId];
@@ -60,22 +62,58 @@ const handleFriendRequestAcceptance = async (data, connection) => {
 
 const handleNewMessage = async (data) => {
   const { payload } = data;
-  await sendMessage(payload);
+  logger.debug(`handleNewMessage -> New message received from user: ${payload.authorId} for chat: ${payload.chatId}`);
+  
+  try {
+    await sendMessage(payload);
 
-  Object.values(clients).forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({
-        type: "NEW_MESSAGE",
-        payload: data,
-      }));
-    }
-  });
+    Object.values(clients).forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+              type: "NEW_MESSAGE",
+              payload: {
+                  payload
+              }
+          }));
+      }
+    });
+  } catch(error) {
+    logger.error(`Error in handleNewMessage: ${error.message}`);
+  }
 };
 
 const handleConnect = async (data, userId) => {
   const accountId = data.payload.accountId;
   await createWebSocketSession(accountId, userId);
+
+  if(data.payload.publicKey) {
+    clientsKeys[userId] = {
+      accountId,
+      publicKey: data.payload.publicKey
+    };
+    logger.info(`Stored public key for user: ${accountId}`);
+  }
 };
+
+const handleKeyExchange = async (data, userId, connection) => {
+  const { targetUserId, encryptSymmetricKey } = data.payload;
+
+  const targetSessions = await getSessionIdByAccountId(targetUserId);
+
+  targetSessions.forEach((sessionToken) => {
+    if(clients[sessionId]) {
+      sendToClient(sessionId, {
+        type: "KEY_EXCHANGE",
+        payload: {
+          senderId: clientsKeys[userId].accountId,
+          encryptSymmetricKey
+        }
+      });
+    }
+  });
+
+  logger.info(`Key exchange initiated between ${clientsKeys[userId].accountId} and ${targetUserId}`);
+}
 
 export const setupWebSocket = (server) => {
   const wsServer = new WebSocketServer({ server });
@@ -111,6 +149,11 @@ export const setupWebSocket = (server) => {
           case "CONNECT":
             await handleConnect(data, userId);
             logger.info(`User connected: ${data.payload.accountId}`);
+            break;
+
+          case "KEY_EXCHANGE":
+            await handleKeyExchange(data, userId, connection);
+            logger.info(`Key exchange initiated between ${clientsKeys[userId].accountId} and ${data.payload.targetUserId}`);
             break;
 
           default:

@@ -56,7 +56,9 @@ export default function AuthProvider({ children }) {
     const logOut = () => {
         setUserId(null);
         setToken("");
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("userKeyPair");
+        sessionStorage.removeItem("chatKeys");
         navigate("/");
     };
 
