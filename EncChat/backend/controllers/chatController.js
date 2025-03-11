@@ -1,4 +1,5 @@
 import { getChatsList, getChatData, createMessage, getAggregatedChatData } from '../models/ChatModel.js';
+import { getChatSettings, updateChatSettings } from '../models/ChatSettingsModel.js'; // for the chat settings
 import logger from '../utils/logger.js';
 
 export const listChats = async (req, res) => {
@@ -39,8 +40,33 @@ export const sendMessage = async (messageData) => {
   }
 };
 
+// Chat settings
+export const findChatSettings = async (req, res) => {
+  try {
+    const chatSettings = await getChatSettings(req.body.userId);
+    logger.info(`Fetched chat settings for user ${req.body.userId}`);
+    res.status(200).json(chatSettings);
+  } catch (error) {
+    logger.error('Error fetching chat settings:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export const saveChatSettings = async (req, res) => {
+  try {
+    const chatSettings = await updateChatSettings(req.body);
+    logger.info(`Updated chat settings for user ${req.body.userId}`);
+    res.status(200).json(chatSettings);
+  } catch (error) {
+    logger.error('Error updating chat settings:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
 export default [
   listChats,
   fetchChatData,
   sendMessage,
+  findChatSettings,
+  saveChatSettings,
 ];
