@@ -42,8 +42,7 @@ export default function ForgotPassword() {
         body: JSON.stringify({ type: 'reset' }),
       });
       const emailServiceData = await emailResponse.json();
-
-      sendEmail(emailServiceData.serviceId, emailServiceData.template, templateParams, emailServiceData.privateKey);
+      sendEmail(emailServiceData.serviceId, emailServiceData.template, templateParams, emailServiceData.publicKey);
       setStep('code');
 
     } catch (error) {
