@@ -1,6 +1,7 @@
 class keyBackupManager {
     constructor(chatEncryption) {
         this.chatEncryption = chatEncryption;
+        this.apiBaseUrl = '/api/backups';
         this.initialized = false;
     }
 
@@ -28,7 +29,7 @@ class keyBackupManager {
             }
 
             const backupData = {
-                userId,
+                accountId: userId,
                 timestamp: new Date().toISOString(),
                 keyPair: keyPairExport,
                 chatKeys: chatKeysExport,
@@ -39,17 +40,27 @@ class keyBackupManager {
 
             const encryptedBackup = await this._encryptBackup(backupData, password);
 
-            //create and download backup file
-            const blob = new Blob([JSON.stringify(encryptedBackup)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `encchat_chat_keys_backup_${userId}_${new Date().toISOString().slice(0, 10)}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            //Save backup to database
+            const response = await fetch(`${this.apiBaseUrl}/save`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this._getAuthToken()}`
+                },
+                body: JSON.stringify({
+                    accountId: userId,
+                    backupName: `Backup_${new Date().toLocaleString()}`,
+                    encryptedData: encryptedBackup,
+                    timestamp: new Date().toISOString(),
+                })
+            });
 
+            if(!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save backup');
+            }
+
+            const result = await response.json();
             return true;
         } catch (error) {
             console.error('Error creating backup: ', error);
@@ -57,55 +68,113 @@ class keyBackupManager {
         }
     }
 
-    async restoreFromBackup(backupFile, password) {
+    async getUserBackups() {
+        const userId = sessionStorage.getItem('currentUserId');
+        if(!userId) throw new Error('No user ID available for backup retrieval');
+
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/list`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this._getAuthToken()}`
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                })
+            });
+
+            if(!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to retrieve backups');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error retrieving backups: ', error);
+            return error;
+        }
+    }
+
+    async removeBackup(backupId) {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/remove/${backupId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${this._getAuthToken()}` }
+            });
+
+            if(!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to remove backup');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error removing backup: ', error);
+            throw error;
+        }
+    }
+
+    async getBackupById(backupId) {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/get/${backupId}`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${this._getAuthToken()}` }
+            });
+
+            if(!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to retrieve backup');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error retrieving backup: ', error);
+            throw error;
+        }
+    }
+
+    async restoreFromBackup(backupId, password) {
         if(!this.initialized) await this.init();
 
         try {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
+            const backupRecord = await this.getBackupById(backupId);
+            if(!backupRecord) throw new Error('Backup not found');
 
-                reader.onload = async (event) => {
-                    try {
-                        const encryptedBackup = JSON.parse(event.target.result);
-                        const backupData = await this._decryptBackup(encryptedBackup, password);
+            const encryptedBackup = backupRecord.encryptedData;
+            const backupData = await this._decryptBackup(encryptedBackup, password);
 
-                        if(!backupData.userId || !backupData.keyPair || !backupData.chatKeys) {
-                            throw new Error('Invalid backup file format');
-                        }
+            if(!backupData.userId || !backupData.keyPair || !backupData.chatKeys) {
+                throw new Error('Invalid backup file format');
+            }
 
-                        sessionStorage.setItem(currentUserId, backupData.userId);
+            sessionStorage.setItem('currentUserId', backupData.userId);
 
-                        await this.chatEncryption.importKeyPair(backupData.keyPair);
-                        for(const chatId in backupData.chatKeys) {
-                            await this.chatEncryption.importChatKey(chatId, backupData.chatKeys[chatId]);
-                        }
+            await this.chatEncryption.importKeyPair(backupData.keyPair);
+            for(const chatId in backupData.chatKeys) {
+                await this.chatEncryption.importChatKey(chatId, backupData.chatKeys[chatId]);
+            }
 
-                        const keyStorageId = `userKeyPair_${backupData.userId}`;
-                        sessionStorage.setItem(keyStorageId, backupData.keyPair);
+            const keyStorageId = `userKeyPair_${backupData.userId}`;
+            sessionStorage.setItem(keyStorageId, backupData.keyPair);
 
-                        await this.chatEncryption.saveChatKeys();
+            await this.chatEncryption.saveChatKeys();
 
-                        resolve({
-                            success: true,
-                            userId: backupData.userId,
-                            chatCount: Object.keys(backupData.chatKeys).length,
-                        });
-                    } catch (error) {
-                        console.error('Error restoring backup: ', error);
-                        reject(error);
-                    }
-                };
-
-                reader.onerror = () => {
-                    reject(new Error('Failed to read backup file'));
-                };
-
-                reader.readAsText(backupFile);
-            });
+            return {
+                success: true,
+                userId: backupData.accountId,
+                chatCount: Object.keys(backupData.chatKeys).length,
+            };
         } catch (error) {
             console.error('Error restoring backup: ', error);
             throw error;
         }
+    }
+
+    async _getAuthToken() {
+        const token = sessionStorage.getItem('token');
+        if(!token) throw new Error('No authentication token available');
+        return token;
     }
 
     async _encryptBackup(data, password) {
@@ -114,6 +183,7 @@ class keyBackupManager {
 
         const iv = window.crypto.getRandomValues(new Uint8Array(12));
         const encoder = new TextEncoder();
+        const encodedData = encoder.encode(JSON.stringify(data));
 
         const encryptedData = await window.crypto.subtle.encrypt(
             {

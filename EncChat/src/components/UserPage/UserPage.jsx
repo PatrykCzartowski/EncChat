@@ -9,6 +9,7 @@ import ProfileFriendsList from "./UserPageComponents/ProfileFriendsList/ProfileF
 import Chat from "./UserPageComponents/Chat/Chat";
 import Loading from "../Utils/Loading/Loading";
 import chatEncryption from "../Utils/clientEncryption";
+import KeyBackupUI from "../keyBackupUI/KeyBackupUI";
 
 const WS_URL = "ws://127.0.0.1:8080";
 
@@ -417,6 +418,7 @@ export default function UserPage() {
     <div className="userPage">
       <div className="leftSection">
         <ProfileInfo userId={userId} profile={userProfile} />
+        {encryptionReady && <KeyBackupUI />}
         <ProfileSearchBar
           userId={userId}
           friendData={userFriends}
