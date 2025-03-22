@@ -30,6 +30,7 @@
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",
     "emailjs-com": "^3.2.0",
+    "encchat": "file:",
     "express": "^4.21.1",
     "jwt-simple": "^0.5.6",
     "multer": "^1.4.5-lts.1",
