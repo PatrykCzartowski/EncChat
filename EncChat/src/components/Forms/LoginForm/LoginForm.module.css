@@ -1,70 +1,77 @@
-.login_form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: white;
-    border-radius: 12px;
-    padding: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    margin: auto auto auto auto;
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px;
+  width: 100%;
+  background-color: white;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 50px auto;
 }
 
 .line {
-    border: none;
-    border-top: 1px solid grey;
-    width: 60%;
-    margin: 20px 0;
-  }
+  border: none;
+  border-top: 1px solid grey;
+  width: 60%;
+  margin: 20px 0;
+}
 
-.captcha_container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px;
+.loginForm form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.loginForm form label {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.loginForm a {
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 .loginInput[type="text"],
 .loginInput[type="password"],
 .loginInput[type="email"] {
-  width: 90%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+width: 90%;
+padding: 10px;
+margin: 10px 0;
+border-radius: 5px;
+border: 1px solid #ccc;
 }
 
 .loginInput {
-  background-color: #f4f2f7;
-  color: #333;
-  padding: 10px;
-  border-radius: 8px;
-  outline: none;
+background-color: #f4f2f7;
+color: #333;
+padding: 10px;
+border-radius: 8px;
+outline: none;
 }
 
 .loginInput::placeholder {
-  color: #333;
+color: #333;
 }
 
 .loginInput:focus {
-  background-color: #ffffff;
-  border-color: #3700b3;
+background-color: #ffffff;
+border-color: #3700b3;
 }
 
 .buttonLoginForm {
-    width: 70%;
-    padding: 10px;
-    background-color: #4f008f;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
+  width: 70%;
+  padding: 10px;
+  background-color: #4f008f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 .buttonLoginForm:hover {
 background-color: #622396;
 }
-
-  

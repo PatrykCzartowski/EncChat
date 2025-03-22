@@ -6,7 +6,9 @@ import Notifications from './Notifications/Notifications';
 import ChatHeaderCard from './ChatHeaderCard/ChatHeaderCard';
 
 export default function ChatHeader({ 
-    showSettings, 
+    showSettings,
+    showSettingsWindow,
+    onToggleSettings,
     accountId, 
     sendMessage, 
     currentOpenedChats, 
@@ -72,7 +74,12 @@ export default function ChatHeader({
 
             <div className={styles.rightSection}>
                 <FaBell className={styles.icon} onClick={toggleNotifications} />
-                {showSettings && <FaCog className={styles.icon} />}
+                {showSettings && (
+                    <FaCog 
+                        className={`${styles.icon} ${showSettingsWindow ? styles.activeIcon : ""}`} 
+                        onClick={onToggleSettings}
+                    />
+                )}
             </div>
 
             {showNotifications && (

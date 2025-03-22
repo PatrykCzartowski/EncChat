@@ -1,4 +1,5 @@
 import prisma from "../../backend/prismaClient.js";
+import { encryptMessage, decryptMessage } from "../utils/encryption.js";
 
 export async function getChatsList(accountId) {
     const chats = await prisma.accountToChat.findMany({
@@ -27,7 +28,11 @@ export async function getChatMessages(chatId) {
             chatId,
         },
     });
-    return messages;
+
+    return messages.map(message => ({
+        ...message,
+        content: decryptMessage(message.content),
+    }));
 }
 
 export async function getChatAccounts(chatId) {
@@ -40,15 +45,41 @@ export async function getChatAccounts(chatId) {
 }
 
 export async function createMessage(data) {
+
+    const createdAt = data.createdAt ? new Date(data.createdAt) : new Date();
+
+    console.log('Creating message with data:', JSON.stringify(data));
+
+    let content = data.content;
+
+    console.log('Message content:', content);
+
+    if(typeof content === "string") {
+        try {
+            content = JSON.parse(content);
+        } catch(error) {
+            console.error("Invalid content format:", content);
+            throw new Error("Invalid message content format");
+        }
+    }
+
+    const encryptedContent = encryptMessage(JSON.stringify(content));
+
+    console.log('Encrypted content:', encryptedContent);
+
     const message = await prisma.message.create({
         data: {
             chatId: data.chatId,
             authorId: data.authorId,
-            content: data.content,
-            createdAt: new Date(data.createdAt),
+            content: encryptedContent,
+            createdAt: createdAt,
         },
     });
-    return message;
+    
+    return {
+        ...message,
+        content: decryptMessage(message.content),
+    };
 }
 
 export async function createChat(chatData) {

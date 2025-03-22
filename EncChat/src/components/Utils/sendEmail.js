@@ -1,12 +1,15 @@
 import emailjs from 'emailjs-com';
 
-export default function sendEmail(serviceId, template, templateParams, privateKey) {
+export default function sendEmail(serviceId, template, templateParams, publicKey) {
+
+    emailjs.init(publicKey);
+
     emailjs
     .send(
         serviceId,
         template,
         templateParams,
-        privateKey
+        publicKey
     )
     .then(
         (result) => { console.log("Email sent successfully", result.text); },

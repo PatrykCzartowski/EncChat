@@ -37,7 +37,7 @@ export default function LoginForm({ handleSignUpButton }) {
   };
 
   return (
-    <div className={Styles.login_form}>
+    <div className={Styles.loginForm}>
       <h2>Login</h2>
       <hr className={Styles.line} />
       <form onSubmit={handleSubmitEvent}>

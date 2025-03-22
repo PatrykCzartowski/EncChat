@@ -5,7 +5,7 @@ const AuthContext = createContext();
 
 export default function AuthProvider({ children }) {
     const [userId, setUserId] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem("token") || "");
+    const [token, setToken] = useState(sessionStorage.getItem("token") || "");
     const navigate = useNavigate();
 
     const loginAction = async (data) => {
@@ -19,7 +19,7 @@ export default function AuthProvider({ children }) {
             if (response.ok && res.accountId && res.token) {
                 setUserId(res.accountId);
                 setToken(res.token);
-                localStorage.setItem("token", res.token);
+                sessionStorage.setItem("token", res.token);
 
                 // Fetch user profile
                 const profileResponse = await fetch("/api/profile/get", {
@@ -56,7 +56,9 @@ export default function AuthProvider({ children }) {
     const logOut = () => {
         setUserId(null);
         setToken("");
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("userKeyPair");
+        sessionStorage.removeItem("chatKeys");
         navigate("/");
     };
 

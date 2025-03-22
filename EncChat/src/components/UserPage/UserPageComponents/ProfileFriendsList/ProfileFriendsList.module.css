@@ -41,8 +41,20 @@
     color: white;
 }
 
+.friendListScrollable{
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
 .ulFriendList {
+    flex: 1 1 auto;
     margin: 0;
     padding: 0;
+    height: 50vh;
+    overflow-y: auto;
     list-style: none;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
+  

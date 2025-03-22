@@ -30,12 +30,22 @@ export async function getSessionIdByAccountId(accountId) {
     return null
 }
 
-export async function deleteWebSocketSession(sessionId) {
-    const session = await prisma.webSocketSession.delete({
+export async function deleteWebSocketSession(wssId) {
+    const session = await prisma.webSocketSession.findUnique({
+        where: { sessionId: wssId },
+    });
+
+    if (!session) {
+        console.log(`Session with ID ${wssId} not found.`);
+        return;
+    }
+    
+    await prisma.webSocketSession.delete({
         where: {
-            sessionId,
+            sessionId: wssId,
         },
     });
+
     return session;
 }
 

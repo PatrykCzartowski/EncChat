@@ -19,6 +19,7 @@ model Account {
     banned Boolean @default(false)
     emailVerified Boolean @default(false)
     profile Profile?
+    publicKey String?
     sessions Session[]
     friends Friend[] @relation("AccountFriends")
     friendOf Friend[] @relation("FriendAccounts")
