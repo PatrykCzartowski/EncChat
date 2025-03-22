@@ -57,7 +57,7 @@ export default function EmailVerificationPage() {
     });
     const emailServiceData = await emailResponse.json();
 
-    sendEmail(emailServiceData.serviceId, emailServiceData.template, templateParams, emailServiceData.privateKey);
+    sendEmail(emailServiceData.serviceId, emailServiceData.template, templateParams, emailServiceData.publicKey);
     setIsButtonClicked(true);
   };
 
