@@ -1,4 +1,4 @@
-import { useContext, createContext, useState } from "react";
+import { useContext, createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
@@ -59,6 +59,36 @@ export default function AuthProvider({ children }) {
         localStorage.removeItem("token");
         navigate("/");
     };
+
+    useEffect(() => {
+        const checkSessionToken = async () => {
+          const storedToken = sessionStorage.getItem("token");
+          if (!storedToken) {
+            return; 
+          }
+          try {
+            const response = await fetch("/api/account/validate-token", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ token: storedToken }),
+            });
+            const data = await response.json();
+            if (response.ok && data.valid) {
+              setUserId(data.userId);
+              setToken(storedToken);
+              navigate("/user-page");
+            } else {
+              sessionStorage.removeItem("token");
+              navigate("/");
+            }
+          } catch (err) {
+            console.error("Token check failed:", err);
+            sessionStorage.removeItem("token");
+            navigate("/");
+          }
+        };
+        checkSessionToken();
+      }, [navigate]);
 
     return (
         <AuthContext.Provider value={{ token, userId, loginAction, logOut }}>

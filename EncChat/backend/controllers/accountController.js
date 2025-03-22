@@ -1,6 +1,8 @@
 import { findAccount, createAccount, verifyEmailAddress, updateAccountPassword } from '../models/AccountModel.js';
 import { tokenForUser } from '../utils/tokenUtils.js';
 import logger from '../utils/logger.js';
+import jwt from "jsonwebtoken";
+import prisma from "../models/prismaClient.js";
 
 export const login = async (req, res) => {
   try {
@@ -73,6 +75,32 @@ export const resetPassword = async (req, res) => {
   } catch (error) {
     logger.error(`Error resetting password: ${error}`);
     res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const validateToken = async (req, res) => {
+  const { token } = req.body;
+  
+  if (!token) {
+    return res.status(400).json({ valid: false, reason: "No token provided" });
+  }
+  
+  try {
+    const session = await prisma.webSocketSession.findUnique({
+      where: { sessionId: token },
+    });
+    
+    if (!session) {
+      logger.warn(`Token ${token} not found in DB`);
+      return res.status(404).json({ valid: false, reason: "Token not found in DB" });
+    }
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    return res.status(200).json({ valid: true, userId: decoded.sub });
+  } catch (error) {
+    logger.error(`Token validation error: ${error}`);
+    return res.status(401).json({ valid: false, reason: "Token expired or invalid" });
   }
 };
 
