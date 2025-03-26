@@ -4,7 +4,7 @@ import { authenticateToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get('/list', listBackups);
+router.post('/list', listBackups);
 router.post('/save', saveBackup);
 router.delete('/remove/:backupId', removeBackup);
 router.get('/get/:id', getBackupById);

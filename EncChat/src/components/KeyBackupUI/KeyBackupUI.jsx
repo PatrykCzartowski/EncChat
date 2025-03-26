@@ -7,7 +7,7 @@ export default function KeyBackupUI() {
     const [isBackupReady, setIsBackupReady] = useState(false);
     const [restoreStatus, setRestoreStatus] = useState({ state: 'idle', message: ''});
     const [showModal, setShowModal] = useState(false);
-    const [userBackups, setUserBackups] = useState([]);
+    const [userBackups, setUserBackups] = useState();
     const [selectedBackupId, setSelectedBackupId] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -119,7 +119,6 @@ export default function KeyBackupUI() {
         }
     };
 
-
     return (
         <div className="key-backup-containter">
             <div className="key-backup-buttons">
@@ -150,9 +149,9 @@ export default function KeyBackupUI() {
                                 <label>Available Backups:</label>
                                 {isLoading ? (
                                     <p className="loading-message">Loading backups...</p>
-                                ) : userBackups.length > 0 ? (
+                                ) : userBackups.backups.length > 0 ? (
                                     <div className="backup-list">
-                                        {userBackups.map(backup => (
+                                        {userBackups.backups.map(backup => (
                                             <div
                                                 key={backup.id}
                                                 className={`backup-item ${selectedBackupId === backup.id ? 'selected' : ''}`}

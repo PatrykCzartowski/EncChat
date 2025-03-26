@@ -69,7 +69,7 @@ class keyBackupManager {
     }
 
     async getUserBackups() {
-        const userId = sessionStorage.getItem('currentUserId');
+        const userId = parseInt(sessionStorage.getItem('currentUserId'));
         if(!userId) throw new Error('No user ID available for backup retrieval');
 
         try {
@@ -141,10 +141,11 @@ class keyBackupManager {
             const backupRecord = await this.getBackupById(backupId);
             if(!backupRecord) throw new Error('Backup not found');
 
-            const encryptedBackup = backupRecord.encryptedData;
+            const encryptedBackup = JSON.parse(backupRecord.encryptedData);
             const backupData = await this._decryptBackup(encryptedBackup, password);
 
-            if(!backupData.userId || !backupData.keyPair || !backupData.chatKeys) {
+            console.log(backupData)
+            if(!backupData.accountId || !backupData.keyPair || !backupData.chatKeys) {
                 throw new Error('Invalid backup file format');
             }
 

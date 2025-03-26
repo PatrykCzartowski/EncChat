@@ -3,10 +3,10 @@ import logger from "../utils/logger.js";
 
 export const listBackups = async (req, res) => {
     const userId = req.body.userId;
-    logger.debug(`Listing backups for user ${userId}`);
+    logger.info(`Listing backups for user ${userId}`);
     try {
         const backups = await findBackups(userId);
-        logger.debug(`Backups found: ${backups}`);
+        logger.info(`Backups found: ${backups}`);
         if(backups) {
             logger.info(`Found ${backups.length} backups for user ${userId}`);
             return res.json({backups});
@@ -35,7 +35,7 @@ export const saveBackup = async (req, res) => {
 }
 
 export const removeBackup = async (req, res) => {
-    const backupId = req.params.backupId;
+    const backupId = parseInt(req.params.backupId);
     try {
         const backup = await deleteBackup(backupId);
         if(backup) {
@@ -51,7 +51,7 @@ export const removeBackup = async (req, res) => {
 }
 
 export const getBackupById = async (req, res) => {
-    const backupId = req.params.id;
+    const backupId = parseInt(req.params.id);
     try {
         const backup = await findBackupById(backupId);
         if(backup) {
