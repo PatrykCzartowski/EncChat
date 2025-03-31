@@ -7,17 +7,24 @@ class ChatEncryption {
   
     async init() {
       try {
-        const savedKeyPair = sessionStorage.getItem('userKeyPair');
+        const userId = sessionStorage.getItem('currentUserId');
+        if (!userId) {
+          console.error('No user ID available for encryption initialization');
+          return false;
+        }
+        const keyStorageId = `userKeyPair_${userId}`;
+        const savedKeyPair = sessionStorage.getItem(keyStorageId);
         if (savedKeyPair) {
           await this.importKeyPair(savedKeyPair);
         } else {
           await this.generateKeyPair();
           
           const exportedKeys = await this.exportKeyPair();
-          sessionStorage.setItem('userKeyPair', exportedKeys);
+          sessionStorage.setItem(keyStorageId, exportedKeys);
         }
         
-        const savedChatKeys = localStorage.getItem('chatKeys');
+        const chatKeysId = `chatKeys_${userId}`;
+        const savedChatKeys = localStorage.getItem(chatKeysId);
         if (savedChatKeys) {
           const chatKeysData = JSON.parse(savedChatKeys);
           for (const chatId in chatKeysData) {
@@ -115,11 +122,16 @@ class ChatEncryption {
       };
     }
   
-    async generateChatKey(chatId) {
+    async generateChatKey(chatId, existingKey = null) {
       if (!this.initialized) await this.init();
       
       if(this.chatKeys[chatId]) {
         await this.saveChatKeys();
+        return this.chatKeys[chatId];
+      }
+
+      if(existingKey) {
+        await this.importChatKey(chatId, existingKey);
         return this.chatKeys[chatId];
       }
 
@@ -138,6 +150,10 @@ class ChatEncryption {
     }
     
     async saveChatKeys() {
+      const userId = sessionStorage.getItem('currentUserId');
+      if (!userId) return;
+
+      const chatKeysId = `chatKeys_${userId}`;
       const exportedKeys = {};
       
       for (const chatId in this.chatKeys) {
@@ -148,7 +164,7 @@ class ChatEncryption {
         exportedKeys[chatId] = btoa(String.fromCharCode(...new Uint8Array(exportedKey)));
       }
       
-      localStorage.setItem('chatKeys', JSON.stringify(exportedKeys));
+      localStorage.setItem(chatKeysId, JSON.stringify(exportedKeys));
     }
   
     async exportChatKey(chatId) {
@@ -167,21 +183,40 @@ class ChatEncryption {
     }
   
     async importChatKey(chatId, keyData) {
-      if (!this.initialized) await this.init();
-      
-      const key = await window.crypto.subtle.importKey(
-        "raw",
-        Uint8Array.from(atob(keyData), c => c.charCodeAt(0)),
-        {
-          name: "AES-GCM",
-          length: 256
-        },
-        true,
-        ["encrypt", "decrypt"]
-      );
-      
-      this.chatKeys[chatId] = key;
-      await this.saveChatKeys();
+      try {
+        if (!this.initialized) await this.init();
+        
+        // Handle different key formats - sometimes keys might be nested JSON
+        let processedKeyData = keyData;
+        if (keyData.startsWith('{') && keyData.endsWith('}')) {
+          try {
+            const parsedData = JSON.parse(keyData);
+            // If this is a complex object with the actual key inside
+            if (parsedData.key) {
+              processedKeyData = parsedData.key;
+            }
+          } catch (e) {
+            console.warn(`Key data appears to be JSON but couldn't be parsed:`, e);
+          }
+        }
+        
+        const key = await window.crypto.subtle.importKey(
+          "raw",
+          Uint8Array.from(atob(processedKeyData), c => c.charCodeAt(0)),
+          {
+            name: "AES-GCM",
+            length: 256
+          },
+          true,
+          ["encrypt", "decrypt"]
+        );
+        
+        this.chatKeys[chatId] = key;
+        await this.saveChatKeys();
+        return true;
+      } catch (error) {
+        return false;
+      }
     }
   
     async encryptMessage(chatId, message) {
@@ -215,12 +250,21 @@ class ChatEncryption {
       if (!this.initialized) await this.init();
       
       if (!this.chatKeys[chatId]) {
+        console.error(`No decryption key available for chat ${chatId}`);
         throw new Error("No decryption key for this chat");
       }
       
+      console.log(`Chat keys available: ${Object.keys(this.chatKeys).join(', ')}`);
+      console.log(`Attempting to decrypt message for chat ${chatId}, key exists: ${!!this.chatKeys[chatId]}`);
+
       try {
         const { iv, data } = JSON.parse(encryptedMessage);
         
+        if (!iv || !data) {
+          console.error('Invalid encrypted message format:', encryptedMessage);
+          throw new Error("Invalid encrypted message format");
+        }
+
         const decryptedData = await window.crypto.subtle.decrypt(
           {
             name: "AES-GCM",
@@ -233,6 +277,7 @@ class ChatEncryption {
         return new TextDecoder().decode(decryptedData);
       } catch (error) {
         console.error('Failed to decrypt message:', error);
+        console.error('Encrypted message:', encryptedMessage);
         return "🔒 [Encrypted message - cannot decrypt]";
       }
     }
@@ -288,6 +333,45 @@ class ChatEncryption {
         return false;
       }
     }
+
+    async joinChat(chatId, isCreator = false, creatorPublicKey = null) {
+      if (!this.initialized) await this.init();
+
+      if (isCreator) {
+        await this.generateChatKey(chatId);
+        return {
+          chatId,
+          status: 'created',
+          publicKey: await this.exportPublicKey()
+        };
+      }
+      else if (creatorPublicKey) {
+        return {
+          chatId,
+          status: 'joining',
+          publicKey: await this.exportPublicKey(),
+        };
+      } else {
+        throw new Error("Cannot join chat - missing creator's public key");
+      }
+    }
+
+    async exchangeKeys(chatId, participants) {
+      if (!this.initialized) await this.init();
+
+      if (!this.chatKeys[chatId]) {
+        await this.generateChatKey(chatId);
+      }
+
+      const encryptedKeys = {};
+      for (const participantId in participants) {
+        const publicKey = participants[participantId];
+        encryptedKeys[participantId] = await this.encryptChatKeyForUser(chatId, publicKey);
+      }
+
+      return encryptedKeys;
+    }
+
   }
 
   const chatEncryption = new ChatEncryption();

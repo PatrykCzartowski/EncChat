@@ -34,6 +34,7 @@ model Account {
     ChatSettings ChatSettings[]
     AccountChat AccountToChat[]
     WebSocketSession WebSocketSession[]
+    backups Backup[]
 }
 
 model Profile {
@@ -157,4 +158,13 @@ model WebSocketSession {
     account Account @relation(fields: [accountId], references: [id])
     accountId Int
     createdAt DateTime @default(now())
+}
+
+model Backup {
+    id Int @id @default(autoincrement())
+    account Account @relation(fields: [accountId], references: [id])
+    accountId Int
+    backupName String
+    encryptedData String
+    timestamp DateTime @default(now())
 }

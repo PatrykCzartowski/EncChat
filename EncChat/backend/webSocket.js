@@ -96,23 +96,44 @@ const handleConnect = async (data, userId) => {
 };
 
 const handleKeyExchange = async (data, userId, connection) => {
-  const { targetUserId, encryptSymmetricKey } = data.payload;
+  const { targetUserId, chatId, encryptedSymmetricKey } = data.payload;
 
   const targetSessions = await getSessionIdByAccountId(targetUserId);
 
   targetSessions.forEach((sessionToken) => {
-    if(clients[sessionId]) {
-      sendToClient(sessionId, {
+    if(clients[sessionToken]) {
+      sendToClient(sessionToken, {
         type: "KEY_EXCHANGE",
         payload: {
           senderId: clientsKeys[userId].accountId,
-          encryptSymmetricKey
+          chatId: chatId,
+          encryptedSymmetricKey: encryptedSymmetricKey
         }
       });
     }
   });
 
-  logger.info(`Key exchange initiated between ${clientsKeys[userId].accountId} and ${targetUserId}`);
+  logger.info(`Key exchange initiated between ${clientsKeys[userId].accountId} and ${targetUserId} for chat ${chatId}`);
+}
+
+const handleKeyRequest = async (data, userId, connection) => {
+  const { chatId, requesterId } = data.payload;
+  
+  const requesterSessions = await getSessionIdByAccountId(requesterId);
+  
+  requesterSessions.forEach((sessionToken) => {
+    if(clients[sessionToken]) {
+      sendToClient(sessionToken, {
+        type: "REQUEST_KEY",
+        payload: {
+          senderId: clientsKeys[userId].accountId,
+          chatId
+        }
+      });
+    }
+  });
+  
+  logger.info(`Key requested by ${requesterId} for chat ${chatId}`);
 }
 
 export const setupWebSocket = (server) => {
@@ -155,7 +176,10 @@ export const setupWebSocket = (server) => {
             await handleKeyExchange(data, userId, connection);
             logger.info(`Key exchange initiated between ${clientsKeys[userId].accountId} and ${data.payload.targetUserId}`);
             break;
-
+          case "REQUEST_KEY":
+            await handleKeyRequest(data, userId, connection);
+            logger.info(`Key requested for chat: ${data.payload.chatId}`);
+            break;
           default:
             logger.warn(`Unknown message type: ${data.type}`);
             break;
