@@ -62,7 +62,7 @@ export default function ProfileInfo({ userId, profile, setSettingsOpen }) {
                     >
                         <ul>
                             <li onClick={() => setSettingsOpen(true)}>Edit general settings</li>
-                            <li onClick={() => navigate('/profile-edit')}>Edit profile picture</li>
+                            <li onClick={() => navigate('/profile-edit')}>Edit profile</li>
                             <li onClick={handleLogout}>Logout</li>
                         </ul>
                     </div>
