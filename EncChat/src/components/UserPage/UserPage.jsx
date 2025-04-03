@@ -7,6 +7,7 @@ import ProfileInfo from "./UserPageComponents/ProfileInfo/ProfileInfo";
 import ProfileSearchBar from "./UserPageComponents/ProfileSearchBar/ProfileSearchBar";
 import ProfileFriendsList from "./UserPageComponents/ProfileFriendsList/ProfileFriendsList";
 import Chat from "./UserPageComponents/Chat/Chat";
+import Settings from "./UserPageComponents/Settings/Settings";
 import Loading from "../Utils/Loading/Loading";
 import chatEncryption from "../Utils/clientEncryption";
 import KeyBackupUI from "../keyBackupUI/KeyBackupUI";
@@ -32,8 +33,8 @@ export default function UserPage() {
   const [currentOpenedChats, setCurrentOpenedChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [encryptionReady, setEncryptionReady] = useState(false); 
-  
-  // Initializing user data from login location state
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   useEffect(() => {
     if (location.state?.userProfile) {
       setUserProfile(location.state.userProfile);
@@ -430,7 +431,7 @@ export default function UserPage() {
   return (
     <div className="userPage">
       <div className="leftSection">
-        <ProfileInfo userId={userId} profile={userProfile} />
+        <ProfileInfo userId={userId} profile={userProfile} setSettingsOpen={setSettingsOpen} />
         {encryptionReady && <KeyBackupUI />}
         <ProfileSearchBar
           userId={userId}
@@ -447,17 +448,21 @@ export default function UserPage() {
         />
       </div>
       <div className="rightSection">
-        <Chat
-          chatData={userChats.filter((chat) => chat.id === openedChat)}
-          handleMessageSubmit={handleMessageSubmit}
-          userId={userId}
-          friendsData={userFriends}
-          sendMessage={sendMessage}
-          currentOpenedChats = {currentOpenedChats}
-          setCurrentOpenedChats={setCurrentOpenedChats}
-          notifications={notifications}
-          onChangeOpenedChat={handleChangeOpenedChat}
-        />
+        {settingsOpen ? (
+          <Settings closeSettings={() => setSettingsOpen(false)} />
+        ) : (
+          <Chat
+            chatData={userChats.filter((chat) => chat.id === openedChat)}
+            handleMessageSubmit={handleMessageSubmit}
+            userId={userId}
+            friendsData={userFriends}
+            sendMessage={sendMessage}
+            currentOpenedChats={currentOpenedChats}
+            setCurrentOpenedChats={setCurrentOpenedChats}
+            notifications={notifications}
+            onChangeOpenedChat={setOpenedChat}
+          />
+        )}
       </div>
     </div>
 
