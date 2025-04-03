@@ -11,10 +11,20 @@ import Settings from "./UserPageComponents/Settings/Settings";
 import Loading from "../Utils/Loading/Loading";
 import chatEncryption from "../Utils/clientEncryption";
 import KeyBackupUI from "../keyBackupUI/KeyBackupUI";
+import { ToastProvider, useToast } from "../../Alerts/ToastNotificationSystem";
 
 const WS_URL = "ws://127.0.0.1:8080";
 
-export default function UserPage() {
+export default function UserPageWrapper() {
+  return (
+    <ToastProvider>
+      <UserPage />
+    </ToastProvider>
+  );
+}
+
+function UserPage() {
+  const toast = useToast();
   const location = useLocation();
   const { token, logOut } = useAuth();
   const navigate = useNavigate();
@@ -51,8 +61,14 @@ export default function UserPage() {
   useEffect(() => {
     const initEncryption = async () => {
       if (userId) {
-        await chatEncryption.init();
-        setEncryptionReady(true);
+        try {
+          await chatEncryption.init();
+          setEncryptionReady(true);
+          toast.success("Encryption initialized successfully");
+        } catch (error) {
+          toast.error("Failed to initialize encryption");
+          console.error("Encryption initialization error:", error);
+        }
       }
     }
   
@@ -65,20 +81,32 @@ export default function UserPage() {
   const { sendMessage, readyState } = useWebSocket(WS_URL, {
     queryParams: { token }, // Send token for authentication
     onOpen: async () => {
+      toast.info("Connected to chat server");
       if(userId && encryptionReady) {
         await sendConnectWithKey();
       }
+    },
+    onClose: () => {
+      toast.warning("Disconnected from chat server");
+    },
+    onError: () => {
+      toast.error("Error connecting to chat server");
     },
     onMessage: (event) => handleWebSocketMessage(event),
   });
 
   // Send connection with public key
   const sendConnectWithKey = async () => {
-    const publicKey = await chatEncryption.exportPublicKey();
-    sendMessage(JSON.stringify({ 
-      type: "CONNECT", 
-      payload: { accountId: userId, publicKey } 
-    }));
+    try {
+      const publicKey = await chatEncryption.exportPublicKey();
+      sendMessage(JSON.stringify({ 
+        type: "CONNECT", 
+        payload: { accountId: userId, publicKey } 
+      }));
+    } catch (error) {
+      toast.error("Failed to send encryption key");
+      console.error("Error sending public key:", error);
+    }
   };
 
   //re-send CONNECT when encryption is ready or userId changes
@@ -112,12 +140,20 @@ export default function UserPage() {
       });
 
       if (response.status === 401) {
+        toast.error("Session expired. Please log in again.");
         logOut(); // Token expired
         return;
       }
+
+      if (!response.ok) {
+        toast.error(`Error: ${response.statusText}`);
+        return;
+      }
+
       const data = await response.json();
       if (data) setState(data);
     } catch (error) {
+      toast.error(`Network error: ${error.message}`);
       console.error(`Error fetching ${url}:`, error);
     }
   };
@@ -127,7 +163,9 @@ export default function UserPage() {
       try {
         await Promise.all([fetchFriends(), fetchChats()]);
         setLoading(false);
+        toast.success("Data loaded successfully");
       } catch (error) {
+        toast.error("Failed to load user data");
         console.error("Error fetching user data:", error);
         logOut(); // Log out if token is invalid
       }
@@ -187,25 +225,37 @@ export default function UserPage() {
         break;
       case "KEY_EXCHANGE":
         await handleKeyExchange(message.payload);
+        toast.success("Chat key received");
         break;
       case "FRIEND_REQUEST":
+        setNotifications((prev) => [...prev, { type: message.type, data: message.payload }]);
+        toast.info("New friend request received");
       case "OTHER_NOTIFICATION":
         setNotifications((prev) => [...prev, { type: message.type, data: message.payload }]);
+        toast.info("New notification received");
         break;
       case "FRIEND_CREATED":
         await handleNewFriend(message.payload);
         fetchFriends();
         fetchChats();
+        toast.success("New friend added");
         break;
       case "CONNECTED":
         sessionStorage.setItem("wsClientId", message.payload.userId);
         break;
       case "REQUEST_KEY":
         await handleKeyRequest(message.payload);
+        toast.info("Chat key requested");
         break; 
       default:
         break;
     }
+  };
+
+  const getChatName = (chatId) => {
+    const chat = userChats.find(chat => chat.id === chatId);
+    if (!chat) return "chat";
+    return chat.name || "chat";
   };
 
   // Message handling
@@ -223,7 +273,8 @@ export default function UserPage() {
         }
       }
     } catch (error) {
-      console.log(`Error decrypting message in chat ${msg.chatId}:`, error);
+      toast.error(`Error decrypting message`);
+//      console.log(`Error decrypting message in chat ${msg.chatId}:`, error);
     }
 
     setUserChats((prevData) =>
@@ -243,11 +294,17 @@ export default function UserPage() {
     event.preventDefault();
     const messageContent = event.target[0].value;
     
+    if (!messageContent.trim()) {
+      toast.warning("Cannot send empty message");
+      return;
+    }
+
     try {
       const encryptedContent = await chatEncryption.encryptMessage(openedChat, messageContent);
       console.log("Encrypted content:", encryptedContent);
 
       if (!encryptedContent || typeof encryptedContent !== "string") {
+        toast.error("Message encryption failed");
         console.error("Encryption failed: Invalid encrypted content", encryptedContent);
         return;
       }
@@ -264,10 +321,13 @@ export default function UserPage() {
 
       if (readyState === WebSocket.OPEN) {
         sendMessage(JSON.stringify(payload));
+        toast.success("Message sent");
       } else {
+        toast.error("Not connected to server");
         console.error("WebSocket is not open. ReadyState:", readyState);
       }
     } catch (error) {
+      toast.error("Failed to send message");
       console.error("Error sending encrypted message:", error);
     }
 
@@ -288,11 +348,14 @@ export default function UserPage() {
 
         if(success) {
           console.log(`Successfully imported key for chat ${chatId} from user ${senderId}`);
+          toast.success("Chat key imported successfully");
           fetchChats();
         } else {
+          toast.error("Failed to import chat key");
           console.error(`Failed to import key for chat ${chatId} from user ${senderId}`);
         }
       } catch (error) {
+        toast.error("Error importing chat key");
         console.error(`Error importing key for chat ${chatId} from user ${senderId}:`, error);
       }
     }
@@ -325,9 +388,13 @@ export default function UserPage() {
                 encryptedSymmetricKey: encryptedKey,
               }
             }));
+            toast.success("Chat key shared");
           }
+        } else {
+          toast.error("Failed to get user's public key");
         }
       } catch (error) {
+        toast.error("Error handling key request");
         console.error(`Error handling key request for chat ${chatId} from user ${requesterId}:`, error);
       }
     }
@@ -373,12 +440,14 @@ export default function UserPage() {
                       chatId,
                       encryptedSymmetricKey: encryptedKey,
                     }
-                })); 
+                }));
+                toast.success("Chat key created and shared"); 
               }
           }
         }
       }
     } catch (error) {
+      toast.error("Error exchanging keys with new friend");
       console.error(`Error exchanging keys with user ${otherId}:`, error);
     }
   }
@@ -397,6 +466,8 @@ export default function UserPage() {
         }
       }));
     });
+
+    toast.info("Requested chat key from participants");
   }
 
   // UI handlers
@@ -406,6 +477,11 @@ export default function UserPage() {
       prevData.map((chat) => (chat.id === chatID ? { ...chat, unreadCount: 0 } : chat))
     );
     updateCurrentlyOpenedChats();
+
+    const chat = userChats.find(chat => chat.id === chatID);
+    if (chat) {
+      toast.info(`Opened chat: ${chat.name || 'Chat'}`);
+    }
   };
 
   const updateCurrentlyOpenedChats = () => {
