@@ -10,7 +10,7 @@ export default function FriendListCard({ isGroup, userFriend, lastMessage, chatD
     if (!isGroup) {
         // Individual
         return (
-            <li className={styles.friendCard}>
+            <li className={`${styles.friendCard} friendListItem`}>
                 <img 
                     src={userFriend && userFriend[0]?.avatar || placeHolderImage} 
                     alt="Friend profile" 
@@ -30,7 +30,7 @@ export default function FriendListCard({ isGroup, userFriend, lastMessage, chatD
     } else {
         // Group
         return (
-            <li className={styles.friendCard}>
+            <li className={`${styles.friendCard} friendListItem`}>
                 <img 
                     src={placeHolderImage} 
                     alt="Group profile" 

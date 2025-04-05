@@ -1,0 +1,208 @@
+.key-backup-container {
+  margin: 20px 0;
+}
+
+.key-backup-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.backup-button, .restore-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.backup-button {
+  background-color: #4f008f;
+  color: white;
+  border: none;
+}
+
+.restore-button {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  color: black;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Modal styles */
+.backup-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.backup-modal {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.backup-modal h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.backup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+}
+
+.form-group input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Backup list */
+.backup-list {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.backup-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.backup-item:last-child {
+  border-bottom: none;
+}
+
+.backup-item.selected {
+  background-color: #f0f7ff;
+}
+
+.backup-item:hover {
+  background-color: #f5f5f5;
+}
+
+.backup-item.selected:hover {
+  background-color: #e5f1ff;
+}
+
+.backup-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.backup-name {
+  font-weight: 500;
+}
+
+.backup-date {
+  font-size: 0.85em;
+  color: #666;
+  margin-top: 2px;
+}
+
+.remove-backup-btn {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.remove-backup-btn:hover {
+  background-color: #f1f1f1;
+  color: #d32f2f;
+}
+
+.loading-message, .no-backups-message {
+  padding: 12px;
+  text-align: center;
+  color: #666;
+}
+
+/* Status messages */
+.restore-status {
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.restore-status.loading {
+  background-color: #e3f2fd;
+  color: #4f008f;
+}
+
+.restore-status.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.restore-status.error {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* Action buttons */
+.backup-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.restore-confirm-button, .cancel-button, .refresh-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  color: black;
+}
+
+.restore-confirm-button {
+  background-color: #4f008f;
+  color: white;
+  border: none;
+}
+
+.cancel-button {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+}
+
+.refresh-button {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+}
