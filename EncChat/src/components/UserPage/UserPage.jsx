@@ -7,8 +7,10 @@ import ProfileInfo from "./UserPageComponents/ProfileInfo/ProfileInfo";
 import ProfileSearchBar from "./UserPageComponents/ProfileSearchBar/ProfileSearchBar";
 import ProfileFriendsList from "./UserPageComponents/ProfileFriendsList/ProfileFriendsList";
 import Chat from "./UserPageComponents/Chat/Chat";
+import Settings from "./UserPageComponents/Settings/Settings";
 import Loading from "../Utils/Loading/Loading";
 import chatEncryption from "../Utils/clientEncryption";
+import KeyBackupUI from "../keyBackupUI/KeyBackupUI";
 
 const WS_URL = "ws://127.0.0.1:8080";
 
@@ -17,15 +19,21 @@ export default function UserPage() {
   const { token, logOut } = useAuth();
   const navigate = useNavigate();
 
+  // User states
   const [userId, setUserId] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
+  
+  // Data states
   const [userFriends, setUserFriends] = useState([]);
   const [userChats, setUserChats] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  
+  // UI states
   const [openedChat, setOpenedChat] = useState(null);
   const [currentOpenedChats, setCurrentOpenedChats] = useState([]);
-  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [encryptionReady, setEncryptionReady] = useState(false); 
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (location.state?.userProfile) {
@@ -39,6 +47,7 @@ export default function UserPage() {
     }
   }, [location.state?.userProfile, location.state?.accountId]);
 
+  // Initialize encryption
   useEffect(() => {
     const initEncryption = async () => {
       if (userId) {
@@ -52,29 +61,32 @@ export default function UserPage() {
     }
   }, [userId]);
 
+  // WebSocket setup
   const { sendMessage, readyState } = useWebSocket(WS_URL, {
     queryParams: { token }, // Send token for authentication
     onOpen: async () => {
       if(userId && encryptionReady) {
-        const publicKey = await chatEncryption.exportPublicKey();
-        sendMessage(JSON.stringify({ type: "CONNECT", payload: { accountId: userId, publicKey } }));
+        await sendConnectWithKey();
       }
     },
     onMessage: (event) => handleWebSocketMessage(event),
   });
 
+  // Send connection with public key
+  const sendConnectWithKey = async () => {
+    const publicKey = await chatEncryption.exportPublicKey();
+    sendMessage(JSON.stringify({ 
+      type: "CONNECT", 
+      payload: { accountId: userId, publicKey } 
+    }));
+  };
+
   //re-send CONNECT when encryption is ready or userId changes
   useEffect(() => {
-    if(readyState === WebSocket.OPEN && userId && encryptionReady) {
-      const sendConnectWithKey = async () => {
-        const publicKey = await chatEncryption.exportPublicKey();
-        sendMessage(JSON.stringify({ type: "CONNECT", payload: { accountId: userId, publicKey } }));
-      }
-
-      sendConnectWithKey();
-    }
+    if(readyState === WebSocket.OPEN && userId && encryptionReady) sendConnectWithKey();
   }, [userId, encryptionReady, readyState]);
 
+  // Authentication and data loading
   useEffect(() => {
     if (!token) {
       navigate("/");
@@ -87,18 +99,7 @@ export default function UserPage() {
     }
   }, [token, userId, encryptionReady]);
 
-  const fetchData = async () => {
-    if (userId) {
-      try {
-        await Promise.all([fetchFriends(), fetchChats()]);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        logOut(); // Log out if token is invalid
-      }
-    }
-  };
-
+  // API helpers
   const fetchAPI = async (url, payload, setState) => {
     try {
       const response = await fetch(url, {
@@ -121,53 +122,62 @@ export default function UserPage() {
     }
   };
 
-  const fetchFriends = () => {
-    fetchAPI("/api/friend/list", { userId: userId }, setUserFriends);
-  }
+  const fetchData = async () => {
+    if (userId) {
+      try {
+        await Promise.all([fetchFriends(), fetchChats()]);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        logOut(); // Log out if token is invalid
+      }
+    }
+  };
+
+  const fetchFriends = () => fetchAPI("/api/friend/list", { userId: userId }, setUserFriends);
   const fetchChats = () => {
     fetchAPI("/api/chat/list", { userId: userId }, async (chatsData) => {
-        if(Array.isArray(chatsData)) {
-            // For each chat, check if we have the key; if not, request it
-            await Promise.all(chatsData.map(async (chat) => {
-              if(!chatEncryption.chatKeys[chat.id]) {
-                await requestChatKey(chat.id);
+        if(!Array.isArray(chatsData)) {
+          setUserChats(chatsData);
+          return;
+        }
+      
+        // Request missing chat keys
+        await Promise.all(chatsData.map(async (chat) => {
+          if(!chatEncryption.chatKeys[chat.id]) await requestChatKey(chat.id);
+        }));
+
+        // Process and decrypt messages
+        const processedChats = await Promise.all(chatsData.map(async (chat) => {
+          if(!chat.messages || !Array.isArray(chat.messages)) return chat;
+        
+          try {
+            const decryptedMessages = await Promise.all(chat.messages.map(async (msg) => {
+              try {
+                const isEncrypted = typeof msg.content === "string" &&
+                  (msg.content.includes('"iv":') && msg.content.includes('"data":'));
+
+                if(isEncrypted) {
+                  const decryptedContent = await chatEncryption.decryptMessage(chat.id, msg.content);
+                  return { ...msg, content: decryptedContent };
+                }
+                return msg;
+              } catch (e) {
+                console.log(`Couldn't decrypt message in chat ${chat.id}:`, e);
+                return msg;
               }
             }));
-
-            const processedChats = await Promise.all(chatsData.map(async (chat) => {
-                if(chat.messages && Array.isArray(chat.messages)) {
-                    try {
-                    const decryptedMessages = await Promise.all(chat.messages.map(async (msg) => {
-                        try {
-                            const isEncrypted = typeof msg.content === "string" &&
-                            (msg.content.includes('"iv":') && msg.content.includes('"data":'));
-              
-                            if(isEncrypted) {
-                                const decryptedMessages = await chatEncryption.decryptMessage(chat.id, msg.content);
-                                return { ...msg, content: decryptedMessages };
-                            }
-                            return msg;
-                          } catch (e) {
-                                console.log(`Couldn't decrypt message in chat ${chat.id}:`, e);
-                                return msg;
-                          }
-                    }));
-                    return { ...chat, messages: decryptedMessages };
-                    } catch (error) {
-                        console.error(`Error processing chat ${chat.id}:`, error);
-                        return chat;
-                    }
-                  }
-                  return chat;
-                }));
-
-            setUserChats(processedChats);
-        } else {
-            setUserChats(chatsData);
-        }
+            return { ...chat, messages: decryptedMessages };
+          } catch (error) {
+            console.error(`Error processing chat ${chat.id}:`, error);
+            return chat;
+          }
+        }));
+        setUserChats(processedChats);
     });
-  }
+  };
 
+  // WebSocket message handling
   const handleWebSocketMessage = async (event) => {
     const message = JSON.parse(event.data);
     
@@ -198,6 +208,73 @@ export default function UserPage() {
     }
   };
 
+  // Message handling
+  const handleNewMessage = async (msg) => {
+
+    let processedMsg = { ...msg };
+
+    try {
+      if(typeof msg.content === "string") {
+        const isEncrypted = msg.content.includes('"iv":') && msg.content.includes('"data":');
+
+        if(isEncrypted) {
+          const decryptedContent = await chatEncryption.decryptMessage(msg.chatId, msg.content);
+          processedMsg.content = decryptedContent;
+        }
+      }
+    } catch (error) {
+      console.log(`Error decrypting message in chat ${msg.chatId}:`, error);
+    }
+
+    setUserChats((prevData) =>
+      prevData.map((chat) =>
+        chat.id === msg.chatId
+          ? {
+              ...chat,
+              messages: [...chat.messages, processedMsg],
+              unreadCount: openedChat === msg.chatId ? 0 : (chat.unreadCount || 0) + 1,
+            }
+          : chat
+      )
+    );
+  };
+
+  const handleMessageSubmit = async (event) => {
+    event.preventDefault();
+    const messageContent = event.target[0].value;
+    
+    try {
+      const encryptedContent = await chatEncryption.encryptMessage(openedChat, messageContent);
+      console.log("Encrypted content:", encryptedContent);
+
+      if (!encryptedContent || typeof encryptedContent !== "string") {
+        console.error("Encryption failed: Invalid encrypted content", encryptedContent);
+        return;
+      }
+
+      const payload = {
+        type: "NEW_MESSAGE",
+        payload: {
+          chatId: openedChat,
+          content: encryptedContent,
+          authorId: userId,
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      if (readyState === WebSocket.OPEN) {
+        sendMessage(JSON.stringify(payload));
+      } else {
+        console.error("WebSocket is not open. ReadyState:", readyState);
+      }
+    } catch (error) {
+      console.error("Error sending encrypted message:", error);
+    }
+
+    event.target.reset();
+  };
+
+  // Key exchange and management
   const handleKeyExchange = async (payload) => {
     const {senderId, chatId, encryptedSymmetricKey } = payload;
 
@@ -217,6 +294,41 @@ export default function UserPage() {
         }
       } catch (error) {
         console.error(`Error importing key for chat ${chatId} from user ${senderId}:`, error);
+      }
+    }
+  };
+
+  const handleKeyRequest = async (payload) => {
+    const { chatId, requesterId } = payload;
+    
+    if (chatEncryption.chatKeys[chatId]) {
+      try {
+        const response = await fetch("/api/userKeys/public-key", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userId: requesterId }),
+        });
+        
+        if (response.ok) {
+          const { publicKey } = await response.json();
+          if (publicKey) {
+            const encryptedKey = await chatEncryption.encryptChatKeyForUser(chatId, publicKey);
+            
+            sendMessage(JSON.stringify({
+              type: "KEY_EXCHANGE",
+              payload: {
+                targetUserId: requesterId,
+                chatId,
+                encryptedSymmetricKey: encryptedKey,
+              }
+            }));
+          }
+        }
+      } catch (error) {
+        console.error(`Error handling key request for chat ${chatId} from user ${requesterId}:`, error);
       }
     }
   };
@@ -287,71 +399,7 @@ export default function UserPage() {
     });
   }
 
-  const handleNewMessage = async (msg) => {
-
-    let processedMsg = { ...msg };
-
-    try {
-      if(typeof msg.content === "string") {
-        const isEncrypted = msg.content.includes('"iv":') && msg.content.includes('"data":');
-
-        if(isEncrypted) {
-          const decryptedContent = await chatEncryption.decryptMessage(msg.chatId, msg.content);
-          processedMsg.content = decryptedContent;
-        }
-      }
-    } catch (error) {
-      console.log(`Error decrypting message in chat ${msg.chatId}:`, error);
-    }
-
-    setUserChats((prevData) =>
-      prevData.map((chat) =>
-        chat.id === msg.chatId
-          ? {
-              ...chat,
-              messages: [...chat.messages, processedMsg],
-              unreadCount: openedChat === msg.chatId ? 0 : (chat.unreadCount || 0) + 1,
-            }
-          : chat
-      )
-    );
-  };
-
-  const handleMessageSubmit = async (event) => {
-    event.preventDefault();
-    const messageContent = event.target[0].value;
-    
-    try {
-      const encryptedContent = await chatEncryption.encryptMessage(openedChat, messageContent);
-      console.log("Encrypted content:", encryptedContent);
-
-      if (!encryptedContent || typeof encryptedContent !== "string") {
-        console.error("Encryption failed: Invalid encrypted content", encryptedContent);
-        return;
-      }
-
-      const payload = {
-        type: "NEW_MESSAGE",
-        payload: {
-          chatId: openedChat,
-          content: encryptedContent,
-          authorId: userId,
-          createdAt: new Date().toISOString(),
-        },
-      };
-
-      if (readyState === WebSocket.OPEN) {
-        sendMessage(JSON.stringify(payload));
-      } else {
-        console.error("WebSocket is not open. ReadyState:", readyState);
-      }
-    } catch (error) {
-      console.error("Error sending encrypted message:", error);
-    }
-
-    event.target.reset();
-  };
-
+  // UI handlers
   const handleChangeOpenedChat = (chatID) => {
     setOpenedChat(chatID);
     setUserChats((prevData) =>
@@ -370,6 +418,7 @@ export default function UserPage() {
     setCurrentOpenedChats(openedUserChats)
   }
 
+  // Loading state
   if (loading) {
     return (
       <div className="loadingPage">
@@ -378,45 +427,12 @@ export default function UserPage() {
     );
   }
 
-  const handleKeyRequest = async (payload) => {
-    const { chatId, requesterId } = payload;
-    
-    if (chatEncryption.chatKeys[chatId]) {
-      try {
-        const response = await fetch("/api/userKeys/public-key", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify({ userId: requesterId }),
-        });
-        
-        if (response.ok) {
-          const { publicKey } = await response.json();
-          if (publicKey) {
-            const encryptedKey = await chatEncryption.encryptChatKeyForUser(chatId, publicKey);
-            
-            sendMessage(JSON.stringify({
-              type: "KEY_EXCHANGE",
-              payload: {
-                targetUserId: requesterId,
-                chatId,
-                encryptedSymmetricKey: encryptedKey,
-              }
-            }));
-          }
-        }
-      } catch (error) {
-        console.error(`Error handling key request for chat ${chatId} from user ${requesterId}:`, error);
-      }
-    }
-  };
-
+  // Main UI
   return (
     <div className="userPage">
       <div className="leftSection">
-        <ProfileInfo userId={userId} profile={userProfile} />
+        <ProfileInfo userId={userId} profile={userProfile} setSettingsOpen={setSettingsOpen} />
+        {encryptionReady && <KeyBackupUI />}
         <ProfileSearchBar
           userId={userId}
           friendData={userFriends}
@@ -432,17 +448,21 @@ export default function UserPage() {
         />
       </div>
       <div className="rightSection">
-        <Chat
-          chatData={userChats.filter((chat) => chat.id === openedChat)}
-          handleMessageSubmit={handleMessageSubmit}
-          userId={userId}
-          friendsData={userFriends}
-          sendMessage={sendMessage}
-          currentOpenedChats = {currentOpenedChats}
-          setCurrentOpenedChats={setCurrentOpenedChats}
-          notifications={notifications}
-          onChangeOpenedChat={handleChangeOpenedChat}
-        />
+        {settingsOpen ? (
+          <Settings closeSettings={() => setSettingsOpen(false)} />
+        ) : (
+          <Chat
+            chatData={userChats.filter((chat) => chat.id === openedChat)}
+            handleMessageSubmit={handleMessageSubmit}
+            userId={userId}
+            friendsData={userFriends}
+            sendMessage={sendMessage}
+            currentOpenedChats={currentOpenedChats}
+            setCurrentOpenedChats={setCurrentOpenedChats}
+            notifications={notifications}
+            onChangeOpenedChat={setOpenedChat}
+          />
+        )}
       </div>
     </div>
 
