@@ -5,13 +5,16 @@ import logger from '../utils/logger.js';
 export const login = async (req, res) => {
   try {
     const account = await findAccount(req.body);
-    const accountId = account.id;
-    if (accountId) {
-      logger.info(`User ${accountId} logged in`);
-      return res.json({accountId, token: tokenForUser(accountId)});
+    
+    if (!account) {
+      logger.warn(`Login failed for: ${req.body.username}`);
+      return res.status(401).json({ message: 'Invalid username or password' });
     }
-    logger.warn(`Account not found for ${req.body}`);
-    res.status(404).json({ message: 'Account not found' });
+
+    const accountId = account.id;
+    logger.info(`User ${accountId} logged in`);
+    return res.json({accountId, token: tokenForUser(accountId)});
+    
   } catch (error) {
     logger.error(`Error logging in: ${error}`);
     res.status(500).json({ error: 'Internal server error' });

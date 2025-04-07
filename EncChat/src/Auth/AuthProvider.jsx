@@ -16,7 +16,15 @@ export default function AuthProvider({ children }) {
             });
 
             const res = await response.json();
-            if (response.ok && res.accountId && res.token) {
+
+            if (!response.ok) {
+                return {
+                    error: true,
+                    message: res.message || "Invalid username or password"
+                };
+            }
+
+            if (res.accountId && res.token) {
                 setUserId(res.accountId);
                 setToken(res.token);
                 sessionStorage.setItem("token", res.token);
@@ -45,11 +53,17 @@ export default function AuthProvider({ children }) {
 
                 navigate("/user-page", { state: { userId, userProfile: profileData } });
             } else {
-                navigate("/", { state: { message: res.message || "Login failed" } });
+                return {
+                    error: true,
+                    message: res.message || "Login failed"
+                };
             }
         } catch (error) {
             console.error("Error logging in:", error);
-            navigate("/", { state: { message: "Login error" } });
+            return {
+                error: true,
+                message: "Connection error. Please try again."
+            };
         }
     };
 

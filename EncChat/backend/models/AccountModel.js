@@ -7,7 +7,12 @@ export async function findAccount(accountData) {
             ...(usernameIsEmail ? { email: username } : { username: username }),
         },
     })
-    return account;
+
+    if (account && account.password === password) {
+        return account;
+    }
+
+    return null;
 }
 
 export async function createAccount(accountData) {
