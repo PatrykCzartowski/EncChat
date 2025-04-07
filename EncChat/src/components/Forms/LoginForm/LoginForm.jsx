@@ -12,19 +12,80 @@ export default function LoginForm({ handleSignUpButton }) {
     usernameIsEmail: false,
   });
 
+  const [errors, setErrors] = useState({
+    username: "",
+    password: "",
+    general: ""
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const isEmail = (username) => {
     return /\S+@\S+\.\S+/.test(username);
   }
 
   const auth = useAuth();
 
+  const validateForm = () => {
+    const newErrors = {
+      username: "",
+      password: "",
+      general: ""
+    };
+    let isValid = true;
+    
+    if (!input.username.trim()) {
+      newErrors.username = "Username is required";
+      isValid = false;
+    }
+    
+    if (!input.password) {
+      newErrors.password = "Password is required";
+      isValid = false;
+    }
+    
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmitEvent = async (event) => {
     event.preventDefault();
-    if(input.username !== "" && input.password !== "") {
+    
+    setErrors({
+      username: "",
+      password: "",
+      general: ""
+    });
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
       const hashedPassword = SHA256(input.password).toString();
       const usernameIsEmail = isEmail(input.username);
-      auth.loginAction({ ...input, password: hashedPassword, usernameIsEmail });
-      return;
+      
+      const result = await auth.loginAction({ 
+        ...input, 
+        password: hashedPassword, 
+        usernameIsEmail 
+      });
+      
+      if (result && result.error) {
+        setErrors(prev => ({
+          ...prev,
+          general: result.message || "Invalid username or password"
+        }));
+      }
+    } catch (error) {
+      setErrors(prev => ({
+        ...prev,
+        general: "Login failed. Please try again."
+      }));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -34,6 +95,13 @@ export default function LoginForm({ handleSignUpButton }) {
       ...prev,
       [name]: value,
     }));
+
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
   };
 
   return (
@@ -50,6 +118,8 @@ export default function LoginForm({ handleSignUpButton }) {
           placeholder="Enter your username"
           onChange={handleInput}
         />
+        {errors.username && <p className={Styles.errorText}>{errors.username}</p>}
+
         <label>Password</label>
         <input
           id="password"
@@ -59,10 +129,24 @@ export default function LoginForm({ handleSignUpButton }) {
           placeholder="Enter your password"
           onChange={handleInput}
         />
+        {errors.password && <p className={Styles.errorText}>{errors.password}</p>}
+
+        {errors.general && (
+        <div className={Styles.errorMessage}>
+          {errors.general}
+        </div>
+        )}
+
         <Link to="/forgot-password" state={{ checkVal: true }}>
           Forgot password?
         </Link>
-        <button className={Styles.buttonLoginForm} type="submit">Login</button>
+        <button 
+          className={Styles.buttonLoginForm} 
+          type="submit"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Logging in..." : "Login"}
+        </button>
         <p>or</p>
         <button className={Styles.buttonLoginForm} type="button" onClick={() => handleSignUpButton(true)}>
           Sign Up
