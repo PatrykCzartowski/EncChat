@@ -1,0 +1,90 @@
+.toast-container {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999;
+    max-width: 320px;
+  }
+
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: white;
+  animation: fadeIn 0.3s ease;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+}
+
+.toast-icon {
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+.toast-message {
+    font-size: 14px;
+}
+
+.toast-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: 16px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.toast-close-btn:hover {
+    opacity: 1;
+}
+
+.toast-success {
+    background-color: #4caf50;
+  }
+  
+.toast-error {
+    background-color: #f44336;
+}
+  
+.toast-warning {
+    background-color: #ff9800;
+}
+  
+.toast-info {
+    background-color: #2196f3;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+@keyframes fadeOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+}
+  
+.toast-exit {
+    animation: fadeOut 0.3s ease forwards;
+}

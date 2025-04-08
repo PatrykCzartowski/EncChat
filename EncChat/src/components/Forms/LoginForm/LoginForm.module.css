@@ -75,3 +75,29 @@ border-color: #3700b3;
 .buttonLoginForm:hover {
 background-color: #622396;
 }
+
+.errorMessage {
+  background-color: #ffecec;
+  color: #e74c3c;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.errorText {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.inputError {
+  border-color: #e74c3c !important;
+}
+
+.buttonLoginForm:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
