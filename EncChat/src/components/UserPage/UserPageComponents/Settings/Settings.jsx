@@ -35,11 +35,17 @@ export default function Settings({ closeSettings }) {
       <h2>General Settings</h2>
 
       <div className="settingsList">
-        <button className="settingsButton" onClick={() => openModal("Display Name")}>
+        <button className="settingsButton" onClick={() => openModal("Name")}>
             Change Name
+        </button>
+        <button className="settingsButton" onClick={() => openModal("Surname")}>
+            Change Surname
         </button>
         <button className="settingsButton" onClick={() => openModal("Password")}>
             Change Password
+        </button>
+        <button className="settingsButton" onClick={() => openModal("E-mail")}>
+            Change E-mail
         </button>
         <div className="formGroup">
         <label htmlFor="language">Language</label>
