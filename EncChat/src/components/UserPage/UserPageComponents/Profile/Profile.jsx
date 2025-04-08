@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Avatar from 'react-avatar-edit';
 import { MdBlock, MdChat, MdPersonAdd } from 'react-icons/md';
 
-export default function Profile({ profile, closeProfile }) {
+export default function Profile({ profile, closeProfile, readonly = false }) {
   if (!profile) return null;
 
   const [preview, setPreview] = useState(null);
@@ -59,7 +59,7 @@ export default function Profile({ profile, closeProfile }) {
       <div className={`${styles.profileFull} scrollStyled`}>
         <div className={styles.avatarBox}>
           <img
-            src={avatarValue || 'https://via.placeholder.com/100'}
+            src={avatarValue}
             alt="avatar"
             className={styles.avatar}
           />
@@ -100,10 +100,12 @@ export default function Profile({ profile, closeProfile }) {
 
         {tab === "posts" ? (
           <>
-            <div className={styles.newPostBox}>
-              <textarea placeholder="What's on your mind?" className={styles.newPostInput} />
-              <button className={styles.newPostButton}>Post</button>
-            </div>
+            {!readonly && (
+              <div className={styles.newPostBox}>
+                <textarea placeholder="What's on your mind?" className={styles.newPostInput} />
+                <button className={styles.newPostButton}>Post</button>
+              </div>
+            )}
 
             <div className={styles.wall}>
               {posts
