@@ -1,4 +1,4 @@
-# EncChat
+<div align="center"> <img src="./EncChat/src/assets/Logotyp.png" width="400" height="100" alt="EncChat"> </div>
 
 ## 📑 Table of Contents
 - [Description](#-description)
@@ -47,6 +47,21 @@ EncChat is a modern real-time communication application that offers users an int
 - Secure key exchange protocol
 - Protection against unauthorized access to messages
 
+**Key Backup & Recovery**
+- Secure encryption key backup system
+- Key recovery mechanisms
+- Protection against key loss
+
+**Friend Management**
+- Friend request system
+- Friend search functionality
+- Managing friend relationships
+
+**Toast Notification System**
+- Real-time status notifications
+- Action feedback alerts
+- Error and success messaging
+  
 ## 🛠️ Technologies
 
 ### Frontend
