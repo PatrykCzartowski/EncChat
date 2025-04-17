@@ -10,7 +10,7 @@
 - [Security](#-security)
 - [Authors](#-authors)
 
-- ## 📢 Description
+## 📢 Description
 EncChat is a modern real-time communication application that offers users an intuitive and secure environment for chatting. With support from advanced technologies such as React, Vite, Node.js, and PostgreSQL, EncChat ensures reliability, flexibility, and security in message management. The application includes features like registration, login, friend search, profile and chat personalization, and notification management.
 
 ## 🎯 Features
