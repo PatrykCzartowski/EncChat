@@ -4,16 +4,13 @@ import Loading from '../../../Utils/Loading/Loading';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 
-export default function ProfileInfo({ userId, profile, setSettingsOpen }) {
+export default function ProfileInfo({ userId, profile, setSettingsOpen, setProfileOpen }) {
     const auth = useAuth();
     const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const menuRef = useRef(null);
 
-    const handleProfileEdit = () => {
-        navigate('/profile-edit', { state: { userId, profile } });
-    }
 
     const handleLogout = () => {
         auth.logOut();
@@ -61,8 +58,16 @@ export default function ProfileInfo({ userId, profile, setSettingsOpen }) {
                         style={{ top: `${menuPosition.y}px`, left: `${menuPosition.x}px` }}
                     >
                         <ul>
-                            <li onClick={() => setSettingsOpen(true)}>Edit general settings</li>
-                            <li onClick={() => navigate('/profile-edit')}>Edit profile</li>
+                            <li onClick={() => {
+                            setProfileOpen(false);
+                            setSettingsOpen(true);
+                            }}>Edit general settings</li>
+
+                            <li onClick={() => {
+                            setSettingsOpen(false);
+                            setProfileOpen(true);
+                            }}>Edit profile</li>
+                            
                             <li onClick={handleLogout}>Logout</li>
                         </ul>
                     </div>

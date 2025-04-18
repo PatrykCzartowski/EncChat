@@ -8,6 +8,7 @@ import ProfileSearchBar from "./UserPageComponents/ProfileSearchBar/ProfileSearc
 import ProfileFriendsList from "./UserPageComponents/ProfileFriendsList/ProfileFriendsList";
 import Chat from "./UserPageComponents/Chat/Chat";
 import Settings from "./UserPageComponents/Settings/Settings";
+import Profile from './UserPageComponents/Profile/Profile';
 import Loading from "../Utils/Loading/Loading";
 import chatEncryption from "../Utils/clientEncryption";
 import KeyBackupUI from "../keyBackupUI/KeyBackupUI";
@@ -44,6 +45,8 @@ function UserPage() {
   const [loading, setLoading] = useState(true);
   const [encryptionReady, setEncryptionReady] = useState(false); 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+
 
   useEffect(() => {
     if (location.state?.userProfile) {
@@ -507,7 +510,12 @@ function UserPage() {
   return (
     <div className="userPage">
       <div className="leftSection">
-        <ProfileInfo userId={userId} profile={userProfile} setSettingsOpen={setSettingsOpen} />
+        <ProfileInfo 
+          userId={userId} 
+          profile={userProfile}
+          setSettingsOpen={setSettingsOpen} 
+          setProfileOpen={setProfileOpen}
+        />
         {encryptionReady && <KeyBackupUI />}
         <ProfileSearchBar
           userId={userId}
@@ -524,9 +532,11 @@ function UserPage() {
         />
       </div>
       <div className="rightSection">
-        {settingsOpen ? (
-          <Settings closeSettings={() => setSettingsOpen(false)} />
-        ) : (
+      {settingsOpen ? (
+        <Settings closeSettings={() => setSettingsOpen(false)} />
+      ) : profileOpen ? (
+        <Profile profile={userProfile} closeProfile={() => setProfileOpen(false)} />
+      ) : (
           <Chat
             chatData={userChats.filter((chat) => chat.id === openedChat)}
             handleMessageSubmit={handleMessageSubmit}
