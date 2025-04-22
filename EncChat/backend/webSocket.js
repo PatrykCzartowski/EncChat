@@ -1,12 +1,12 @@
 import { WebSocketServer } from "ws";
 import { createWebSocketSession, getSessionIdByAccountId, deleteWebSocketSession } from "./models/WebSocketSessionModel.js";
 import { sendMessage } from "./controllers/chatController.js";
-import { sendFriendRequest, handleAcceptFriendRequest } from "./controllers/friendRequestController.js";
+import { sendFriendRequest } from "./controllers/friendRequestController.js";
 import { acceptFriendRequest } from "./models/FriendRequestModel.js";
-import { createFriend } from "./models/FriendModel.js";
+import { createFriend, removeFriend } from "./models/FriendModel.js";
+import { createBlockedUser } from './models/BlockedUserModel.js';
 import { v4 as uuidv4 } from "uuid";
 import logger from "./utils/logger.js";
-import { encryptMessage, decryptMessage } from "./utils/encryption.js";
 
 const clients = {};
 const clientsKeys = {};
@@ -15,6 +15,96 @@ const sendToClient = (clientId, message) => {
   const client = clients[clientId];
   if (client && client.readyState === WebSocket.OPEN) {
     client.send(JSON.stringify(message));
+  }
+};
+
+const handleFriendRemoval = async (data) => {
+  const { userId, friendId } = data.payload;
+
+  try {
+    await removeFriend(userId, friendId);
+    const friendSessions = await getSessionIdByAccountId(friendId);
+
+    friendSessions.forEach((sessionToken) => {
+      if(clients[sessionToken]) {
+        sendToClient(sessionToken, {
+          type: 'FRIEND_REMOVED',
+          payload: {
+            removedBy: userId,
+            friendId: friendId,
+          }
+        });
+      }
+    });
+
+    const userSessions = await getSessionIdByAccountId(userId);
+    userSessions.forEach((sessionToken) => {
+      if(clients[sessionToken]) {
+        sendToClient(sessionToken, {
+          type: "FRIEND_REMOVAL_SUCCESSFUL",
+          payload: {
+            removedFriendId: friendId,
+          }
+        });
+      }
+    });
+
+    logger.info(`Friend ${friendId} removed by user ${userId}`);
+  } catch (error) {
+    logger.error("Error handling friend removal: ", error);
+  }
+};
+
+const handleUserBlocking = async (data) => {
+  const { blockerId, blockedId } = data.payload;
+
+  try {
+    await removeFriend(blockerId, blockedId);
+    await createBlockedUser(blockerId, blockedId);
+
+    const blockerSessions = await getSessionIdByAccountId(blockerId);
+
+    blockerSessions.forEach((sessionToken) => {
+      if(clients[sessionToken]) {
+        sendToClient(sessionToken, {
+          type: "USER_BLOCKED_SUCCESSFULLY",
+          payload: {
+            blockedId: blockedId,
+          }
+        });
+      }
+    });
+
+    logger.info(`User ${blockedId} blocked by ${blockerId}`);
+  } catch (error) {
+    logger.error("Error handling user blocking: ", error);
+  }
+};
+
+const handleUserUnblocking = async (data) => {
+  const { userId, blockedId } = data.payload;
+  
+  try {
+    // Unblock the user
+    await deleteBlockedUser(userId, blockedId);
+    
+    // Notify the user who unblocked
+    const unblockerSessions = await getSessionIdByAccountId(userId);
+    
+    unblockerSessions.forEach((sessionToken) => {
+      if (clients[sessionToken]) {
+        sendToClient(sessionToken, {
+          type: "USER_UNBLOCKED_SUCCESSFULLY",
+          payload: {
+            unblockedId: blockedId
+          }
+        });
+      }
+    });
+    
+    logger.info(`User ${blockedId} unblocked by ${userId}`);
+  } catch (error) {
+    logger.error("Error handling user unblocking:", error);
   }
 };
 
@@ -155,7 +245,18 @@ export const setupWebSocket = (server) => {
             await handleFriendRequest(data, connection);
             logger.info(`Friend request sent from ${data.payload.senderId} to ${data.payload.receiverId}`);
             break;
-
+          case "REMOVE_FRIEND":
+            await handleFriendRemoval(data);
+            logger.info(`Friend removal initiated by ${clientsKeys[userId]?.accountId}`);
+            break;
+          case "BLOCK_USER":
+            await handleUserBlocking(data);
+            logger.info(`User blocking initiated by ${clientsKeys[userId]?.accountId}`);
+            break;
+          case "UNBLOCK_USER":
+            await handleUserUnblocking(data);
+            logger.info(`User unblocking initiated by ${clientsKeys[userId]?.accountId}`);
+            break;
           case "FRIEND_REQUEST_ACCEPTED":
             await handleFriendRequestAcceptance(data, connection);
             console.log(data.payload);

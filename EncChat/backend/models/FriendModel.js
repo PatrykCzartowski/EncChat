@@ -34,10 +34,31 @@ export async function createFriend(accountId, newFriendId) {
     return friend;
 }
 
+export async function removeFriend(accountId, friendId) {
+    await prisma.friend.deleteMany({
+        where: {
+            OR: [
+                { 
+                    accountId: parseInt(accountId), 
+                    friendId: parseInt(friendId) 
+                },
+                { 
+                    accountId: parseInt(friendId), 
+                    friendId: parseInt(accountId) 
+                }
+            ]
+        }
+    });
+
+    return { success: true };
+}
+
+
 export default [
     getFriends, 
     getFriendProfile,
     createFriend,
+    removeFriend,
 ];
 
 

@@ -10,6 +10,7 @@ import webSocketSessionRoutes from "./routes/webSocketSessionRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
 import userKeysRoutes from "./routes/userKeysRoutes.js";
 import backupRoutes from "./routes/backupRoutes.js";
+import blockedUserRoutes from './routes/blockUserRoutes.js';
 import logger from "./utils/logger.js";
 
 const app = express();
@@ -39,6 +40,7 @@ app.use("/api/webSocketSession", webSocketSessionRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/userKeys", userKeysRoutes);
 app.use("/api/backups", backupRoutes);
+app.use("/api/blockedUser", blockedUserRoutes)
 
 const shutdownHandler = () => {
   logger.warn("============== SERVER SHUTDOWN INITIATED ==============");
