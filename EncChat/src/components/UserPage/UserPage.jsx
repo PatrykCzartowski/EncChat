@@ -12,6 +12,7 @@ import Profile from './UserPageComponents/Profile/Profile';
 import Loading from "../Utils/Loading/Loading";
 import chatEncryption from "../Utils/clientEncryption";
 import KeyBackupUI from "../keyBackupUI/KeyBackupUI";
+import BlockedUsersList from "../BlockedUsersList/BlockedUsersList";
 import { ToastProvider, useToast } from "../../Alerts/ToastNotificationSystem";
 
 const WS_URL = "ws://127.0.0.1:8080";
@@ -46,7 +47,7 @@ function UserPage() {
   const [encryptionReady, setEncryptionReady] = useState(false); 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-
+  const [blockedUsersOpen, setBlockedUsersOpen] = useState(false);
 
   useEffect(() => {
     if (location.state?.userProfile) {
@@ -249,7 +250,22 @@ function UserPage() {
       case "REQUEST_KEY":
         await handleKeyRequest(message.payload);
         toast.info("Chat key requested");
-        break; 
+        break;
+      case "FRIEND_REMOVED":
+        fetchFriends();
+        toast.info("You have been removed from someone's friend list");
+        break;
+      case "FRIEND_REMOVAL_SUCCESSFUL":
+        fetchFriends();
+        toast.success("Friend removed successfully");
+        break;
+      case "USER_BLOCKED_SUCCESSFULLY":
+        fetchFriends();
+        toast.success("User blocked successfully");
+        break;
+      case "USER_UNBLOCKED_SUCCESSFULLY":
+        toast.success("User unblocked successfully");
+        break;
       default:
         break;
     }
@@ -497,6 +513,12 @@ function UserPage() {
     setCurrentOpenedChats(openedUserChats)
   }
 
+  const toggleBlockedUsers = () => {
+    setBlockedUsersOpen(!blockedUsersOpen);
+    setSettingsOpen(false);
+    setProfileOpen(false);
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -515,6 +537,7 @@ function UserPage() {
           profile={userProfile}
           setSettingsOpen={setSettingsOpen} 
           setProfileOpen={setProfileOpen}
+          setBlockedUsersOpen={toggleBlockedUsers}
         />
         {encryptionReady && <KeyBackupUI />}
         <ProfileSearchBar
@@ -523,6 +546,7 @@ function UserPage() {
           currentUserId={userId}
           socketUrl={WS_URL}
           sendMessage={sendMessage}
+          toast={toast}
         />
         <ProfileFriendsList
           userId={userId}
@@ -536,6 +560,14 @@ function UserPage() {
         <Settings closeSettings={() => setSettingsOpen(false)} />
       ) : profileOpen ? (
         <Profile profile={userProfile} closeProfile={() => setProfileOpen(false)} />
+      ) : blockedUsersOpen ? (
+        <BlockedUsersList 
+          userId={userId} 
+          token={token} 
+          sendMessage={sendMessage}
+          onClose={() => setBlockedUsersOpen(false)}
+          toast={toast} 
+        />
       ) : (
           <Chat
             chatData={userChats.filter((chat) => chat.id === openedChat)}

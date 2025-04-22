@@ -1,4 +1,4 @@
-import { getFriends, createFriend } from '../models/FriendModel.js';
+import { getFriends, createFriend, removeFriend } from '../models/FriendModel.js';
 import { getProfile } from '../models/ProfileModel.js';
 import logger from '../utils/logger.js';
 
@@ -28,7 +28,19 @@ export const addFriend = async (req, res) => {
   }
 };
 
+export const deleteFriend = async (req, res) => {
+  try {
+    const result = await removeFriend(req.body.userId, req.body.friendId);
+    logger.info(`Removed friend ${req.body.friendId} from user ${req.body.userId}`);
+    res.status(200).json(result);
+  } catch (error) {
+    logger.error('Error removing friend: ', error);
+    res.status(500).json({ error: 'Internal server error'});
+  }
+};
+
 export default [
   listFriends,
   addFriend,
+  deleteFriend,
 ];
