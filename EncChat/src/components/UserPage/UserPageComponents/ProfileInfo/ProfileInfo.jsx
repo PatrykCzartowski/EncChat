@@ -4,7 +4,7 @@ import Loading from '../../../Utils/Loading/Loading';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 
-export default function ProfileInfo({ userId, profile, setSettingsOpen, setProfileOpen }) {
+export default function ProfileInfo({ userId, profile, setSettingsOpen, setProfileOpen, setBlockedUsersOpen }) {
     const auth = useAuth();
     const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
@@ -68,6 +68,10 @@ export default function ProfileInfo({ userId, profile, setSettingsOpen, setProfi
                             setProfileOpen(true);
                             }}>Edit profile</li>
                             
+                            <li onClick={() => {
+                            setBlockedUsersOpen();
+                            }}>Blocked Users</li>
+
                             <li onClick={handleLogout}>Logout</li>
                         </ul>
                     </div>

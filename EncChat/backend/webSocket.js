@@ -4,7 +4,7 @@ import { sendMessage } from "./controllers/chatController.js";
 import { sendFriendRequest } from "./controllers/friendRequestController.js";
 import { acceptFriendRequest } from "./models/FriendRequestModel.js";
 import { createFriend, removeFriend } from "./models/FriendModel.js";
-import { createBlockedUser } from './models/BlockedUserModel.js';
+import { createBlockedUser, deleteBlockedUser } from './models/BlockedUserModel.js';
 import { v4 as uuidv4 } from "uuid";
 import logger from "./utils/logger.js";
 

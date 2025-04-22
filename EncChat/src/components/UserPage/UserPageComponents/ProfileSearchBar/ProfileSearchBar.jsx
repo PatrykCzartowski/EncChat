@@ -2,14 +2,32 @@ import './ProfileSearchBar.css';
 import { FaSearch } from 'react-icons/fa';
 import { useState, useRef, useEffect } from 'react';
 import SearchResult from './SearchResult/SearchResult';
-import { useWebSocket } from 'react-use-websocket';
 
-export default function ProfileSearchBar({friendData, userId, sendMessage}) {
+export default function ProfileSearchBar({friendData, userId, sendMessage, toast}) {
     const [input, setInput] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
     const [debouncedInput, setDebouncedInput] = useState("");
+    const [blockedUsers, setBlockedUsers] = useState([]);
     const searchBarRef = useRef();
+
+    const fetchBlockedUsers = async () => {
+        try {
+            const response = await fetch('/api/blockedUser/list', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId }),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setBlockedUsers(data);
+            }
+        } catch (error) {
+            console.error("Error fetching blocked users:", error);
+        }
+    };
 
     const findUsers = async (input) => {
         try {
@@ -31,6 +49,10 @@ export default function ProfileSearchBar({friendData, userId, sendMessage}) {
     }
 
     useEffect(() => {
+        fetchBlockedUsers();
+    }, [userId]);
+
+    useEffect(() => {
         const delay = setTimeout(() => {
             setDebouncedInput(input);
         }, 500); // Wait for 500ms after the user stops typing
@@ -46,13 +68,16 @@ export default function ProfileSearchBar({friendData, userId, sendMessage}) {
             } else {
                 const res = await findUsers(debouncedInput);
                 if (res) {
-                    setSearchResults(res);
+                    const filteredResults = res.filter(user => 
+                        !blockedUsers.some(blockedUser => blockedUser.accountId === user.accountId)
+                    );
+                    setSearchResults(filteredResults);
                     setShowResults(true);
                 }
             }
         };
         fetchUsers();
-    }, [debouncedInput]);
+    }, [debouncedInput, blockedUsers]);
 
     const handleInputChange = async (event) => {
         setInput(event.target.value);
@@ -71,14 +96,31 @@ export default function ProfileSearchBar({friendData, userId, sendMessage}) {
             console.log("Friend Request Sent");
         };
     
-        const handleBlockAccount = async () => {
-            console.log("Account Blocked");
-        }
-        
-        const handleRemoveFriend = async () => {
-            console.log("Friend Removed");
+        const handleBlockAccount = async (accountId) => {
+            const payload = {
+                type: 'BLOCK_USER',
+                payload: {
+                    blockerId: userId,
+                    blockedId: accountId,
+                },
+            };
+            
+            sendMessage(JSON.stringify(payload));
+            toast.info("Account blocked");
         }
 
+        const handleRemoveFriend = async (friendId) => {
+            const payload = {
+                type: 'REMOVE_FRIEND',
+                payload: {
+                    userId: userId,
+                    friendId: friendId,
+                },
+            };
+
+            sendMessage(JSON.stringify(payload));
+            toast.info("Processing friend removal...");
+        }
 
         useEffect(() => {
             const handleClickOutside = (event) => {

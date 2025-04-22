@@ -25,7 +25,7 @@ import { getBlockedUsers, createBlockedUser, deleteBlockedUser } from '../models
          logger.info(`User ${userId} unblocked user ${blockedId}`);
          res.status(200).json(result);
      } catch (error) {
-         logger.error("Error unblocking user: ". error);
+         logger.error("Error unblocking user: ", error);
          res.status(500).json({ error: `Internal server error` });
      }
  };
@@ -39,7 +39,8 @@ import { getBlockedUsers, createBlockedUser, deleteBlockedUser } from '../models
          );
  
          logger.info(`Retrieved ${blockedProfiles.length} blocked users for user ${userId}`);
-     } catch (error) {
+         res.status(200).json(blockedProfiles);
+    } catch (error) {
          logger.error('Error fetching blocked users:', error);
          res.status(500).json({ error: 'Internal server error' });
      }
