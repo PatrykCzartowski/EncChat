@@ -76,33 +76,6 @@
     }
 }
 
-.inputField[type="text"],
-.inputField[type="file"],
-.inputField,
-textarea.inputField {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #f4f2f7;
-    color: #333;
-    font-size: 1rem;
-}
-
-textarea.inputField {
-    height: 100px;
-}
-
-.inputField::placeholder {
-    color: #999;
-}
-
-.inputField:focus {
-    background-color: #ffffff;
-    border-color: #3700b3;
-    outline: none;
-}
-
 .buttonSubmit {
     width: 100%;
     padding: 10px;

@@ -61,7 +61,7 @@
     color: #6a5acd;
     cursor: pointer;
     transition: color 0.3s;
-    width:5vw;
+    width: 5vw;
 }
 
 .logoutButton:hover {
@@ -103,5 +103,4 @@
 .dropdownMenu li:last-child {
     color: #4F008F;
     font-weight: bold;
-}
-
+} 
