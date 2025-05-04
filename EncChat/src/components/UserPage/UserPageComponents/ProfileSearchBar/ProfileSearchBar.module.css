@@ -5,6 +5,7 @@
     justify-content: center;
     margin-bottom: 1rem;
     width: 100%;
+    color: var(--text-primary);
 }
 
 .searchInputWrapper {
@@ -13,26 +14,26 @@
 }
 
 .searchInput {
-    width: 80%;
+    width: 85%;
     padding: 0.5rem 2.5rem 0.5rem 1rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 2%;
     font-size: 1rem;
-    background-color: #f4f2f7;
-    color: #333;
+    background-color: var(--surface-color);
+    color: var(--text-primary);
 }
 
 .searchIcon {
     position: absolute;
     top: 50%;
-    right: 30px;
+    right: 5%;
     transform: translateY(-50%);
     font-size: 1.2rem;
-    color: #666;
+    color: var(--secondary-color);
     cursor: pointer;
     transition: color 0.3s ease;
 }
 
 .searchIcon:hover {
-    color: #6a5acd;
+    color: var(--secondary-hover);
 } 

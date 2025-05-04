@@ -5,22 +5,22 @@
   padding: 10px;
   margin: 10px 0;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
 }
 
 .inputField {
-  background-color: #f4f2f7;
-  color: #333;
+  background-color: var(--surface-color);
+  color: var(--text-primary);
   padding: 10px;
   border-radius: 8px;
   outline: none;
 }
 
 .inputField::placeholder {
-  color: #333;
+  color: var(--text-secondary);
 }
 
 .inputField:focus {
-  background-color: #ffffff;
-  border-color: #3700b3;
+  background-color: var(--background-color);
+  border-color: var(--primary-color);
 } 

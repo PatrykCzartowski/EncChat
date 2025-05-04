@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import Styles from "./Settings.module.css";
 import InputStyles from '../../../Forms/Input.module.css';
+import { useTheme } from '../../../../context/ThemeContext';
 
 export default function Settings({ closeSettings }) {
   const [modal, setModal] = useState(null);
   const [inputValue, setInputValue] = useState("");
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleChatClick = (event) => {
@@ -60,9 +62,14 @@ export default function Settings({ closeSettings }) {
 
         <div className={Styles.formGroup}>
         <label htmlFor="theme">Theme</label>
-        <select id="theme" className={Styles.settingsSelect} defaultValue="Light">
-            <option>Light</option>
-            <option>Dark</option>
+        <select 
+          id="theme" 
+          className={Styles.settingsSelect} 
+          value={theme}
+          onChange={toggleTheme}
+        >
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
         </select>
         </div>
 

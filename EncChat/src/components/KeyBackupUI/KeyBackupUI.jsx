@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import './KeyBackupUI.css';
 import createKeyBackupManager from '../Utils/keyBackup';
 import chatEncryption from '../Utils/clientEncryption';
+import Styles from './KeyBackupUI.module.css';
+import Buttons from '../UserPage/UserPageComponents/ProfileInfo/ProfileInfo.module.css';
+import { FaKey, FaPlus, FaSyncAlt } from 'react-icons/fa';
 
 export default function KeyBackupUI() {
     const [isBackupReady, setIsBackupReady] = useState(false);
@@ -120,49 +122,56 @@ export default function KeyBackupUI() {
     };
 
     return (
-        <div className="key-backup-containter">
-            <div className="key-backup-buttons">
+        <div className={Styles.keyBackupContainer}>
+            <div className={Buttons.keyBackupButtons + ' ' + Buttons.rightAlign}>
                 <button
-                    className="backup-button"
+                    className={Buttons.circleIconButton}
                     onClick={handleCreateBackup}
                     disabled={!isBackupReady}
+                    title="Create Encryption Keys Backup"
                 >
-                    Create Encryption Keys Backup
+                    <FaKey />
+                    <span className={Buttons.iconBadge}><FaPlus style={{fontSize: '0.7em'}} /></span>
                 </button>
                 <button
-                    className="restore-button"
+                    className={Buttons.secondaryCircleIconButton}
                     onClick={handleOpenRestoreModal}
                     disabled={!isBackupReady}
+                    title="Restore from Backup"
                 >
-                    Restore from Backup
+                    <FaKey />
+                    <span className={Buttons.iconBadge}><FaSyncAlt style={{fontSize: '0.7em'}} /></span>
                 </button>
             </div>
 
             {showModal && (
-                <div className="backup-modal-overlay">
-                    <div className="backup-modal">
+                <div className={Styles.backupModalOverlay}>
+                    <div className={Styles.backupModal}>
                         <h3>Restore Encryption Keys</h3>
                         <p>Select a backup and enter your backup password:</p>
                     
-                        <div className="backup-form">
-                            <div className="form-group">
+                        <div className={Styles.backupForm}>
+                            <div className={Styles.formGroup}>
                                 <label>Available Backups:</label>
                                 {isLoading ? (
-                                    <p className="loading-message">Loading backups...</p>
+                                    <p className={Styles.loadingMessage}>Loading backups...</p>
                                 ) : userBackups.backups.length > 0 ? (
-                                    <div className="backup-list">
+                                    <div className={Styles.backupList}>
                                         {userBackups.backups.map(backup => (
                                             <div
                                                 key={backup.id}
-                                                className={`backup-item ${selectedBackupId === backup.id ? 'selected' : ''}`}
+                                                className={
+                                                    Styles.backupItem +
+                                                    (selectedBackupId === backup.id ? ' ' + Styles.backupItemSelected : '')
+                                                }
                                                 onClick={() => setSelectedBackupId(backup.id)}
                                             >
-                                                <div className='backup-info'>
-                                                    <span className='backup-name'>{backup.backupName}</span>
-                                                    <span className='backup-date'>{new Date(backup.timestamp).toLocaleString()}</span>
+                                                <div className={Styles.backupInfo}>
+                                                    <span className={Styles.backupName}>{backup.backupName}</span>
+                                                    <span className={Styles.backupDate}>{new Date(backup.timestamp).toLocaleString()}</span>
                                                 </div>
                                                 <button
-                                                    className='remove-backup-btn'
+                                                    className={Styles.removeBackupBtn}
                                                     onClick={(event) => handleRemoveBackup(backup.id, event)}
                                                     title='Remove Backup'
                                                 >
@@ -172,10 +181,10 @@ export default function KeyBackupUI() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="no-backups-message">No backups found. Create a backup first.</p>
+                                    <p className={Styles.noBackupsMessage}>No backups found. Create a backup first.</p>
                                 )}
                             </div>
-                            <div className="form-group">
+                            <div className={Styles.formGroup}>
                                 <label>Password:</label>
                                 <input
                                     type="password"
@@ -186,28 +195,33 @@ export default function KeyBackupUI() {
                                 />
                             </div>
                             {restoreStatus.state !== 'idle' && (
-                                <div className={`restore-status ${restoreStatus.state}`}>
+                                <div className={
+                                    Styles.restoreStatus + ' ' +
+                                    (restoreStatus.state === 'loading' ? Styles.restoreStatusLoading : '') +
+                                    (restoreStatus.state === 'success' ? Styles.restoreStatusSuccess : '') +
+                                    (restoreStatus.state === 'error' ? Styles.restoreStatusError : '')
+                                }>
                                     {restoreStatus.message}
                                 </div>
                             )}
 
-                            <div className="backup-actions">
+                            <div className={Styles.backupActions}>
                                 <button 
-                                    className='restore-confirm-button'
+                                    className={Styles.restoreConfirmButton}
                                     onClick={handleRestoreBackup}
                                     disabled={restoreStatus.state === 'loading' || !selectedBackupId}
                                 >
                                     {restoreStatus.state === 'loading' ? 'Restoring...' : 'Restore Selected Backup'}
                                 </button>
                                 <button 
-                                    className='cancel-button'
+                                    className={Styles.cancelButton}
                                     onClick={() => setShowModal(false)}
                                     disabled={restoreStatus.state === 'loading'}
                                 >
                                     Cancel
                                 </button>
                                 <button 
-                                    className='refresh-button'
+                                    className={Styles.refreshButton}
                                     onClick={loadUserBackups}
                                     disabled={restoreStatus.state === 'loading'}
                                 >

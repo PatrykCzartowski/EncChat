@@ -7,7 +7,7 @@
 
 .line {
   border: none;
-  border-top: 1px solid grey;
+  border-top: 1px solid var(--border-color);
   width: 60%;
   margin: 20px 0;
 }
@@ -23,28 +23,28 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: white;
+  background-color: var(--surface-color);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px var(--shadow-color);
   min-width: 400px;
   max-width: 500px;
   margin: 10vh auto auto auto;
-
 }
 
 .buttonEmailVerificication {
   width: 60%;
   padding: 10px;
-  background-color: #4f008f;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--surface-color);
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .buttonEmailVerificication:hover {
-  background-color: #622396;
+  background-color: var(--primary-hover);
 }
 
 @media (max-width: 1200px) {

@@ -1,0 +1,199 @@
+.keyBackupContainer {
+  margin: 20px 0;
+  margin-right: 2vw;
+}
+
+
+.buttonDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.backupModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.backupModal {
+  background: var(--surface-color);
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+.backupModal h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: var(--primary-color);
+}
+
+.backupForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.formGroup input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--surface-color);
+  color: var(--text-primary);
+  transition: border 0.2s;
+}
+
+.formGroup input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.backupList {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--surface-color);
+}
+
+.backupItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.backupItem:last-child {
+  border-bottom: none;
+}
+
+.backupItemSelected {
+  background-color: var(--primary-hover);
+  color: #fff;
+}
+
+.backupItem:hover {
+  background-color: var(--background-color);
+}
+
+.backupInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.backupName {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.backupDate {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.removeBackupBtn {
+  background: none;
+  border: none;
+  color: var(--error-color);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.removeBackupBtn:hover {
+  background-color: var(--error-color);
+  color: #fff;
+}
+
+.loadingMessage, .noBackupsMessage {
+  padding: 12px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.restoreStatus {
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.restoreStatusLoading {
+  background-color: var(--primary-hover);
+  color: #fff;
+}
+
+.restoreStatusSuccess {
+  background-color: var(--success-color);
+  color: #fff;
+}
+
+.restoreStatusError {
+  background-color: var(--error-color);
+  color: #fff;
+}
+
+.backupActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.restoreConfirmButton, .cancelButton, .refreshButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border: none;
+}
+
+.restoreConfirmButton {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.restoreConfirmButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.cancelButton, .refreshButton {
+  background-color: var(--surface-color);
+  color: var(--primary-color);
+  border: 1px solid var(--border-color);
+}
+
+.cancelButton:hover, .refreshButton:hover {
+  background-color: var(--background-color);
+  color: var(--primary-hover);
+  border-color: var(--primary-color);
+} 

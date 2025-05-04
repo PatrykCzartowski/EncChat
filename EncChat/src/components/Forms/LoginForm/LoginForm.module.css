@@ -4,16 +4,17 @@
   align-items: center;
   max-width: 500px;
   width: 100%;
-  background-color: white;
+  background-color: var(--surface-color);
   border-radius: 12px;
   padding: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px var(--shadow-color);
   margin: 50px auto;
+  color: var(--text-primary);
 }
 
 .line {
   border: none;
-  border-top: 1px solid grey;
+  border-top: 1px solid var(--border-color);
   width: 60%;
   margin: 20px 0;
 }
@@ -28,30 +29,38 @@
 .loginForm form label {
   text-align: center;
   margin-bottom: 5px;
+  color: var(--text-primary);
 }
 
 .loginForm a {
   margin-bottom: 15px;
   text-align: center;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.loginForm a:hover {
+  color: var(--primary-hover);
 }
 
 .buttonLoginForm {
   width: 70%;
   padding: 10px;
-  background-color: #4f008f;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--background-color);
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .buttonLoginForm:hover {
-background-color: #622396;
+  background-color: var(--primary-hover);
 }
 
 .errorMessage {
-  background-color: #ffecec;
-  color: #e74c3c;
+  background-color: var(--error-color);
+  color: var(--background-color);
   padding: 10px;
   border-radius: 4px;
   margin-bottom: 15px;
@@ -59,18 +68,18 @@ background-color: #622396;
 }
 
 .errorText {
-  color: #e74c3c;
+  color: var(--error-color);
   font-size: 12px;
   margin-top: 4px;
   margin-bottom: 12px;
 }
 
 .inputError {
-  border-color: #e74c3c !important;
+  border-color: var(--error-color) !important;
 }
 
 .buttonLoginForm:disabled {
-  background-color: #cccccc;
+  background-color: var(--border-color);
   cursor: not-allowed;
   opacity: 0.7;
 }

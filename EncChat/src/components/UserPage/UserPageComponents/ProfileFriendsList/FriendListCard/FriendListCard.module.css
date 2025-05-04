@@ -11,8 +11,8 @@
 }
 
 .friendCard:hover {
-  background-color: #ece9f1;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--surface-color);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .friendCardImage {
@@ -32,18 +32,18 @@
   font-size: 1.1rem;
   font-weight: bold;
   margin: 0;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .lastMessage {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .unreadCount {
-  background-color: #4F008F;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--background-color);
   font-size: 0.8rem;
   font-weight: bold;
   border-radius: 50%;
@@ -56,6 +56,5 @@
   right: 15px;
   top: 50%;
   transform: translateY(-50%);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px var(--shadow-color);
 }
-
