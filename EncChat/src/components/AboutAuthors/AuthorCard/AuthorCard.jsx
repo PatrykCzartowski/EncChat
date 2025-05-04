@@ -1,6 +1,6 @@
 import styles from "./AuthorCard.module.css";
 import placeholderUser from "../../../assets/placeholder_user.png";
-import { FaFacebook, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 
 export default function AuthorCard({ author }) {
   return (
@@ -14,18 +14,18 @@ export default function AuthorCard({ author }) {
       <div className={styles.authorName}>{author.name}</div>
       <div className={styles.authorRole}>{author.role}</div>
       <div className={styles.authorSocials}>
-        <div className={styles.socialBar}>
-          <FaFacebook className={styles.socialIcon} />
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer" className={styles.socialBar}>
+          <FaGithub className={styles.socialIcon} />
           <p className={styles.socialName}>{author.socials[0]}</p>
-        </div>
-        <div className={styles.socialBar}>
+        </a>
+        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialBar}>
           <FaLinkedin className={styles.socialIcon} />
           <p className={styles.socialName}>{author.socials[1]}</p>
-        </div>
-        <div className={styles.socialBar}>
+        </a>
+        <a href="mailto:example@example.com" className={styles.socialBar}>
           <FaEnvelope className={styles.socialIcon} />
           <p className={styles.socialName}>{author.socials[2]}</p>
-        </div>
+        </a>
       </div>
     </div>
   );
