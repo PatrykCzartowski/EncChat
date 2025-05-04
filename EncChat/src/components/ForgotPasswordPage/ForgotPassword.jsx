@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Logo from "../Logo/Logo";
 import Styles from "./ForgotPassword.module.css";
+import InputStyles from '../Forms/Input.module.css';
 import sendEmail from "../Utils/sendEmail.js";
 
 export default function ForgotPassword() {
@@ -88,11 +89,11 @@ export default function ForgotPassword() {
 
         {step === 'email' ? (
           <div>
-            <p> Forgot password? Don’t worry, we will send you an email to reset your password.</p>
+            <p> Forgot password? Don't worry, we will send you an email to reset your password.</p>
             <div>
               <form onSubmit={handleEmailSubmit}>
                 <input 
-                  className={Styles.passwordInput}
+                  className={InputStyles.inputField}
                   type="email"
                   placeholder="Email"
                   value={email}
@@ -110,7 +111,7 @@ export default function ForgotPassword() {
             <p>We've sent a 6-digit code to your email. Enter it below to continue.</p>
             <form onSubmit={handleCodeSubmit}>
               <input 
-                className={Styles.passwordInput}
+                className={InputStyles.inputField}
                 name="code"
                 type="text"
                 placeholder="Enter your code here"

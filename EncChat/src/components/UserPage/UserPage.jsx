@@ -11,7 +11,7 @@ import Settings from "./UserPageComponents/Settings/Settings";
 import Profile from './UserPageComponents/Profile/Profile';
 import Loading from "../Utils/Loading/Loading";
 import chatEncryption from "../Utils/clientEncryption";
-import KeyBackupUI from "../keyBackupUI/KeyBackupUI";
+import KeyBackupUI from "../KeyBackupUI/KeyBackupUI";
 import BlockedUsersList from "../BlockedUsersList/BlockedUsersList";
 import { ToastProvider, useToast } from "../../Alerts/ToastNotificationSystem";
 

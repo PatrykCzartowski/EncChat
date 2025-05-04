@@ -3,14 +3,14 @@
     flex-direction: column;
     align-items: center;
     max-width: 500px;
-    width:100%;
-    background-color: white;
+    width: 100%;
+    background-color: var(--surface-color);
     border-radius: 12px;
     padding: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
+    box-shadow: 0 4px 8px var(--shadow-color);
     margin: auto;
-  }
+    color: var(--text-primary);
+}
 
 .signUpForm form {
   display: flex;
@@ -22,59 +22,44 @@
 .signUpForm form label {
   text-align: center;
   margin-bottom: 5px;
+  color: var(--text-primary);
 }
-  
+
 .signUpForm a {
   margin-bottom: 15px;
   text-align: center;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.signUpForm a:hover {
+  color: var(--primary-hover);
 }
 
 .line {
   border: none;
-  border-top: 1px solid grey;
+  border-top: 1px solid var(--border-color);
   width: 60%;
   margin: 20px 0;
-}
-
-.signUpInput[type="text"],
-.signUpInput[type="password"],
-.signUpInput[type="email"] {
-  width: 90%;
-  padding: 10px;
-  margin: 10px 0px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-.signUpInput {
-  background-color: #f4f2f7;
-  color: #333;
-  padding: 10px;
-  border-radius: 8px;
-  outline: none;
-}
-
-.signUpInput::placeholder {
-  color: #333;
-}
-
-.signUpInput:focus {
-  background-color: #ffffff;
-  border-color: #3700b3;
 }
 
 .buttonSignupForm {
   width: 70%;
   padding: 10px;
-  background-color: #4f008f;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--background-color);
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .buttonSignupForm:hover {
-background-color: #622396;
+  background-color: var(--primary-hover);
+}
+
+.invalid {
+  color: var(--error-color);
 }
 
 .signUpInput[type="date"] {
@@ -83,7 +68,7 @@ background-color: #622396;
 
 .signUpInput[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(2);
-  opacity: 1; 
+  opacity: 1;
 }
 
   

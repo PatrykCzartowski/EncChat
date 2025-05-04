@@ -1,0 +1,26 @@
+.inputField[type="text"],
+.inputField[type="password"],
+.inputField[type="email"] {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+}
+
+.inputField {
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  padding: 10px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.inputField::placeholder {
+  color: var(--text-secondary);
+}
+
+.inputField:focus {
+  background-color: var(--background-color);
+  border-color: var(--primary-color);
+} 

@@ -6,10 +6,10 @@
     width: 80%;
     max-height: 200px;
     overflow-y: auto;
-    background-color: white;
-    border: 1px solid #ccc;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
     border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px var(--shadow-color);
     z-index: 1000;
 }
 
@@ -18,22 +18,22 @@
 }
 
 .searchResultContainer::-webkit-scrollbar-track {
-    background: #f4f4f8;
+    background: var(--surface-color);
     border-radius: 10px;
 }
 
 .searchResultContainer::-webkit-scrollbar-thumb {
-    background: #4F008F;
+    background: var(--primary-color);
     border-radius: 10px;
 }
 
 .searchResultContainer::-webkit-scrollbar-thumb:hover {
-    background: #4a4cad;
+    background: var(--primary-hover);
 }
 
 .searchResultContainer {
     scrollbar-width: thin;
-    scrollbar-color: #4F008F #f4f4f8;
+    scrollbar-color: var(--primary-color) var(--surface-color);
 }
 
 .searchResultCard {
@@ -41,17 +41,17 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 1rem;
-    background-color: white;
+    background-color: var(--surface-color);
     border: none;
     text-align: left;
     font-size: 1rem;
-    color: #333;
+    color: var(--text-primary);
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
 .searchResultCard:hover {
-    background-color: #f0f0f0;
+    background-color: var(--background-color);
 }
 
 .rowContainer {
@@ -63,7 +63,7 @@
 
 .userName {
     font-size: 1rem;
-    color: #333;
+    color: var(--text-primary);
     margin-right: 0.5rem;
     flex: 1;
 }
@@ -77,13 +77,13 @@
 
 .icon {
     font-size: 1.2rem;
-    color: #666;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: color 0.3s ease;
 }
 
 .icon:hover {
-    color: #4F008F;
+    color: var(--primary-color);
 }
 
 .userImage {

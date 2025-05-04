@@ -1,4 +1,4 @@
-import './ProfileInfo.css';
+import Styles from './ProfileInfo.module.css';
 import { useAuth } from '../../../../Auth/AuthProvider';
 import Loading from '../../../Utils/Loading/Loading';
 import { useNavigate } from 'react-router-dom';
@@ -40,11 +40,11 @@ export default function ProfileInfo({ userId, profile, setSettingsOpen, setProfi
     }, [menuOpen]);
 
     return (
-        <div className="profileInfo">
-            <div className="personalInfoBox">
-            <div className="profileAvatarBox" onClick={toggleMenu}>
+        <div className={Styles.profileInfo}>
+            <div className={Styles.personalInfoBox}>
+            <div className={Styles.profileAvatarBox} onClick={toggleMenu}>
                     <img
-                        className="profileAvatar"
+                        className={Styles.profileAvatar}
                         src={profile.avatar}
                         alt="Profile"
                         width="100px"
@@ -53,7 +53,7 @@ export default function ProfileInfo({ userId, profile, setSettingsOpen, setProfi
                 </div>
                 {menuOpen && (
                     <div 
-                        className="dropdownMenu" 
+                        className={Styles.dropdownMenu} 
                         ref={menuRef} 
                         style={{ top: `${menuPosition.y}px`, left: `${menuPosition.x}px` }}
                     >
@@ -76,9 +76,9 @@ export default function ProfileInfo({ userId, profile, setSettingsOpen, setProfi
                         </ul>
                     </div>
                 )}
-                <div className="nameAndEmailBox">
+                <div className={Styles.nameAndEmailBox}>
                     {profile ? (
-                        <h1 className="profileName">
+                        <h1 className={Styles.profileName}>
                             {profile.firstName + ' ' + profile.lastName}
                         </h1>
                     ) : (
@@ -86,9 +86,9 @@ export default function ProfileInfo({ userId, profile, setSettingsOpen, setProfi
                     )}
                 </div>
             </div>
-            <div className="logoutBox">
-                <button className="logoutButton" onClick={() => auth.logOut()}>
-                    Logout <span className="arrow">↩</span>
+            <div className={Styles.logoutBox}>
+                <button className={Styles.logoutButton} onClick={() => auth.logOut()}>
+                    Logout <span className={Styles.arrow}>↩</span>
                 </button>
             </div>
         </div>

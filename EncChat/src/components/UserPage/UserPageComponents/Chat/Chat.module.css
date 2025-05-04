@@ -4,7 +4,7 @@
     height: 100%;
     border-radius: 10px;
     min-height: 0;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     overflow: hidden;
 }
 
@@ -24,8 +24,8 @@
 .chatSettingsContainer {
     width: 0px;
     height: 100%;
-    background-color: #f8f8f8;
-    border-left: 1px solid #ddd;
+    background-color: var(--surface-color);
+    border-left: 1px solid var(--border-color);
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -46,12 +46,12 @@
     flex: 1;
     padding: 1rem;
     overflow-y: auto;
-    background-color: white;
+    background-color: var(--background-color);
     transition: width 0.3s ease-in-out;
 }
 
 .noMessages {
-    color: #666;
+    color: var(--text-secondary);
     text-align: center;
     margin-top: 2rem;
 }
@@ -62,22 +62,22 @@
 }
 
 .chatMessages::-webkit-scrollbar-track {
-    background: #f4f4f8;
+    background: var(--surface-color);
     border-radius: 10px;
 }
 
 .chatMessages::-webkit-scrollbar-thumb {
-    background: #4F008F;
+    background: var(--primary-color);
     border-radius: 10px;
 }
 
 .chatMessages::-webkit-scrollbar-thumb:hover {
-    background: #4a4cad;
+    background: var(--primary-hover);
 }
 
 .chatMessages {
     scrollbar-width: thin;
-    scrollbar-color: #6a5acd #f4f4f8;
+    scrollbar-color: var(--primary-color) var(--surface-color);
 }
 
 /* chat input */
@@ -91,10 +91,10 @@
     width: 96%;
     display: flex;
     align-items: center;
-    background-color: #f4f4f8;
+    background-color: var(--surface-color);
     border-radius: 25px;
     padding: 0.5rem 1rem;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 4px var(--shadow-color);
 }
 
 
@@ -106,17 +106,17 @@
     font-size: 1rem;
     padding: 0.5rem;
     border-radius: 25px;
-    color:black;
+    color: var(--text-primary);
 }
 
 .chatInput::placeholder {
-    color: #aaa;
+    color: var(--text-secondary);
 }
 
 .checkbox {
     width: 22px;
     height: 22px;
-    accent-color: #6a5acd;
+    accent-color: var(--primary-color);
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
 }
@@ -130,7 +130,7 @@
     right: 1px; 
     background: none;
     border: none;
-    color: #4F008F;
+    color: var(--primary-color);
     font-size: 1.5rem;
     cursor: pointer;
     transition: color 0.3s ease;
@@ -138,7 +138,7 @@
 }
 
 .chatArrowButton:hover {
-    color: #4a4cad;
-    background-color: #f4f4f8;
+    color: var(--primary-hover);
+    background-color: var(--surface-color);
 }
 

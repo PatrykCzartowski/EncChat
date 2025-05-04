@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import "./Settings.css";
+import Styles from "./Settings.module.css";
+import InputStyles from '../../../Forms/Input.module.css';
+import { useTheme } from '../../../../context/ThemeContext';
 
 export default function Settings({ closeSettings }) {
   const [modal, setModal] = useState(null);
   const [inputValue, setInputValue] = useState("");
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleChatClick = (event) => {
@@ -30,26 +33,26 @@ export default function Settings({ closeSettings }) {
   };
 
   return (
-    <div className="settingsContainer">
-      <button className="closeButton" onClick={closeSettings}>✖</button>
+    <div className={Styles.settingsContainer}>
+      <button className={Styles.closeButton} onClick={closeSettings}>✖</button>
       <h2>General Settings</h2>
 
-      <div className="settingsList">
-        <button className="settingsButton" onClick={() => openModal("Name")}>
+      <div className={Styles.settingsList}>
+        <button className={Styles.settingsButton} onClick={() => openModal("Name")}>
             Change Name
         </button>
-        <button className="settingsButton" onClick={() => openModal("Surname")}>
+        <button className={Styles.settingsButton} onClick={() => openModal("Surname")}>
             Change Surname
         </button>
-        <button className="settingsButton" onClick={() => openModal("Password")}>
+        <button className={Styles.settingsButton} onClick={() => openModal("Password")}>
             Change Password
         </button>
-        <button className="settingsButton" onClick={() => openModal("E-mail")}>
+        <button className={Styles.settingsButton} onClick={() => openModal("E-mail")}>
             Change E-mail
         </button>
-        <div className="formGroup">
+        <div className={Styles.formGroup}>
         <label htmlFor="language">Language</label>
-        <select id="language" className="settingsSelect" defaultValue="English">
+        <select id="language" className={Styles.settingsSelect} defaultValue="English">
             <option>English</option>
             <option>Polski</option>
             <option>Español</option>
@@ -57,39 +60,44 @@ export default function Settings({ closeSettings }) {
         </select>
         </div>
 
-        <div className="formGroup">
+        <div className={Styles.formGroup}>
         <label htmlFor="theme">Theme</label>
-        <select id="theme" className="settingsSelect" defaultValue="Light">
-            <option>Light</option>
-            <option>Dark</option>
+        <select 
+          id="theme" 
+          className={Styles.settingsSelect} 
+          value={theme}
+          onChange={toggleTheme}
+        >
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
         </select>
         </div>
 
-        <div className="formGroup">
+        <div className={Styles.formGroup}>
         <label htmlFor="notifications">Notifications</label>
-        <select id="notifications" className="settingsSelect" defaultValue="Enabled">
+        <select id="notifications" className={Styles.settingsSelect} defaultValue="Enabled">
             <option>Enabled</option>
             <option>Disabled</option>
         </select>
         </div>
 
-        <button className="settingsButton deleteButton">
+        <button className={`${Styles.settingsButton} ${Styles.deleteButton}`}>
             Delete Account
         </button>
       </div>
 
       {modal && (
-        <div className="modalOverlay">
-          <div className="modalContent">
+        <div className={Styles.modalOverlay}>
+          <div className={Styles.modalContent}>
             <h3>{`Update ${modal}`}</h3>
             <input
-                className={"settingsInput"}
+                className={InputStyles.inputField}
                 type={modal.toLowerCase().includes("password") ? "password" : "text"}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder={`Enter new ${modal.toLowerCase()}`}
             />
-            <div className="modalActions">
+            <div className={Styles.modalActions}>
                 <button onClick={handleConfirm}>OK</button>
                 <button onClick={closeModal}>Cancel</button>
             </div>

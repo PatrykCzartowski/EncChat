@@ -14,7 +14,7 @@
   max-height: calc(100vh - 60px);
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #4F008F #f4f4f8;
+  scrollbar-color: var(--primary-color) var(--surface-color);
 }
 
 .avatarBox {
@@ -43,7 +43,7 @@
 }
 
 .iconButton {
-  background-color: #eee;
+  background-color: var(--surface-color);
   border: none;
   border-radius: 50%;
   padding: 14px;
@@ -52,13 +52,13 @@
 }
 
 .iconButton:hover {
-  background-color: #ddd;
+  background-color: var(--background-color);
 }
 
 .bio {
   text-align: center;
   font-size: 0.95rem;
-  color: #333;
+  color: var(--text-primary);
   max-width: 90%;
   margin-bottom: 30px;
 }
@@ -77,18 +77,17 @@
 .newPostInput {
   flex: 1;
   padding: 0.5rem 2.5rem 0.5rem 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 2%;
   font-size: 1rem;
-  background-color: white;
-  color: #333;
-  
+  background-color: var(--surface-color);
+  color: var(--text-primary);
 }
 
 .newPostButton {
   align-self: flex-end;
-  background-color: #4F008F;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--background-color);
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
@@ -97,7 +96,7 @@
 }
 
 .newPostButton:hover {
-  background-color: #3e0072;
+  background-color: var(--primary-hover);
 }
 
 /* Wall Layout */
@@ -117,18 +116,18 @@
 }
 
 .post {
-  background: #f5f5f5;
+  background: var(--surface-color);
   padding: 14px 16px;
   border-radius: 8px;
   margin-bottom: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px var(--shadow-color);
 }
 
 .post span {
   display: block;
   margin-top: 6px;
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 /* Reactions */
@@ -160,16 +159,16 @@
 .commentBox input {
   flex: 1;
   padding: 0.5rem 2.5rem 0.5rem 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 2%;
   font-size: 1rem;
-  background-color: white;
-  color: #333;
+  background-color: var(--surface-color);
+  color: var(--text-primary);
 }
 
 .commentBox button {
-  background-color: #4F008F;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--background-color);
   border: none;
   padding: 8px 14px;
   border-radius: 6px;
@@ -178,7 +177,7 @@
 }
 
 .commentBox button:hover {
-  background-color: #3e0072;
+  background-color: var(--primary-hover);
 }
 
 /* Scrollbar */
@@ -187,17 +186,17 @@
 }
 
 :global(.scrollStyled::-webkit-scrollbar-track) {
-  background: #f4f4f8;
+  background: var(--surface-color);
   border-radius: 10px;
 }
 
 :global(.scrollStyled::-webkit-scrollbar-thumb) {
-  background: #4F008F;
+  background: var(--primary-color);
   border-radius: 10px;
 }
 
 :global(.scrollStyled::-webkit-scrollbar-thumb:hover) {
-  background: #4a4cad;
+  background: var(--primary-hover);
 }
 
 .tabSwitcher {
@@ -210,33 +209,33 @@
 .tabSwitcher button {
   padding: 8px 16px;
   border: none;
-  background: #eee;
+  background: var(--surface-color);
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
   transition: background 0.2s;
 }
 
 /* Tab Switch */
 .tabSwitcher button:hover {
-  background: #ddd;
+  background: var(--background-color);
 }
 
 .activeTab {
-  background-color: #4F008F !important;
-  color: white !important;
+  background-color: var(--primary-color) !important;
+  color: var(--background-color) !important;
 }
 
 /*stats*/
 
 .stats {
-  background: #f9f9f9;
+  background: var(--surface-color);
   padding: 20px;
   max-width: 600px;
   width: 100%;
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 4px var(--shadow-color);
   display: flex;
   flex-direction: column;
   gap: 14px;

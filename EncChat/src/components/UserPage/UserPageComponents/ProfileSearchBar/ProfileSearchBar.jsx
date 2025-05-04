@@ -1,4 +1,4 @@
-import './ProfileSearchBar.css';
+import Styles from './ProfileSearchBar.module.css';
 import { FaSearch } from 'react-icons/fa';
 import { useState, useRef, useEffect } from 'react';
 import SearchResult from './SearchResult/SearchResult';
@@ -136,17 +136,17 @@ export default function ProfileSearchBar({friendData, userId, sendMessage, toast
         }, []);
 
     return (
-        <div className="searchBar" ref={searchBarRef}>
-                <div className="searchInputWrapper">
+        <div className={Styles.searchBar} ref={searchBarRef}>
+                <div className={Styles.searchInputWrapper}>
                     <form>
                         <input
                             onChange={handleInputChange}
                             onFocus={() => setShowResults(true)}
-                            className="searchInput"
+                            className={Styles.searchInput}
                             type="text"
                             placeholder="Search for a user"
                         />
-                    <FaSearch className="searchIcon" />
+                    <FaSearch className={Styles.searchIcon} />
                     </form>
                 </div>
                 {showResults && (

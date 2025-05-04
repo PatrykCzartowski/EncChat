@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
  import { FaUserSlash, FaUnlock } from 'react-icons/fa';
- import './BlockedUsersList.css';
+ import Styles from "./BlockedUsersList.module.css";
  
  export default function BlockedUsersList({ userId, toast, sendMessage }) {
      const [blockedUsers, setBlockedUsers] = useState([]);
@@ -53,40 +53,40 @@ import { useState, useEffect } from 'react';
      }
  
      return (
-         <div className="blockedUsersContainer">
-             <h3 className="sectionTitle">
-                 <FaUserSlash className="titleIcon" />
-                 Blocked Users
-             </h3>
-             
-             {blockedUsers.length === 0 ? (
-                 <p className="noBlockedUsers">You haven't blocked any users</p>
-             ) : (
-                 <ul className="blockedUsersList">
-                     {blockedUsers.map(user => (
-                         <li key={user.accountId} className="blockedUserItem">
-                             <div className="userInfo">
-                                 <img 
-                                     src={user.avatar || '/default-avatar.png'} 
-                                     alt={`${user.firstName} ${user.lastName}`} 
-                                     className="userAvatar"
-                                 />
-                                 <div className="userData">
-                                     <span className="userName">
-                                        {`${user.firstName} ${user.lastName}`}
-                                     </span>
-                                 </div>
-                             </div>
-                             <button 
-                                 onClick={() => handleUnblock(user.accountId)}
-                                 className="unblockButton"
-                             >
-                                 <FaUnlock /> Unblock
-                             </button>
-                         </li>
-                     ))}
-                 </ul>
-             )}
-         </div>
+        <div className={Styles.blockedUsersContainer}>
+        <h3 className={Styles.sectionTitle}>
+            <FaUserSlash className={Styles.titleIcon} />
+            Blocked Users
+        </h3>
+        
+        {blockedUsers.length === 0 ? (
+            <p className={Styles.noBlockedUsers}>You haven't blocked any users</p>
+        ) : (
+            <ul className={Styles.blockedUsersList}>
+                {blockedUsers.map(user => (
+                    <li key={user.accountId} className={Styles.blockedUserItem}>
+                        <div className={Styles.userInfo}>
+                            <img 
+                                src={user.avatar || '/default-avatar.png'} 
+                                alt={`${user.firstName} ${user.lastName}`} 
+                                className={Styles.userAvatar}
+                            />
+                            <div className={Styles.userData}>
+                                <span className={Styles.userName}>
+                                   {`${user.firstName} ${user.lastName}`}
+                                </span>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => handleUnblock(user.accountId)}
+                            className={Styles.unblockButton}
+                        >
+                            <FaUnlock /> Unblock
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        )}
+    </div>
      );
  }

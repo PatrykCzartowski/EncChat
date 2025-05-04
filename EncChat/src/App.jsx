@@ -4,6 +4,9 @@ import { BrowserRouter, Routes, Route, useRoutes } from "react-router-dom";
 import AuthProvider from "./Auth/AuthProvider";
 import PrivateRoute from "./Auth/PrivateRoute";
 import Loading from "./components/Utils/Loading/Loading";
+import { ThemeProvider } from './context/ThemeContext';
+import './styles/theme.css';
+import './App.css';
 
 const LandingPage = lazy(() => import("./components/LandingPage/LandingPage"));
 const ForgotPassword = lazy(() => import("./components/ForgotPasswordPage/ForgotPassword"));
@@ -41,13 +44,15 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Suspense fallback={<Loading />}>
-          <AppRoutes />
-        </Suspense>
-      </AuthProvider>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <Suspense fallback={<Loading />}>
+            <AppRoutes />
+          </Suspense>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

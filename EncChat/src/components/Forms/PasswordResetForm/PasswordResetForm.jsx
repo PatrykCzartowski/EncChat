@@ -1,4 +1,5 @@
 import Styles from './PasswordResetForm.module.css';
+import InputStyles from '../Input.module.css';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { SHA256 } from 'crypto-js';
@@ -56,22 +57,24 @@ export default function PasswordResetForm() {
     }
 
     return (
-        <div>
+        <div className={Styles.forgotPasswordPage}>
         {!passwordChangeSuccess? (
+            <div className={Styles.container}>
             <form onSubmit={handlePasswordReset}>
                 <label htmlFor="password">New password</label>
-                <input type="password" id="password" name="password" />
+                <input className={InputStyles.inputField} type="password" id="password" name="password" />
                 <label htmlFor="confirmPassword">Confirm password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" />
-                {!passwordsMatch && <p>Passwords do not match</p>}
-                {!newPasswordIsValid && <p>Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character</p>}
-                <button type="submit">Reset password</button>
+                <input className={InputStyles.inputField} type="password" id="confirmPassword" name="confirmPassword" />
+                {!passwordsMatch && <p className={Styles.errorMessage}>Passwords do not match</p>}
+                {!newPasswordIsValid && <p className={Styles.errorMessage}>Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character</p>}
+                <button className={Styles.buttonForgotPassword} type="submit">Reset password</button>
             </form>
+            </div>
         ) : (
-            <div>
-                <h2>Password reset successful</h2>
+            <div className={Styles.container}>
+                <h2 className={Styles.successMessage}>Password reset successful</h2>
                 <p>Your password has been successfully reset. You can now log in with your new password.</p>
-                <button onClick={() => navigate('/')}>Log in</button>
+                <button className={Styles.buttonForgotPassword} onClick={() => navigate('/')}>Log in</button>
             </div>
         )}
         </div>

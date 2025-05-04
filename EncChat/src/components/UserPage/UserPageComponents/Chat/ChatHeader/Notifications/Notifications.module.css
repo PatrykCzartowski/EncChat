@@ -5,10 +5,10 @@
     width: 300px;
     max-height: 300px;
     overflow-y: auto;
-    background-color: white;
-    border: 1px solid #ccc;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px var(--shadow-color);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -16,8 +16,8 @@
 
 .tabs {
     display: flex;
-    border-bottom: 1px solid #ddd;
-    background-color: #f5f5f5;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--background-color);
 }
 
 .tabButton {
@@ -29,17 +29,17 @@
     border: none;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
-    color:black;
+    color: var(--text-primary);
 }
 
 .tabButton:hover {
-    background-color: #4F008F;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--surface-color);
 }
 
 .tabButton.active {
-    background-color: #4F008F;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--surface-color);
     font-weight: bold;
 }
 
@@ -54,24 +54,24 @@
 }
 
 .tabContent::-webkit-scrollbar-track {
-    background: #f4f4f8;
+    background: var(--background-color);
     border-radius: 10px;
 }
 
 .tabContent::-webkit-scrollbar-thumb {
-    background: #6a5acd;
+    background: var(--primary-color);
     border-radius: 10px;
 }
 
 .tabContent::-webkit-scrollbar-thumb:hover {
-    background: #4a4cad;
+    background: var(--primary-hover);
 }
 
 .notificationItem {
     padding: 0.5rem 0;
     font-size: 0.9rem;
-    color: #333;
-    border-bottom: 1px solid #eee;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .notificationItem:last-child {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SHA256 from "crypto-js/sha256";
 import Styles from "./SignUp.module.css";
+import InputStyles from '../Input.module.css';
 
 export default function SignUpForm({ handleGoBack }) {
   const [captchaToken, setCaptchaToken] = useState(null);
@@ -129,7 +130,7 @@ export default function SignUpForm({ handleGoBack }) {
           Username
         </label>
         <input
-          className={Styles.signUpInput}
+          className={InputStyles.inputField}
           type="text"
           placeholder="Enter your username"
         />
@@ -144,7 +145,7 @@ export default function SignUpForm({ handleGoBack }) {
           Password
         </label>
         <input
-          className={Styles.signUpInput}
+          className={InputStyles.inputField}
           type="password"
           placeholder="Enter your password"
         />
@@ -159,7 +160,7 @@ export default function SignUpForm({ handleGoBack }) {
           Confirm Password
         </label>
         <input
-          className={Styles.signUpInput}
+          className={InputStyles.inputField}
           type="password"
           placeholder="Confirm password"
         />
@@ -169,14 +170,14 @@ export default function SignUpForm({ handleGoBack }) {
           Email
         </label>
         <input
-          className={Styles.signUpInput}
+          className={InputStyles.inputField}
           type="email"
           placeholder="Enter your email"
         />
         {!isEmailValid && <p className="invalid">Please enter valid email</p>}
         <label className={`label ${isDateValid ? "" : "invalid"}`}>Date of Birth</label>
         <input
-          className={Styles.signUpInput}
+          className={InputStyles.inputField}
           type="date"
         />
         {!isDateValid && <p className="invalid">To create account you need to be at least 13 years old</p>}

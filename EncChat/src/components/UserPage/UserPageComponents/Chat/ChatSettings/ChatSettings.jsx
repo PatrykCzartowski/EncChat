@@ -1,5 +1,6 @@
 import React from "react";
 import Styles from "./ChatSettings.module.css";
+import InputStyles from '../../../../Forms/Input.module.css';
 
 export default function ChatSettings() {
     return (
@@ -7,7 +8,7 @@ export default function ChatSettings() {
 
             <div className={Styles.settingItem}>
                 <label>Change Chat Name</label>
-                <input type="text" className={Styles.SettingsInput} placeholder="Enter new chat name..." />
+                <input type="text" className={InputStyles.inputField} placeholder="Enter new chat name..." />
             </div>
 
             <div className={Styles.settingItem}>
@@ -22,7 +23,7 @@ export default function ChatSettings() {
 
             <div className={Styles.settingItem}>
                 <label>Search Messages</label>
-                <input type="text" className={Styles.SettingsInput} placeholder="Search for a message..." />
+                <input type="text" className={InputStyles.inputField} placeholder="Search for a message..." />
             </div>
 
             <div className={Styles.settingItem}>

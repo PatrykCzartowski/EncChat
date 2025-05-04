@@ -8,6 +8,7 @@
     gap: 2rem;
     padding: 2rem;
     position: relative;
+    color: var(--text-primary);
 }
 
 .backButton {
@@ -15,7 +16,7 @@
     top: 1rem;
     left: 1rem;
     padding: 0.5rem 1rem;
-    background-color: #4F008F;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 5px;
@@ -27,7 +28,7 @@
 }
 
 .backButton:hover {
-    background-color: #4a4cad;
+    background-color: var(--primary-hover);
 }
 
 .logo {
@@ -35,12 +36,13 @@
     font-weight: bold;
     text-align: center;
     margin-bottom: 3rem;
+    color: var(--logo-chat-color);
 }
 
 .cardsContainer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
+    gap: 3rem;
     width: 90%;
     max-width: 1400px;
     padding: 1rem;

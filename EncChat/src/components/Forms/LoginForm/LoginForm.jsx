@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../../Auth/AuthProvider";
 import { Link } from "react-router-dom";
 import Styles from "./LoginForm.module.css";
+import InputStyles from '../Input.module.css';
 import SHA256 from "crypto-js/sha256";
 
 export default function LoginForm({ handleSignUpButton }) {
@@ -114,7 +115,7 @@ export default function LoginForm({ handleSignUpButton }) {
           id="username"
           name="username"
           type="text"
-          className={Styles.loginInput}
+          className={InputStyles.inputField}
           placeholder="Enter your username"
           onChange={handleInput}
         />
@@ -125,7 +126,7 @@ export default function LoginForm({ handleSignUpButton }) {
           id="password"
           name="password"
           type="password"
-          className={Styles.loginInput}
+          className={InputStyles.inputField}
           placeholder="Enter your password"
           onChange={handleInput}
         />

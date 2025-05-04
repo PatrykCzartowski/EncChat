@@ -1,6 +1,8 @@
 .friendsListContainer {
     margin-top: 1rem;
     padding: 1rem;
+    background-color: var(--surface-color);
+    color: var(--text-primary);
 }
 
 .toggleContainer {
@@ -13,9 +15,9 @@
     flex: 1;
     padding: 0.5rem;
     font-size: 1rem;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    color: #333;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    color: var(--text-primary);
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -31,14 +33,14 @@
 }
 
 .toggleButton.active {
-    background-color: #4F008F;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--background-color);
     font-weight: bold;
 }
 
 .toggleButton:hover {
-    background-color: #4F008F;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--background-color);
 }
 
 .friendListScrollable{
@@ -57,4 +59,8 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
+
+.friendItem {
+    border-bottom: 1px solid var(--border-color);
+}
   

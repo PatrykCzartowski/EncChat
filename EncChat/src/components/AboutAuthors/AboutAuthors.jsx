@@ -9,19 +9,19 @@ export default function AboutAuthors() {
       authorPicture: "",
       name: "Author Name 1",
       role: "Author Role 1",
-      socials: ["Facebook", "LinkedIn", "Email"],
+      socials: ["GitHub", "LinkedIn", "Email"],
     },
     author2: {
       authorPicture: "",
       name: "Author Name 2",
       role: "Author Role 2",
-      socials: ["Facebook", "LinkedIn", "Email"],
+      socials: ["GitHub", "LinkedIn", "Email"],
     },
     author3: {
       authorPicture: "",
       name: "Author Name 3",
       role: "Author Role 3",
-      socials: ["Facebook", "LinkedIn", "Email"],
+      socials: ["GitHub", "LinkedIn", "Email"],
     },
   };
 

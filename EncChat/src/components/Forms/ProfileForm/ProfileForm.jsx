@@ -1,4 +1,5 @@
 import Styles from './ProfileForm.module.css';
+import InputStyles from '../Input.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import UploadAvatar from './UploadAvatar';
@@ -48,7 +49,7 @@ export default function ProfileForm({ accountId }) {
                     <form onSubmit={handleFormSubmit}>
                         <label className={Styles.label} htmlFor="firstName">First Name</label>
                         <input
-                            className={Styles.inputField}
+                            className={InputStyles.inputField}
                             type="text"
                             id="firstName"
                             name="firstName"
@@ -57,7 +58,7 @@ export default function ProfileForm({ accountId }) {
 
                         <label className={Styles.label} htmlFor="lastName">Last Name</label>
                         <input
-                            className={Styles.inputField}
+                            className={InputStyles.inputField}
                             type="text"
                             id="lastName"
                             name="lastName"
@@ -66,7 +67,7 @@ export default function ProfileForm({ accountId }) {
 
                         <label className={Styles.label} htmlFor="bio">Bio</label>
                         <textarea
-                            className={Styles.inputField}
+                            className={InputStyles.inputField}
                             id="bio"
                             name="bio"
                             placeholder="Write a short bio"

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import Styles from "./EmailVerificationPage.module.css";
+import InputStyles from "../Forms/Input.module.css";
 import Logo from "../Logo/Logo";
 import emailImg from "../../assets/emailVerifcation.svg";
 import KeyGenerator from "../Utils/KeyGenerator";
@@ -78,7 +79,7 @@ export default function EmailVerificationPage() {
         <button className={Styles.buttonEmailVerificication} onClick={() => handleButtonClick()}>Send email</button>
       ) : (
         <form onSubmit={verifyEmail}>
-          <input className={Styles.emailVerificationInput} type="text" />
+          <input className={InputStyles.inputField} type="text" />
           {!isKeyValid && <p>Entered Key is not valid.</p>}
           <button className={Styles.buttonEmailVerificication} type="submit">Verify</button>
         </form>
