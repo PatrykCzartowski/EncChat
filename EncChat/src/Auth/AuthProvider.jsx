@@ -14,12 +14,22 @@ export default function AuthProvider({ children }) {
                 method: "POST", headers: { "Content-Type": "application/json", },
                 body: JSON.stringify(data),
             });
-
             const res = await response.json();
-            if (response.ok && res.accountId && res.token) {
+            console.log("Login response:", res);
+            if (res.accountId && res.token) {
                 setUserId(res.accountId);
                 setToken(res.token);
                 sessionStorage.setItem("token", res.token);
+                const wsSession = await fetch("/api/webSocketSession/create", {
+                    method: "POST", headers: {"Content-Type": "application/json",},
+                    body: JSON.stringify({ accountId: res.accountId, sessionId: res.token })
+                });
+                const wsSessionData = await wsSession.json();
+                if (!wsSession.ok || !wsSessionData) {
+                    console.error("WebSocket session creation failed:", wsSessionData);
+                    navigate("/", { state: { message: "WebSocket session creation failed" } });
+                    return;
+                }
 
                 // Fetch user profile
                 const profileResponse = await fetch("/api/profile/get", {

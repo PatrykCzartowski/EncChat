@@ -135,47 +135,48 @@ export default function UserPage() {
   };
 
   const fetchFriends = () => fetchAPI("/api/friend/list", { userId: userId }, setUserFriends);
-  const fetchChats = () => {
-    fetchAPI("/api/chat/list", { userId: userId }, async (chatsData) => {
-        if(!Array.isArray(chatsData)) {
-          setUserChats(chatsData);
-          return;
-        }
-      
-        // Request missing chat keys
-        await Promise.all(chatsData.map(async (chat) => {
-          if(!chatEncryption.chatKeys[chat.id]) await requestChatKey(chat.id);
-        }));
+  const fetchChats = async () => {
+  return fetchAPI("/api/chat/list", { userId: userId }, async (chatsData) => {
+    if (!Array.isArray(chatsData)) {
+      setUserChats(chatsData);
+      return;
+    }
 
-        // Process and decrypt messages
-        const processedChats = await Promise.all(chatsData.map(async (chat) => {
-          if(!chat.messages || !Array.isArray(chat.messages)) return chat;
-        
+    // Ensure we have keys for all chats
+    await Promise.all(chatsData.map(async (chat) => {
+      if (!chatEncryption.chatKeys[chat.id]) {
+        await chatEncryption.fetchChatKey(chat.id, token);
+      }
+    }));
+
+    const processedChats = await Promise.all(chatsData.map(async (chat) => {
+      if (!chat.messages || !Array.isArray(chat.messages)) return chat;
+    
+      try {
+        const decryptedMessages = await Promise.all(chat.messages.map(async (msg) => {
           try {
-            const decryptedMessages = await Promise.all(chat.messages.map(async (msg) => {
-              try {
-                const isEncrypted = typeof msg.content === "string" &&
-                  (msg.content.includes('"iv":') && msg.content.includes('"data":'));
+            const isEncrypted = typeof msg.content === "string" &&
+              (msg.content.includes('"iv":') && msg.content.includes('"data":'));
 
-                if(isEncrypted) {
-                  const decryptedContent = await chatEncryption.decryptMessage(chat.id, msg.content);
-                  return { ...msg, content: decryptedContent };
-                }
-                return msg;
-              } catch (e) {
-                console.log(`Couldn't decrypt message in chat ${chat.id}:`, e);
-                return msg;
-              }
-            }));
-            return { ...chat, messages: decryptedMessages };
-          } catch (error) {
-            console.error(`Error processing chat ${chat.id}:`, error);
-            return chat;
+            if (isEncrypted) {
+              const decryptedContent = await chatEncryption.decryptMessage(chat.id, msg.content);
+              return { ...msg, content: decryptedContent };
+            }
+            return msg;
+          } catch (e) {
+            console.error(`Couldn't decrypt message in chat ${chat.id}:`, e);
+            return msg;
           }
         }));
-        setUserChats(processedChats);
-    });
-  };
+        return { ...chat, messages: decryptedMessages };
+      } catch (error) {
+        console.error(`Error processing chat ${chat.id}:`, error);
+        return chat;
+      }
+    }));
+    setUserChats(processedChats);
+  });
+};
 
   // WebSocket message handling
   const handleWebSocketMessage = async (event) => {
@@ -209,69 +210,85 @@ export default function UserPage() {
   };
 
   // Message handling
-  const handleNewMessage = async (msg) => {
+const handleNewMessage = async (msg) => {
+  let processedMsg = { ...msg };
 
-    let processedMsg = { ...msg };
+  try {
+    if (typeof msg.content === "string") {
+      const isEncrypted = msg.content.includes('"iv":') && msg.content.includes('"data":');
 
-    try {
-      if(typeof msg.content === "string") {
-        const isEncrypted = msg.content.includes('"iv":') && msg.content.includes('"data":');
-
-        if(isEncrypted) {
-          const decryptedContent = await chatEncryption.decryptMessage(msg.chatId, msg.content);
-          processedMsg.content = decryptedContent;
+      if (isEncrypted) {
+        if (!chatEncryption.chatKeys[msg.chatId]) {
+          await chatEncryption.fetchChatKey(msg.chatId, token);
         }
+        
+        const decryptedContent = await chatEncryption.decryptMessage(msg.chatId, msg.content);
+        processedMsg.content = decryptedContent;
       }
-    } catch (error) {
-      console.log(`Error decrypting message in chat ${msg.chatId}:`, error);
     }
+  } catch (error) {
+    toast.error(`Error decrypting message`);
+    console.error(`Error decrypting message in chat ${msg.chatId}:`, error);
+  }
 
-    setUserChats((prevData) =>
-      prevData.map((chat) =>
-        chat.id === msg.chatId
-          ? {
-              ...chat,
-              messages: [...chat.messages, processedMsg],
-              unreadCount: openedChat === msg.chatId ? 0 : (chat.unreadCount || 0) + 1,
-            }
-          : chat
-      )
-    );
-  };
+  setUserChats((prevData) =>
+    prevData.map((chat) =>
+      chat.id === msg.chatId
+        ? {
+            ...chat,
+            messages: [...chat.messages, processedMsg],
+            unreadCount: openedChat === msg.chatId ? 0 : (chat.unreadCount || 0) + 1,
+          }
+        : chat
+    )
+  );
+};
 
   const handleMessageSubmit = async (event) => {
     event.preventDefault();
     const messageContent = event.target[0].value;
     
-    try {
-      const encryptedContent = await chatEncryption.encryptMessage(openedChat, messageContent);
-      console.log("Encrypted content:", encryptedContent);
-
-      if (!encryptedContent || typeof encryptedContent !== "string") {
-        console.error("Encryption failed: Invalid encrypted content", encryptedContent);
-        return;
-      }
-
-      const payload = {
-        type: "NEW_MESSAGE",
-        payload: {
-          chatId: openedChat,
-          content: encryptedContent,
-          authorId: userId,
-          createdAt: new Date().toISOString(),
-        },
-      };
-
-      if (readyState === WebSocket.OPEN) {
-        sendMessage(JSON.stringify(payload));
-      } else {
-        console.error("WebSocket is not open. ReadyState:", readyState);
-      }
-    } catch (error) {
-      console.error("Error sending encrypted message:", error);
+    if (!messageContent.trim()) {
+    toast.warning("Cannot send empty message");
+    return;
     }
 
-    event.target.reset();
+    try {
+    if (!chatEncryption.chatKeys[openedChat]) {
+      await chatEncryption.fetchChatKey(openedChat, token);
+    }
+    
+    const encryptedContent = await chatEncryption.encryptMessage(openedChat, messageContent);
+
+    if (!encryptedContent || typeof encryptedContent !== "string") {
+      toast.error("Message encryption failed");
+      console.error("Encryption failed: Invalid encrypted content", encryptedContent);
+      return;
+    }
+
+    const payload = {
+      type: "NEW_MESSAGE",
+      payload: {
+        chatId: openedChat,
+        content: encryptedContent,
+        authorId: userId,
+        createdAt: new Date().toISOString(),
+      },
+    };
+
+    if (readyState === WebSocket.OPEN) {
+      sendMessage(JSON.stringify(payload));
+      toast.success("Message sent");
+    } else {
+      toast.error("Not connected to server");
+      console.error("WebSocket is not open. ReadyState:", readyState);
+    }
+  } catch (error) {
+    toast.error("Failed to send message");
+    console.error("Error sending encrypted message:", error);
+  }
+
+  event.target.reset();
   };
 
   // Key exchange and management
@@ -334,70 +351,17 @@ export default function UserPage() {
   };
 
   const handleNewFriend = async (payload) => {
-    if(!payload.accountId || !payload.friendId) return;
+  if (!payload.accountId || !payload.friendId) return;
 
-    const isInitiator = payload.accountId === userId;
-    const otherId = isInitiator ? payload.friendId : payload.accountId;
-
-    try {
-      const response = await fetch ("/api/userKeys/public-key", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userId: otherId }),
-      });
-
-      if(response.ok) {
-          const { publicKey } = await response.json();
-          if( publicKey ) {
-              let chatId = null;
-
-              const existingChat = userChats.find(chat => 
-                  chat.participants &&
-                  chat.participants.includes(otherId)
-              );
-
-          if( existingChat ) chatId = existingChat.id;
-          
-          if(chatId) {
-              if (!chatEncryption.chatKeys[chatId] && isInitiator) {
-                await chatEncryption.generateChatKey(chatId);
-                const encryptedKey = await chatEncryption.encryptChatKeyForUser(chatId, publicKey);
+  await fetchChats();
   
-                sendMessage(JSON.stringify({
-                    type: "KEY_EXCHANGE",
-                    payload: {
-                      targetUserId: otherId,
-                      chatId,
-                      encryptedSymmetricKey: encryptedKey,
-                    }
-                })); 
-              }
-          }
-        }
-      }
-    } catch (error) {
-      console.error(`Error exchanging keys with user ${otherId}:`, error);
-    }
+  const newChat = userChats[userChats.length - 1];
+  
+  if (newChat) {
+    await chatEncryption.generateChatKey(newChat.id, token);
+    toast.success("Chat key created for new conversation");
   }
-
-  const requestChatKey = async (chatId) => {
-    const chat = userChats.find(c => c.id === chatId);
-    if (!chat || !chat.participants) return;
-    const otherParticipants = chat.participants.filter(id => id !== userId);
-
-    otherParticipants.forEach(participantId => {
-      sendMessage(JSON.stringify({
-        type: "REQUEST_KEY",
-        payload: {
-          targetUserId: participantId,
-          chatId
-        }
-      }));
-    });
-  }
+};
 
   // UI handlers
   const handleChangeOpenedChat = (chatID) => {

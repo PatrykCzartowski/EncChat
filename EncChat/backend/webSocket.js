@@ -6,7 +6,6 @@ import { acceptFriendRequest } from "./models/FriendRequestModel.js";
 import { createFriend } from "./models/FriendModel.js";
 import { v4 as uuidv4 } from "uuid";
 import logger from "./utils/logger.js";
-import { encryptMessage, decryptMessage } from "./utils/encryption.js";
 
 const clients = {};
 const clientsKeys = {};
@@ -83,15 +82,23 @@ const handleNewMessage = async (data) => {
 };
 
 const handleConnect = async (data, userId) => {
+  try {
   const accountId = data.payload.accountId;
-  await createWebSocketSession(accountId, userId);
+  const session = await createWebSocketSession(accountId, userId);
+    
+  if (!session) {
+    logger.error(`Failed to create WebSocket session for user ${accountId}`);
+    return;
+  }
 
-  if(data.payload.publicKey) {
-    clientsKeys[userId] = {
+  clientsKeys[userId] = { 
       accountId,
-      publicKey: data.payload.publicKey
+      sessionCreated: true 
     };
-    logger.info(`Stored public key for user: ${accountId}`);
+
+    logger.info(`WebSocket session created for user ${accountId}: ${userId}`);
+  } catch (error) {
+    logger.error(`Error creating WebSocket session: ${error.message}`);
   }
 };
 
@@ -151,34 +158,21 @@ export const setupWebSocket = (server) => {
 
         switch (data.type) {
           case "SEND_FRIEND_REQUEST":
-            console.log(data);
             await handleFriendRequest(data, connection);
             logger.info(`Friend request sent from ${data.payload.senderId} to ${data.payload.receiverId}`);
             break;
-
           case "FRIEND_REQUEST_ACCEPTED":
             await handleFriendRequestAcceptance(data, connection);
             console.log(data.payload);
             logger.info(`Friend request accepted by ${data.payload.accountId} from ${data.payload.senderId}`);
             break;
-
           case "NEW_MESSAGE":
             await handleNewMessage(data);
             logger.info(`New message received from: ${data.payload.authorId}`);
             break;
-
           case "CONNECT":
             await handleConnect(data, userId);
             logger.info(`User connected: ${data.payload.accountId}`);
-            break;
-
-          case "KEY_EXCHANGE":
-            await handleKeyExchange(data, userId, connection);
-            logger.info(`Key exchange initiated between ${clientsKeys[userId].accountId} and ${data.payload.targetUserId}`);
-            break;
-          case "REQUEST_KEY":
-            await handleKeyRequest(data, userId, connection);
-            logger.info(`Key requested for chat: ${data.payload.chatId}`);
             break;
           default:
             logger.warn(`Unknown message type: ${data.type}`);
@@ -194,6 +188,7 @@ export const setupWebSocket = (server) => {
       logger.info(`Connection closed: ${userId}`);
       await deleteWebSocketSession(userId);
       delete clients[userId];
+      delete clientsKeys[userId];
     });
   });
 

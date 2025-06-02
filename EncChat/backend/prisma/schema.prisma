@@ -76,6 +76,7 @@ model Chat {
     group Boolean @default(false)
     ChatSettings ChatSettings[]
     AccountChat AccountToChat[]
+    chatKeys ChatKey[]
 }
 
 model Message {
@@ -167,4 +168,12 @@ model Backup {
     backupName String
     encryptedData String
     timestamp DateTime @default(now())
+}
+
+model ChatKey {
+  id        Int      @id @default(autoincrement())
+  chatId    Int
+  key       String
+  createdAt DateTime @default(now())
+  chat      Chat     @relation(fields: [chatId], references: [id])
 }

@@ -1,13 +1,18 @@
 import prisma from "../prismaClient.js";
 
 export async function createWebSocketSession(accountId, sessionId) {
-    const session = await prisma.webSocketSession.create({
-        data: {
-            sessionId,
-            accountId,
-        },
-    });
-    return session;
+    try {
+        const session = await prisma.webSocketSession.create({
+                data: {
+                    sessionId,
+                    accountId: parseInt(accountId),
+                },
+            });
+        return session;
+    } catch (error) {
+        console.error(`Error creating WebSocket session: ${error.message}`);
+        return null;
+    }
 }
 
 export async function getSessionIdByAccountId(accountId) {

@@ -10,6 +10,7 @@ export const login = async (req, res) => {
     const accountId = account.id;
     if (accountId) {
       logger.info(`User ${accountId} logged in`);
+      const token = tokenForUser(accountId);
       return res.json({accountId, token: tokenForUser(accountId)});
     }
     logger.warn(`Account not found for ${req.body}`);

@@ -20,18 +20,14 @@ class keyBackupManager {
             const userId = sessionStorage.getItem('currentUserId');
             if(!userId) throw new Error('No user ID available for backup creation');
 
-            const keyPairExport = await this.chatEncryption.exportKeyPair();
             const chatKeysExport = {};
-
             for(const chatId in this.chatEncryption.chatKeys) {
-                const exportedKey = await this.chatEncryption.exportChatKey(chatId);
-                chatKeysExport[chatId] = exportedKey;
+                chatKeysExport[chatId] = this.chatEncryption.chatKeys[chatId];
             }
 
             const backupData = {
                 accountId: userId,
                 timestamp: new Date().toISOString(),
-                keyPair: keyPairExport,
                 chatKeys: chatKeysExport,
             }
 
@@ -40,7 +36,7 @@ class keyBackupManager {
 
             const encryptedBackup = await this._encryptBackup(backupData, password);
 
-            //Save backup to database
+            // Save backup to database
             const response = await fetch(`${this.apiBaseUrl}/save`, {
                 method: 'POST',
                 headers: { 
@@ -60,7 +56,6 @@ class keyBackupManager {
                 throw new Error(errorData.message || 'Failed to save backup');
             }
 
-            const result = await response.json();
             return true;
         } catch (error) {
             console.error('Error creating backup: ', error);
@@ -134,7 +129,7 @@ class keyBackupManager {
         }
     }
 
-    async restoreFromBackup(backupId, password) {
+async restoreFromBackup(backupId, password) {
         if(!this.initialized) await this.init();
 
         try {
@@ -144,20 +139,15 @@ class keyBackupManager {
             const encryptedBackup = JSON.parse(backupRecord.encryptedData);
             const backupData = await this._decryptBackup(encryptedBackup, password);
 
-            console.log(backupData)
-            if(!backupData.accountId || !backupData.keyPair || !backupData.chatKeys) {
+            if(!backupData.accountId || !backupData.chatKeys) {
                 throw new Error('Invalid backup file format');
             }
 
-            sessionStorage.setItem('currentUserId', backupData.userId);
+            sessionStorage.setItem('currentUserId', backupData.accountId);
 
-            await this.chatEncryption.importKeyPair(backupData.keyPair);
             for(const chatId in backupData.chatKeys) {
                 await this.chatEncryption.importChatKey(chatId, backupData.chatKeys[chatId]);
             }
-
-            const keyStorageId = `userKeyPair_${backupData.userId}`;
-            sessionStorage.setItem(keyStorageId, backupData.keyPair);
 
             await this.chatEncryption.saveChatKeys();
 
