@@ -1,4 +1,4 @@
-import prisma from "../../backend/prismaClient.js";
+import prisma from "../prismaClient.js";
 
 export async function getChatSettings(userId) {
     const chatSettings = await prisma.chatSettings.findFirst({

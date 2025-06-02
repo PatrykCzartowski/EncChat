@@ -1,4 +1,4 @@
-import prisma from "../../backend/prismaClient.js";
+import prisma from "../prismaClient.js";
 import { encryptMessage, decryptMessage } from "../utils/encryption.js";
 
 export async function getChatsList(accountId) {

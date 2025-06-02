@@ -1,4 +1,4 @@
-import prisma from "../../backend/prismaClient.js";
+import prisma from "../prismaClient.js";
 
 export async function getProfile(userId) {
     const profile = await prisma.profile.findFirst({

@@ -1,4 +1,4 @@
-import prisma from "../../backend/prismaClient.js";
+import prisma from "../prismaClient.js";
 
 export async function getFriends(userId) {
     const friends = await prisma.friend.findMany({

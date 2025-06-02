@@ -2,7 +2,7 @@ import { findAccount, createAccount, verifyEmailAddress, updateAccountPassword }
 import { tokenForUser } from '../utils/tokenUtils.js';
 import logger from '../utils/logger.js';
 import jwt from "jsonwebtoken";
-import prisma from "../models/prismaClient.js";
+import prisma from "../prismaClient.js";
 
 export const login = async (req, res) => {
   try {
